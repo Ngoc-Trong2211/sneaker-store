@@ -1,7 +1,14 @@
 package com.example.sneaker_store.controller;
 
+import com.example.sneaker_store.model.request.CreateUserRequest;
+import com.example.sneaker_store.model.response.CreateUserResponse;
+import com.example.sneaker_store.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,4 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j(topic = "USER-CONTROLLER")
 @RequestMapping("/user/v1")
 public class UserController {
+    private final UserService userService;
+
+    @PostMapping("/users")
+    @Operation(summary = "Create new user", description = "Create new user in system")
+    public CreateUserResponse createUser(@RequestBody @Valid CreateUserRequest req){
+        return this.userService.createUser(req);
+    }
 }
