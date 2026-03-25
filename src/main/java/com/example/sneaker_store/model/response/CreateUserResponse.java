@@ -1,6 +1,5 @@
 package com.example.sneaker_store.model.response;
 
-import com.example.sneaker_store.util.enumEntity.UserStatus;
 import lombok.Getter;
 import lombok.Setter;
 
