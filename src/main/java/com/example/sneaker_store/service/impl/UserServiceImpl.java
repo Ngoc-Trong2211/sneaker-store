@@ -3,14 +3,18 @@ package com.example.sneaker_store.service.impl;
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.model.request.CreateUserRequest;
 import com.example.sneaker_store.model.request.SpecificationUserRequest;
+import com.example.sneaker_store.model.request.UpdateUserRequest;
 import com.example.sneaker_store.model.response.user.CreateUserResponse;
 import com.example.sneaker_store.model.response.user.GetUserResponse;
+import com.example.sneaker_store.model.response.user.UpdateUserResponse;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.service.specification.UserSpecification;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
 import com.example.sneaker_store.util.exception.User.EmailExistsAlreadyException;
 import com.example.sneaker_store.util.exception.User.EmailInvalidException;
+import com.example.sneaker_store.util.exception.User.IdInvalidException;
+import com.example.sneaker_store.util.exception.User.PhoneExistsAlreadyException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -21,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,5 +76,23 @@ public class UserServiceImpl implements UserService {
         res.setUsers(users);
 
         return res;
+    }
+
+    @Override
+    public UpdateUserResponse updateUser(UpdateUserRequest req) {
+        Optional<UserEntity> user = this.userRepository.findById(req.getId());
+        if (this.userRepository.existsByPhone(req.getPhone())){
+            throw new PhoneExistsAlreadyException("Phone is already!");
+        }
+        if (user.isPresent()){
+            UserEntity currentUser = user.get();
+            currentUser.setName(req.getName());
+            currentUser.setPhone(req.getPhone());
+            this.userRepository.save(currentUser);
+            return this.modelMapper.map(currentUser, UpdateUserResponse.class);
+        }
+        else{
+            throw new IdInvalidException("Id is invalid!");
+        }
     }
 }

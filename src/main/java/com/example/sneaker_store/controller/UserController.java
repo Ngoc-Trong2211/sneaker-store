@@ -2,8 +2,10 @@ package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.model.request.CreateUserRequest;
 import com.example.sneaker_store.model.request.SpecificationUserRequest;
+import com.example.sneaker_store.model.request.UpdateUserRequest;
 import com.example.sneaker_store.model.response.user.CreateUserResponse;
 import com.example.sneaker_store.model.response.user.GetUserResponse;
+import com.example.sneaker_store.model.response.user.UpdateUserResponse;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,5 +36,13 @@ public class UserController {
     @ApiMessage(message = "Get user")
     public ResponseEntity<GetUserResponse> getUser(SpecificationUserRequest req, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.getUser(pageable, req));
+    }
+
+    @PutMapping("/users")
+    @Operation(summary = "Update user", description = "Cập nhật người dùng đã chọn trong hệ thống")
+    @ApiMessage(message = "Update user")
+    public ResponseEntity<UpdateUserResponse> updateUser(@Valid @RequestBody UpdateUserRequest req){
+        log.info("Update user");
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateUser(req));
     }
 }
