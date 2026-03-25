@@ -10,6 +10,7 @@ import com.example.sneaker_store.util.exception.User.EmailExistsAlreadyException
 import com.example.sneaker_store.util.exception.User.EmailInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", Pattern.CASE_INSENSITIVE);
@@ -46,15 +48,6 @@ public class UserServiceImpl implements UserService {
         user.setStatus(UserStatus.ACTIVE);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         this.userRepository.save(user);
-        return this.convertCreateUserResponse(user);
-    }
-
-    public CreateUserResponse convertCreateUserResponse(UserEntity user){
-        CreateUserResponse res = new CreateUserResponse();
-        res.setEmail(user.getEmail());
-        res.setName(user.getName());
-        res.setPhone(user.getPhone());
-        res.setStatus(user.getStatus().toString());
-        return res;
+        return this.modelMapper.map(user, CreateUserResponse.class);
     }
 }
