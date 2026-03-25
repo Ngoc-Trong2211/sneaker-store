@@ -55,4 +55,13 @@ public class UserController {
         log.info("Update status user");
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateStatus(id, status));
     }
+
+    @PatchMapping("/users/delete/{id}")
+    @Operation(summary = "Disable user", description = "Vô hiệu hóa người dùng trong hệ thống")
+    @ApiMessage(message = "Disable user")
+    public ResponseEntity<String> disableUser(@PathVariable("id") Long id) {
+        log.info("Disable user");
+        this.userService.disableUser(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Delete success");
+    }
 }

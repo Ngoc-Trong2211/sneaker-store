@@ -109,4 +109,17 @@ public class UserServiceImpl implements UserService {
             throw new IdInvalidException("Id is invalid!");
         }
     }
+
+    @Override
+    public void disableUser(Long id) {
+        Optional<UserEntity> user = this.userRepository.findById(id);
+        if (user.isPresent()){
+            UserEntity currentUser = user.get();
+            currentUser.setStatus(UserStatus.DELETED);
+            this.userRepository.save(currentUser);
+        }
+        else{
+            throw new IdInvalidException("Id is invalid!");
+        }
+    }
 }

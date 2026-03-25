@@ -14,4 +14,5 @@ public interface UserService {
     GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req);
     UpdateUserResponse updateUser(UpdateUserRequest req);
     GetUserResponse.User updateStatus(Long id, UserStatus status);
+    void disableUser(Long id);
 }
