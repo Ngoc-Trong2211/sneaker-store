@@ -44,7 +44,7 @@ public class FromatResponse implements ResponseBodyAdvice<Object> {
         else{
             res.setData(body);
             ApiMessage message = returnType.getMethodAnnotation(ApiMessage.class);
-            res.setMessage(message!=null ? message.message() : "success");
+            res.setMessage(message!=null ? message.message() : "Success");
         }
         return res;
     }

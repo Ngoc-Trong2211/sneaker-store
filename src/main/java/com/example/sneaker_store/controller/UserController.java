@@ -25,7 +25,7 @@ public class UserController {
     @PostMapping("/users")
     @ApiMessage(message = "Create new user success")
     @Operation(summary = "Create new user", description = "Create new user in system")
-    public ResponseEntity<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest req){
+    public ResponseEntity<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest req) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(req));
     }
 }

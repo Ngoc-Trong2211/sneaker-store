@@ -4,5 +4,5 @@ import com.example.sneaker_store.model.request.CreateUserRequest;
 import com.example.sneaker_store.model.response.CreateUserResponse;
 
 public interface UserService {
-    CreateUserResponse createUser(CreateUserRequest req);
+    CreateUserResponse createUser(CreateUserRequest req) throws Exception;
 }
