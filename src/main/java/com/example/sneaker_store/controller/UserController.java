@@ -8,6 +8,7 @@ import com.example.sneaker_store.model.response.user.GetUserResponse;
 import com.example.sneaker_store.model.response.user.UpdateUserResponse;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.ApiMessage;
+import com.example.sneaker_store.util.enumEntity.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,5 +45,14 @@ public class UserController {
     public ResponseEntity<UpdateUserResponse> updateUser(@Valid @RequestBody UpdateUserRequest req){
         log.info("Update user");
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateUser(req));
+    }
+
+    @PatchMapping("/users/{id}")
+    @Operation(summary = "Update status", description = "Cập nhật trạng thái người dùng trong hệ thống")
+    @ApiMessage(message = "Update status")
+    public ResponseEntity<GetUserResponse.User> disableUser(@PathVariable("id") Long id,
+                                                            @RequestParam UserStatus status) {
+        log.info("Update status user");
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateStatus(id, status));
     }
 }

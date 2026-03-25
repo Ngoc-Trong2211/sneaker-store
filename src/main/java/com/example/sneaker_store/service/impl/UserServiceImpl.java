@@ -95,4 +95,18 @@ public class UserServiceImpl implements UserService {
             throw new IdInvalidException("Id is invalid!");
         }
     }
+
+    @Override
+    public GetUserResponse.User updateStatus(Long id, UserStatus status) {
+        Optional<UserEntity> user = this.userRepository.findById(id);
+        if (user.isPresent()){
+            UserEntity currentUser = user.get();
+            currentUser.setStatus(status);
+            this.userRepository.save(currentUser);
+            return this.modelMapper.map(currentUser, GetUserResponse.User.class);
+        }
+        else{
+            throw new IdInvalidException("Id is invalid!");
+        }
+    }
 }
