@@ -1,10 +1,7 @@
 package com.example.sneaker_store.util.exception;
 
 import com.example.sneaker_store.model.response.SystemResponse;
-import com.example.sneaker_store.util.exception.User.EmailExistsAlreadyException;
-import com.example.sneaker_store.util.exception.User.EmailInvalidException;
-import com.example.sneaker_store.util.exception.User.IdInvalidException;
-import com.example.sneaker_store.util.exception.User.PhoneExistsAlreadyException;
+import com.example.sneaker_store.util.exception.User.*;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +18,9 @@ public class GlobalHandleException {
             EmailExistsAlreadyException.class,
             EmailInvalidException.class,
             IdInvalidException.class,
-            PhoneExistsAlreadyException.class
+            PhoneExistsAlreadyException.class,
+            PasswordMismatchException.class,
+            ChangePasswordException.class
     })
     public ResponseEntity<SystemResponse<Object>> handleExceptionForUser(Exception ex){
         SystemResponse<Object> res = new SystemResponse<>();

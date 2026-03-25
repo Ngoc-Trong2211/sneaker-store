@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 @RestControllerAdvice
-public class FromatResponse implements ResponseBodyAdvice<Object> {
+public class FormatResponse implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(
             @NonNull MethodParameter returnType,

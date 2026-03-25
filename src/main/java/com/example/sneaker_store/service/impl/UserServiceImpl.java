@@ -1,6 +1,7 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.UserEntity;
+import com.example.sneaker_store.model.request.ChangePasswordRequest;
 import com.example.sneaker_store.model.request.CreateUserRequest;
 import com.example.sneaker_store.model.request.SpecificationUserRequest;
 import com.example.sneaker_store.model.request.UpdateUserRequest;
@@ -11,16 +12,14 @@ import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.service.specification.UserSpecification;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
-import com.example.sneaker_store.util.exception.User.EmailExistsAlreadyException;
-import com.example.sneaker_store.util.exception.User.EmailInvalidException;
-import com.example.sneaker_store.util.exception.User.IdInvalidException;
-import com.example.sneaker_store.util.exception.User.PhoneExistsAlreadyException;
+import com.example.sneaker_store.util.exception.User.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -120,6 +119,32 @@ public class UserServiceImpl implements UserService {
         }
         else{
             throw new IdInvalidException("Id is invalid!");
+        }
+    }
+
+    @Override
+    public void handleChangePassword(ChangePasswordRequest req) {
+        Optional<UserEntity> user = this.userRepository.findByEmail(req.getEmail());
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (user.isPresent()){
+            UserEntity currentUser = user.get();
+            if (!encoder.matches(req.getCurrentPassword(), currentUser.getPassword()) ||
+                    encoder.matches(req.getNewPassword(), currentUser.getPassword())){
+                throw new ChangePasswordException(
+                        "Incorrect password or new password must not be the same as the old password!");
+            }
+            else{
+                if (req.getNewPassword().equals(req.getConfirmPassword())){
+                    currentUser.setPassword(this.passwordEncoder.encode(req.getNewPassword()));
+                    this.userRepository.save(currentUser);
+                }
+                else{
+                    throw new PasswordMismatchException("Passwords do not match!");
+                }
+            }
+        }
+        else{
+            throw new EmailInvalidException("Email is invalid!");
         }
     }
 }

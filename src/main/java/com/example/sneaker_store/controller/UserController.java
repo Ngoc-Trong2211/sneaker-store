@@ -1,5 +1,6 @@
 package com.example.sneaker_store.controller;
 
+import com.example.sneaker_store.model.request.ChangePasswordRequest;
 import com.example.sneaker_store.model.request.CreateUserRequest;
 import com.example.sneaker_store.model.request.SpecificationUserRequest;
 import com.example.sneaker_store.model.request.UpdateUserRequest;
@@ -63,5 +64,14 @@ public class UserController {
         log.info("Disable user");
         this.userService.disableUser(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Delete success");
+    }
+
+    @PatchMapping("/users/change-password")
+    @Operation(summary = "Change password", description = "Đổi mật khẩu người dùng trong hệ thống")
+    @ApiMessage(message = "Change password")
+    public ResponseEntity<String> changePassword(@RequestBody @Valid ChangePasswordRequest req) {
+        log.info("Change password");
+        this.userService.handleChangePassword(req);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Đã cập nhật mật khẩu mới");
     }
 }
