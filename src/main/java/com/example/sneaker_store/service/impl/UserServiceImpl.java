@@ -2,18 +2,25 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.model.request.CreateUserRequest;
+import com.example.sneaker_store.model.request.SpecificationUserRequest;
 import com.example.sneaker_store.model.response.user.CreateUserResponse;
+import com.example.sneaker_store.model.response.user.GetUserResponse;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.UserService;
+import com.example.sneaker_store.service.specification.UserSpecification;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
 import com.example.sneaker_store.util.exception.User.EmailExistsAlreadyException;
 import com.example.sneaker_store.util.exception.User.EmailInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,5 +56,20 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         this.userRepository.save(user);
         return this.modelMapper.map(user, CreateUserResponse.class);
+    }
+
+    @Override
+    public GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req) {
+        Specification<UserEntity> spec = UserSpecification.specUser(req);
+        Page<UserEntity> pageUser = this.userRepository.findAll(spec, pageable);
+
+        GetUserResponse res = new GetUserResponse();
+        GetUserResponse.DataPage resPage = this.modelMapper.map(pageUser, GetUserResponse.DataPage.class);
+        res.setPage(resPage);
+        List<GetUserResponse.User> users = pageUser.getContent().stream()
+                .map(user -> this.modelMapper.map(user, GetUserResponse.User.class)).toList();
+        res.setUsers(users);
+
+        return res;
     }
 }

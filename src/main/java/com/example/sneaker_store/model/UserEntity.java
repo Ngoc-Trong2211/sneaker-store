@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Entity
 @Getter
 @Setter
@@ -24,4 +26,21 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+
+    private Instant createdAt;
+    private String createdBy;
+    private Instant updatedAt;
+    private String updatedBy;
+
+    @PrePersist
+    public void create(){
+        this.createdAt = Instant.now();
+        this.createdBy = "";
+    }
+
+    @PreUpdate
+    public void update(){
+        this.updatedAt = Instant.now();
+        this.updatedBy = "";
+    }
 }
