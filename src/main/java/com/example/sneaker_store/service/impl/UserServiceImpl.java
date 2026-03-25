@@ -2,7 +2,7 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.model.request.CreateUserRequest;
-import com.example.sneaker_store.model.response.CreateUserResponse;
+import com.example.sneaker_store.model.response.user.CreateUserResponse;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.enumEntity.UserStatus;

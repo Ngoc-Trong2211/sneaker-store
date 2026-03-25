@@ -1,4 +1,4 @@
-package com.example.sneaker_store.model.response;
+package com.example.sneaker_store.model.response.user;
 
 import lombok.Getter;
 import lombok.Setter;

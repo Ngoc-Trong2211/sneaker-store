@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class SystemResponse<T> {
     private int status;
-    private String message;
+    private Object message;
     private T data;
 }

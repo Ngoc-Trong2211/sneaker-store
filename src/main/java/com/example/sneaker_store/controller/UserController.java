@@ -1,7 +1,7 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.model.request.CreateUserRequest;
-import com.example.sneaker_store.model.response.CreateUserResponse;
+import com.example.sneaker_store.model.response.user.CreateUserResponse;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;
