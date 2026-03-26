@@ -5,13 +5,21 @@ import com.example.sneaker_store.model.request.permssion.CreatePermissionRequest
 import com.example.sneaker_store.model.request.permssion.UpdatePermissionRequest;
 import com.example.sneaker_store.model.response.permission.CreatePermissionResponse;
 import com.example.sneaker_store.model.response.permission.UpdatePermissionResponse;
+import com.example.sneaker_store.model.request.permssion.PermissionSpecificationRequest;
+import com.example.sneaker_store.model.response.permission.GetPermissionResponse;
 import com.example.sneaker_store.repository.PermissionRepository;
 import com.example.sneaker_store.service.PermissionService;
+import com.example.sneaker_store.service.specification.PermissionSpecification;
 import com.example.sneaker_store.util.exception.PermissionInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j(topic = "PERMISSION-SERVICE")
@@ -66,5 +74,20 @@ public class PermissionServiceImpl implements PermissionService {
         PermissionEntity permission = this.permissionRepository.findById(id).orElseThrow(() ->
                 new PermissionInvalidException("Quyền hạn này không tồn tại!"));
         this.permissionRepository.deleteById(id);
+    }
+
+    @Override
+    public GetPermissionResponse getPermission(Pageable pageable, PermissionSpecificationRequest req) {
+        Specification<PermissionEntity> spec = PermissionSpecification.specPermission(req);
+        Page<PermissionEntity> pagePermission = this.permissionRepository.findAll(spec, pageable);
+
+        GetPermissionResponse res = new GetPermissionResponse();
+        GetPermissionResponse.DataPage resPage = this.modelMapper.map(pagePermission, GetPermissionResponse.DataPage.class);
+        res.setPage(resPage);
+
+        List<GetPermissionResponse.Permission> permissions = pagePermission.getContent().stream()
+                .map(permission -> this.modelMapper.map(permission, GetPermissionResponse.Permission.class)).toList();
+        res.setPermissions(permissions);
+        return res;
     }
 }

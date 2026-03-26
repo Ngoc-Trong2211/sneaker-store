@@ -1,8 +1,10 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.model.request.permssion.CreatePermissionRequest;
+import com.example.sneaker_store.model.request.permssion.PermissionSpecificationRequest;
 import com.example.sneaker_store.model.request.permssion.UpdatePermissionRequest;
 import com.example.sneaker_store.model.response.permission.CreatePermissionResponse;
+import com.example.sneaker_store.model.response.permission.GetPermissionResponse;
 import com.example.sneaker_store.model.response.permission.UpdatePermissionResponse;
 import com.example.sneaker_store.service.PermissionService;
 import com.example.sneaker_store.util.ApiMessage;
@@ -10,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,5 +47,13 @@ public class PermissionController {
     public ResponseEntity<String> deletePermission(@PathVariable("id") Long id) {
         this.permissionService.deletePermission(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Xóa permission thành công");
+    }
+
+    @GetMapping("/permissions")
+    @ApiMessage(message = "Xem danh sách quyền hạn")
+    @Operation(summary = "Get permissions", description = "Xem danh sách quyền hạn")
+    public ResponseEntity<GetPermissionResponse> getPermission(Pageable pageable,
+                                                               PermissionSpecificationRequest req){
+        return ResponseEntity.ok(this.permissionService.getPermission(pageable, req));
     }
 }
