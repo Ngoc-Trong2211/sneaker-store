@@ -92,4 +92,10 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(null);
     }
+
+    @GetMapping("/auth/account")
+    @ApiMessage(message = "Get account")
+    public ResponseEntity<LoginResponse.UserLogin> getAccount(){
+        return ResponseEntity.ok().body(this.authService.getAccount());
+    }
 }

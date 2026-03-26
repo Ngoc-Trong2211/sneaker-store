@@ -228,4 +228,18 @@ public class AuthServiceImpl implements AuthService {
             this.userService.updateRefreshToken(null, user);
         }
     }
+
+    @Override
+    public LoginResponse.UserLogin getAccount() {
+        String emailLogin = getCurrentUserLogin().isPresent() ? getCurrentUserLogin().get() : "";
+        UserEntity user = this.userService.findByEmail(emailLogin);
+        if (user != null){
+            LoginResponse.UserLogin userLogin = new LoginResponse.UserLogin();
+            userLogin.setId(user.getId());
+            userLogin.setEmail(user.getEmail());
+            userLogin.setName(user.getName());
+            return userLogin;
+        }
+        else throw new EmailInvalidException("Email is invalid!");
+    }
 }
