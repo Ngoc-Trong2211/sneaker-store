@@ -6,6 +6,8 @@ import com.example.sneaker_store.model.response.auth.LoginResponse;
 import com.example.sneaker_store.model.response.auth.LoginResult;
 import com.example.sneaker_store.service.AuthService;
 import com.example.sneaker_store.service.UserService;
+import com.example.sneaker_store.util.exception.RefreshTokenInvalidException;
+import com.nimbusds.jose.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,14 +16,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Service
 @Slf4j(topic = "AUTH-SERVICE")
@@ -41,6 +43,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Value(("${security.authentication.jwt.refresh-token-validity}"))
     private long refreshTokenTime;
+
+    public SecretKey getSecretKey(){
+        byte[] keyBytes = Base64.from(jwtKey).decode();
+        return new SecretKeySpec(keyBytes, 0, keyBytes.length, JWT_ALGORITHM.getName());
+    }
 
     public String createAccessToken(String email, LoginResponse.UserLogin user){
         Instant now = Instant.now();
@@ -92,16 +99,51 @@ public class AuthServiceImpl implements AuthService {
             userRes.setName(user.getName());
             userRes.setEmail(user.getEmail());
             loginResponse.setUserLogin(userRes);
+
+            String accessToken = this.createAccessToken(req.getEmail(), userRes);
+            loginResponse.setAccessToken(accessToken);
+
+            String refreshToken = this.createAccessToken(req.getEmail(), userRes);
+            result.setRefreshToken(refreshToken);
+            result.setLoginResponse(loginResponse);
+
+            this.userService.updateRefreshToken(refreshToken, req.getEmail());
         }
 
-        String accessToken = this.createAccessToken(req.getEmail(), userRes);
-        loginResponse.setAccessToken(accessToken);
+        return result;
+    }
 
-        String refreshToken = this.createAccessToken(req.getEmail(), userRes);
-        result.setRefreshToken(refreshToken);
-        result.setLoginResponse(loginResponse);
+    public Jwt checkToken(String refresh){
+        NimbusJwtDecoder decoder = NimbusJwtDecoder
+                .withSecretKey(this.getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
+        return decoder.decode(refresh);
+    }
 
-        this.userService.updateRefreshToken(refreshToken, req.getEmail());
+    @Override
+    public LoginResult refreshToken(String refresh) {
+        if (refresh.equals("default")) throw new RefreshTokenInvalidException("Token is invalid!");
+        LoginResult result = new LoginResult();
+        LoginResponse loginResponse = new LoginResponse();
+        LoginResponse.UserLogin userRes = new LoginResponse.UserLogin();
+
+        Jwt jwt = this.checkToken(refresh);
+
+        UserEntity user = this.userService.findByRefreshTokenAndEmail(refresh, jwt.getSubject());
+        if (user != null){
+            userRes.setId(user.getId());
+            userRes.setName(user.getName());
+            userRes.setEmail(user.getEmail());
+            loginResponse.setUserLogin(userRes);
+
+            String accessToken = this.createAccessToken(jwt.getSubject(), userRes);
+            loginResponse.setAccessToken(accessToken);
+
+            String refreshToken = this.createAccessToken(jwt.getSubject(), userRes);
+            result.setRefreshToken(refreshToken);
+            result.setLoginResponse(loginResponse);
+
+            this.userService.updateRefreshToken(refreshToken, jwt.getSubject());
+        }
 
         return result;
     }

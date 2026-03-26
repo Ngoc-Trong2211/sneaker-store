@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,5 +43,24 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(loginResult.getLoginResponse());
+    }
+
+    @PostMapping("/auth/refresh")
+    @ApiMessage(message = "Refresh Token")
+    @Operation(summary = "Refresh Token", description = "Refresh Token to continue use website")
+    public ResponseEntity<LoginResponse> refreshToken(@CookieValue(value = "refresh", defaultValue = "default") String refreshToken){
+        LoginResult res = this.authService.refreshToken(refreshToken);
+
+        ResponseCookie responseCookie = ResponseCookie
+                .from("refresh", res.getRefreshToken())
+                .httpOnly(true)
+                .path("/")
+                .maxAge(refreshTokenTime)
+                .secure(true)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(res.getLoginResponse());
     }
 }

@@ -13,6 +13,14 @@ import java.util.List;
 
 @RestControllerAdvice
 public class GlobalHandleException {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<SystemResponse<Object>> handleExceptionForAll(Exception ex){
+        SystemResponse<Object> res = new SystemResponse<>();
+        res.setStatus(HttpStatus.BAD_REQUEST.value());
+        res.setData(null);
+        res.setMessage("Error in system =>>>>> " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
 
     @ExceptionHandler(value = {
             EmailExistsAlreadyException.class,
@@ -20,9 +28,10 @@ public class GlobalHandleException {
             IdInvalidException.class,
             PhoneExistsAlreadyException.class,
             PasswordMismatchException.class,
-            ChangePasswordException.class
+            ChangePasswordException.class,
+            RefreshTokenInvalidException.class
     })
-    public ResponseEntity<SystemResponse<Object>> handleExceptionForUser(Exception ex){
+    public ResponseEntity<SystemResponse<Object>> handleExceptionForEntity(Exception ex){
         SystemResponse<Object> res = new SystemResponse<>();
         res.setStatus(HttpStatus.BAD_REQUEST.value());
         res.setData(null);

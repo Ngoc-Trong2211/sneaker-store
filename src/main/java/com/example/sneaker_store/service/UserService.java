@@ -20,4 +20,5 @@ public interface UserService {
     void handleChangePassword(ChangePasswordRequest req);
     UserEntity findByEmail(String email);
     void updateRefreshToken(String refresh, String email);
+    UserEntity findByRefreshTokenAndEmail(String refresh, String email);
 }

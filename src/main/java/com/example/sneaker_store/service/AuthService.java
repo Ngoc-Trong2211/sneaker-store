@@ -5,4 +5,5 @@ import com.example.sneaker_store.model.response.auth.LoginResult;
 
 public interface AuthService {
     LoginResult loginUser(LoginRequest req);
+    LoginResult refreshToken(String refresh);
 }

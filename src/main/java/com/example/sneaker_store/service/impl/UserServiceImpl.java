@@ -161,4 +161,11 @@ public class UserServiceImpl implements UserService {
         user.setRefreshToken(refresh);
         this.userRepository.save(user);
     }
+
+    @Override
+    public UserEntity findByRefreshTokenAndEmail(String refresh, String email) {
+        Optional<UserEntity> user = this.userRepository.findByRefreshTokenAndEmail(refresh, email);
+        if (user.isPresent()) return user.get();
+        else throw new EmailInvalidException("Email or refresh token is invalid!");
+    }
 }
