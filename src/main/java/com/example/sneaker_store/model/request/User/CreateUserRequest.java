@@ -1,8 +1,6 @@
-package com.example.sneaker_store.model.request;
+package com.example.sneaker_store.model.request.User;
 
-import com.example.sneaker_store.util.enumEntity.UserStatus;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 

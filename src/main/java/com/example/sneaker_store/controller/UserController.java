@@ -1,9 +1,9 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.request.ChangePasswordRequest;
-import com.example.sneaker_store.model.request.CreateUserRequest;
-import com.example.sneaker_store.model.request.SpecificationUserRequest;
-import com.example.sneaker_store.model.request.UpdateUserRequest;
+import com.example.sneaker_store.model.request.User.ChangePasswordRequest;
+import com.example.sneaker_store.model.request.User.CreateUserRequest;
+import com.example.sneaker_store.model.request.User.SpecificationUserRequest;
+import com.example.sneaker_store.model.request.User.UpdateUserRequest;
 import com.example.sneaker_store.model.response.user.CreateUserResponse;
 import com.example.sneaker_store.model.response.user.GetUserResponse;
 import com.example.sneaker_store.model.response.user.UpdateUserResponse;

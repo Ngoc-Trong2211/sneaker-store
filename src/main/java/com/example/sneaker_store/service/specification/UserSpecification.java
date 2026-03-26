@@ -1,7 +1,7 @@
 package com.example.sneaker_store.service.specification;
 
 import com.example.sneaker_store.model.UserEntity;
-import com.example.sneaker_store.model.request.SpecificationUserRequest;
+import com.example.sneaker_store.model.request.User.SpecificationUserRequest;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
