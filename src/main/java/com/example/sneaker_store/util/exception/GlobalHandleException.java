@@ -30,7 +30,8 @@ public class GlobalHandleException {
             PasswordMismatchException.class,
             ChangePasswordException.class,
             RefreshTokenInvalidException.class,
-            StatusInvalidException.class
+            StatusInvalidException.class,
+            PermissionInvalidException.class
     })
     public ResponseEntity<SystemResponse<Object>> handleExceptionForEntity(Exception ex){
         SystemResponse<Object> res = new SystemResponse<>();
