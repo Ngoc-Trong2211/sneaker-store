@@ -147,4 +147,18 @@ public class UserServiceImpl implements UserService {
             throw new EmailInvalidException("Email is invalid!");
         }
     }
+
+    @Override
+    public UserEntity findByEmail(String email) {
+        Optional<UserEntity> user = this.userRepository.findByEmail(email);
+        if (user.isPresent()) return user.get();
+        else throw new EmailInvalidException("Email is invalid!");
+    }
+
+    @Override
+    public void updateRefreshToken(String refresh, String email) {
+        UserEntity user = this.findByEmail(email);
+        user.setRefreshToken(refresh);
+        this.userRepository.save(user);
+    }
 }

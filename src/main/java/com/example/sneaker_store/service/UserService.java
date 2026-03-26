@@ -1,5 +1,6 @@
 package com.example.sneaker_store.service;
 
+import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.model.request.User.ChangePasswordRequest;
 import com.example.sneaker_store.model.request.User.CreateUserRequest;
 import com.example.sneaker_store.model.request.User.SpecificationUserRequest;
@@ -17,4 +18,6 @@ public interface UserService {
     GetUserResponse.User updateStatus(Long id, UserStatus status);
     void disableUser(Long id);
     void handleChangePassword(ChangePasswordRequest req);
+    UserEntity findByEmail(String email);
+    void updateRefreshToken(String refresh, String email);
 }
