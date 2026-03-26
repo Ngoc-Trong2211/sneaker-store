@@ -8,4 +8,5 @@ import com.example.sneaker_store.model.response.permission.UpdatePermissionRespo
 public interface PermissionService {
     CreatePermissionResponse createPermission(CreatePermissionRequest req);
     UpdatePermissionResponse updatePermission(UpdatePermissionRequest req);
+    void deletePermission(Long id);
 }

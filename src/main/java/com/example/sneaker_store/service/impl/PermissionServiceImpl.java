@@ -60,4 +60,11 @@ public class PermissionServiceImpl implements PermissionService {
 
         return this.modelMapper.map(permission, UpdatePermissionResponse.class);
     }
+
+    @Override
+    public void deletePermission(Long id) {
+        PermissionEntity permission = this.permissionRepository.findById(id).orElseThrow(() ->
+                new PermissionInvalidException("Quyền hạn này không tồn tại!"));
+        this.permissionRepository.deleteById(id);
+    }
 }

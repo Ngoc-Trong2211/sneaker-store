@@ -37,4 +37,12 @@ public class PermissionController {
             @Valid @RequestBody UpdatePermissionRequest req) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(permissionService.updatePermission(req));
     }
+
+    @DeleteMapping("/permissions/{id}")
+    @ApiMessage(message = "Xóa permission thành công")
+    @Operation(summary = "Delete permission", description = "Xóa quyền hạn")
+    public ResponseEntity<String> deletePermission(@PathVariable("id") Long id) {
+        this.permissionService.deletePermission(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Xóa permission thành công");
+    }
 }
