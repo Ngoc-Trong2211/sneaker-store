@@ -74,4 +74,22 @@ public class AuthController {
         this.authService.registerUser(auth);
         return ResponseEntity.status(HttpStatus.CREATED).body("Đăng ký thành công!");
     }
+
+    @PostMapping("/auth/logout")
+    @ApiMessage(message = "Logout success")
+    public ResponseEntity<Void> logoutUser(@CookieValue(value = "refresh", defaultValue = "default") String refreshToken){
+        this.authService.logoutUser(refreshToken);
+
+        ResponseCookie responseCookie = ResponseCookie
+                .from("refresh", null)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(null);
+    }
 }

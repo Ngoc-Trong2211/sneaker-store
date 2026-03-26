@@ -20,7 +20,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
@@ -126,7 +128,7 @@ public class AuthServiceImpl implements AuthService {
             result.setRefreshToken(refreshToken);
             result.setLoginResponse(loginResponse);
 
-            this.userService.updateRefreshToken(refreshToken, req.getEmail());
+            this.userService.updateRefreshToken(refreshToken, user);
         }
 
         return result;
@@ -161,7 +163,7 @@ public class AuthServiceImpl implements AuthService {
             result.setRefreshToken(refreshToken);
             result.setLoginResponse(loginResponse);
 
-            this.userService.updateRefreshToken(refreshToken, jwt.getSubject());
+            this.userService.updateRefreshToken(refreshToken, user);
         }
 
         return result;
@@ -184,6 +186,46 @@ public class AuthServiceImpl implements AuthService {
             user.setEmail(req.getEmail());
             user.setStatus(UserStatus.ACTIVE);
             this.userRepository.save(user);
+        }
+    }
+
+    public static Optional<String> getCurrentUserLogin(){
+        SecurityContext context = SecurityContextHolder.getContext();
+        return Optional.ofNullable(extractPrincipal(context.getAuthentication()));
+    }
+
+    private static String extractPrincipal(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
+            return springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof Jwt jwt) {
+            return jwt.getSubject();
+        } else if (authentication.getPrincipal() instanceof String s) {
+            return s;
+        }
+        return null;
+    }
+
+    public static Optional<String> getCurrentUserJWT() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(securityContext.getAuthentication())
+                .filter(authentication -> authentication.getCredentials() instanceof String)
+                .map(authentication -> (String) authentication.getCredentials());
+    }
+
+    @Override
+    public void logoutUser(String refresh) {
+        if (refresh.equals("default")) throw new RefreshTokenInvalidException("Token is invalid!");
+        Jwt jwt = this.checkToken(refresh);
+        String emailToken = jwt.getSubject();
+
+        String emailLogin = getCurrentUserLogin().isPresent() ? getCurrentUserLogin().get() : "";
+        if (emailLogin.isEmpty() || !emailLogin.equals(emailToken))
+            throw new RefreshTokenInvalidException("Email do not match!");
+        UserEntity user = this.userService.findByEmail(emailLogin);
+        if (user!=null){
+            this.userService.updateRefreshToken(null, user);
         }
     }
 }

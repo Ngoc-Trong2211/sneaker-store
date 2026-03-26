@@ -156,8 +156,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateRefreshToken(String refresh, String email) {
-        UserEntity user = this.findByEmail(email);
+    public void updateRefreshToken(String refresh, UserEntity user) {
         user.setRefreshToken(refresh);
         this.userRepository.save(user);
     }

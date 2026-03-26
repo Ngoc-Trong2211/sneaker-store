@@ -19,6 +19,6 @@ public interface UserService {
     void disableUser(Long id);
     void handleChangePassword(ChangePasswordRequest req);
     UserEntity findByEmail(String email);
-    void updateRefreshToken(String refresh, String email);
+    void updateRefreshToken(String refresh, UserEntity user);
     UserEntity findByRefreshTokenAndEmail(String refresh, String email);
 }
