@@ -29,7 +29,8 @@ public class GlobalHandleException {
             PhoneExistsAlreadyException.class,
             PasswordMismatchException.class,
             ChangePasswordException.class,
-            RefreshTokenInvalidException.class
+            RefreshTokenInvalidException.class,
+            StatusInvalidException.class
     })
     public ResponseEntity<SystemResponse<Object>> handleExceptionForEntity(Exception ex){
         SystemResponse<Object> res = new SystemResponse<>();

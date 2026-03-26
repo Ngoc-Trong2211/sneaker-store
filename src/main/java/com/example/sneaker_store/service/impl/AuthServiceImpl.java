@@ -13,6 +13,7 @@ import com.example.sneaker_store.util.exception.RefreshTokenInvalidException;
 import com.example.sneaker_store.util.exception.User.EmailExistsAlreadyException;
 import com.example.sneaker_store.util.exception.User.EmailInvalidException;
 import com.example.sneaker_store.util.exception.User.PasswordMismatchException;
+import com.example.sneaker_store.util.exception.User.StatusInvalidException;
 import com.nimbusds.jose.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -116,6 +117,8 @@ public class AuthServiceImpl implements AuthService {
 
         UserEntity user = this.userService.findByEmail(req.getEmail());
         if (user!=null){
+            if (!user.getStatus().toString().equals("ACTIVE"))
+                throw new StatusInvalidException("User do not login because account locked, please contact!");
             userRes.setId(user.getId());
             userRes.setName(user.getName());
             userRes.setEmail(user.getEmail());
