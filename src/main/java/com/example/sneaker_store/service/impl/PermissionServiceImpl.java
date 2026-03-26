@@ -2,7 +2,9 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.PermissionEntity;
 import com.example.sneaker_store.model.request.permssion.CreatePermissionRequest;
+import com.example.sneaker_store.model.request.permssion.UpdatePermissionRequest;
 import com.example.sneaker_store.model.response.permission.CreatePermissionResponse;
+import com.example.sneaker_store.model.response.permission.UpdatePermissionResponse;
 import com.example.sneaker_store.repository.PermissionRepository;
 import com.example.sneaker_store.service.PermissionService;
 import com.example.sneaker_store.util.exception.PermissionInvalidException;
@@ -33,5 +35,29 @@ public class PermissionServiceImpl implements PermissionService {
         permissionRepository.save(permission);
 
         return this.modelMapper.map(permission, CreatePermissionResponse.class);
+    }
+
+    @Override
+    public UpdatePermissionResponse updatePermission(UpdatePermissionRequest req) {
+        PermissionEntity permission = permissionRepository.findById(req.getId())
+                .orElseThrow(() -> new PermissionInvalidException("Không tìm thấy permission!"));
+
+        if (permissionRepository.existsByPathAndMethodAndEntityAndIdNot(
+                req.getPath(),
+                req.getMethod(),
+                req.getEntity(),
+                req.getId()
+        )) {
+            throw new PermissionInvalidException("Permission đã tồn tại!");
+        }
+
+        permission.setPath(req.getPath());
+        permission.setEntity(req.getEntity());
+        permission.setMethod(req.getMethod());
+        permission.setDescription(req.getDescription());
+
+        permissionRepository.save(permission);
+
+        return this.modelMapper.map(permission, UpdatePermissionResponse.class);
     }
 }
