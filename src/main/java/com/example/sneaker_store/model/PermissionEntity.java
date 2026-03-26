@@ -1,32 +1,29 @@
 package com.example.sneaker_store.model;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
-import com.example.sneaker_store.util.enumEntity.UserStatus;
+import com.example.sneaker_store.util.enumEntity.MethodPermission;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
 
-@Entity
 @Getter
 @Setter
-@Table(name = "tbl_user")
-public class UserEntity {
+@Entity
+@Table(name = "tbl_permission")
+public class PermissionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-    private String email;
-    private String phone;
-    private String password;
-
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
+    private String path;
+    private String entity;
 
     @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    private MethodPermission method;
+
+    private String description;
 
     private Instant createdAt;
     private String createdBy;
@@ -37,13 +34,13 @@ public class UserEntity {
     public void create(){
         this.createdAt = Instant.now();
         this.createdBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
-                AuthServiceImpl.getCurrentUserLogin().get() : this.email;
+                AuthServiceImpl.getCurrentUserLogin().get() : null;
     }
 
     @PreUpdate
     public void update(){
         this.updatedAt = Instant.now();
         this.updatedBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
-                AuthServiceImpl.getCurrentUserLogin().get() : this.email;
+                AuthServiceImpl.getCurrentUserLogin().get() : null;
     }
 }
