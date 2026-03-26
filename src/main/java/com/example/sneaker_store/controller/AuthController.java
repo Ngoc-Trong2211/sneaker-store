@@ -1,6 +1,7 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.model.request.auth.LoginRequest;
+import com.example.sneaker_store.model.request.auth.RegisterRequest;
 import com.example.sneaker_store.model.response.auth.LoginResponse;
 import com.example.sneaker_store.model.response.auth.LoginResult;
 import com.example.sneaker_store.service.AuthService;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -62,5 +64,14 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(res.getLoginResponse());
+    }
+
+    @PostMapping("/auth/register")
+    @ApiMessage(message = "Register success")
+    @Operation(summary = "Register", description = "Register")
+    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterRequest auth) {
+        log.info("Đăng ký tạo mới người dùng");
+        this.authService.registerUser(auth);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Đăng ký thành công!");
     }
 }

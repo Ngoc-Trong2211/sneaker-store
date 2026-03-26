@@ -2,11 +2,17 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.model.request.auth.LoginRequest;
+import com.example.sneaker_store.model.request.auth.RegisterRequest;
 import com.example.sneaker_store.model.response.auth.LoginResponse;
 import com.example.sneaker_store.model.response.auth.LoginResult;
+import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.AuthService;
 import com.example.sneaker_store.service.UserService;
+import com.example.sneaker_store.util.enumEntity.UserStatus;
 import com.example.sneaker_store.util.exception.RefreshTokenInvalidException;
+import com.example.sneaker_store.util.exception.User.EmailExistsAlreadyException;
+import com.example.sneaker_store.util.exception.User.EmailInvalidException;
+import com.example.sneaker_store.util.exception.User.PasswordMismatchException;
 import com.nimbusds.jose.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -24,6 +31,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j(topic = "AUTH-SERVICE")
@@ -32,6 +41,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtEncoder jwtEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
@@ -43,6 +54,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Value(("${security.authentication.jwt.refresh-token-validity}"))
     private long refreshTokenTime;
+
+    public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", Pattern.CASE_INSENSITIVE);
+
+    public static boolean validate(String emailStr) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        return matcher.matches();
+    }
 
     public SecretKey getSecretKey(){
         byte[] keyBytes = Base64.from(jwtKey).decode();
@@ -146,5 +165,25 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return result;
+    }
+
+    @Override
+    public void registerUser(RegisterRequest req) {
+        if (!validate(req.getEmail())){
+            throw new EmailInvalidException("Invalid email format!");
+        }
+        if (userRepository.existsByEmail(req.getEmail())){
+            throw new EmailExistsAlreadyException("Email already exists! Please enter a different email address");
+        }
+        if (!req.getNewPassword().equals(req.getConfirmPassword())){
+            throw new PasswordMismatchException("Password do not match!");
+        }
+        else{
+            UserEntity user = new UserEntity();
+            user.setPassword(this.passwordEncoder.encode(req.getNewPassword()));
+            user.setEmail(req.getEmail());
+            user.setStatus(UserStatus.ACTIVE);
+            this.userRepository.save(user);
+        }
     }
 }
