@@ -77,7 +77,19 @@ public class UserServiceImpl implements UserService {
         GetUserResponse.DataPage resPage = this.modelMapper.map(pageUser, GetUserResponse.DataPage.class);
         res.setPage(resPage);
         List<GetUserResponse.User> users = pageUser.getContent().stream()
-                .map(user -> this.modelMapper.map(user, GetUserResponse.User.class)).toList();
+                .map(user -> {
+                    GetUserResponse.User resUser = new GetUserResponse.User();
+                    resUser.setId(user.getId());
+                    resUser.setName(user.getName());
+                    resUser.setEmail(user.getEmail());
+                    resUser.setUpdatedAt(user.getUpdatedAt());
+                    resUser.setUpdatedBy(user.getUpdatedBy());
+                    resUser.setCreatedAt(user.getCreatedAt());
+                    resUser.setCreatedBy(user.getCreatedBy());
+                    resUser.setStatus(user.getStatus().toString());
+                    resUser.setRole(user.getRole().getName());
+                    return resUser;
+                }).toList();
         res.setUsers(users);
 
         return res;
