@@ -3,17 +3,23 @@ package com.example.sneaker_store.service.impl;
 import com.example.sneaker_store.model.PermissionEntity;
 import com.example.sneaker_store.model.RoleEntity;
 import com.example.sneaker_store.model.request.role.CreateRoleRequest;
+import com.example.sneaker_store.model.request.role.RoleSpecificationRequest;
 import com.example.sneaker_store.model.request.role.UpdateRoleRequest;
 import com.example.sneaker_store.model.response.role.CreateRoleResponse;
+import com.example.sneaker_store.model.response.role.GetRoleResponse;
 import com.example.sneaker_store.model.response.role.UpdateRoleResponse;
 import com.example.sneaker_store.repository.PermissionRepository;
 import com.example.sneaker_store.repository.RoleRepository;
 import com.example.sneaker_store.service.RoleService;
+import com.example.sneaker_store.service.specification.RoleSpecification;
 import com.example.sneaker_store.util.exception.User.IdInvalidException;
 import com.example.sneaker_store.util.exception.role.NameRoleExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -83,5 +89,30 @@ public class RoleServiceImpl implements RoleService {
         if (role == null) throw new IdInvalidException("Role không tồn tại!");
         role.setActive(active);
         this.roleRepository.save(role);
+    }
+
+    @Override
+    public GetRoleResponse handleGetRole(Pageable pageable, RoleSpecificationRequest req) {
+        Specification<RoleEntity> spec = RoleSpecification.specRole(req);
+        Page<RoleEntity> rolePage = this.roleRepository.findAll(spec, pageable);
+        GetRoleResponse res = new GetRoleResponse();
+        GetRoleResponse.DataPage resPage = this.modelMapper.map(rolePage, GetRoleResponse.DataPage.class);
+        res.setDataPage(resPage);
+
+        List<GetRoleResponse.Role> roles = rolePage.getContent().stream()
+                .map(role -> {
+                    GetRoleResponse.Role resRole = new GetRoleResponse.Role();
+                    resRole.setId(role.getId());
+                    resRole.setActive(role.isActive());
+                    resRole.setName(role.getName());
+
+                    List<GetRoleResponse.Role.Permission> permissions = role.getPermissions().stream().map(
+                            permission -> this.modelMapper.map(permission, GetRoleResponse.Role.Permission.class)).toList();
+                    resRole.setPermissions(permissions);
+
+                    return resRole;
+                }).toList();
+        res.setRoles(roles);
+        return res;
     }
 }

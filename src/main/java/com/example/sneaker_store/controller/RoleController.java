@@ -1,8 +1,10 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.model.request.role.CreateRoleRequest;
+import com.example.sneaker_store.model.request.role.RoleSpecificationRequest;
 import com.example.sneaker_store.model.request.role.UpdateRoleRequest;
 import com.example.sneaker_store.model.response.role.CreateRoleResponse;
+import com.example.sneaker_store.model.response.role.GetRoleResponse;
 import com.example.sneaker_store.model.response.role.UpdateRoleResponse;
 import com.example.sneaker_store.service.RoleService;
 import com.example.sneaker_store.util.ApiMessage;
@@ -11,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,5 +51,12 @@ public class RoleController {
             throws IdInvalidException {
         this.roleService.updateActiveRole(id, active);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Cập nhật thành công!");
+    }
+
+    @GetMapping("/roles")
+    @Operation(summary = "Get role", description = "Lấy danh sách vai trò trong hệ thống")
+    @ApiMessage(message = "Get role")
+    public ResponseEntity<GetRoleResponse> getUser(RoleSpecificationRequest req, Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(this.roleService.handleGetRole(pageable, req));
     }
 }
