@@ -7,6 +7,7 @@ import com.example.sneaker_store.model.request.User.CreateUserRequest;
 import com.example.sneaker_store.model.request.User.SpecificationUserRequest;
 import com.example.sneaker_store.model.request.User.UpdateUserRequest;
 import com.example.sneaker_store.model.response.user.CreateUserResponse;
+import com.example.sneaker_store.model.response.user.GetUserByIdResponse;
 import com.example.sneaker_store.model.response.user.GetUserResponse;
 import com.example.sneaker_store.model.response.user.UpdateUserResponse;
 import com.example.sneaker_store.repository.UserRepository;
@@ -77,19 +78,7 @@ public class UserServiceImpl implements UserService {
         GetUserResponse.DataPage resPage = this.modelMapper.map(pageUser, GetUserResponse.DataPage.class);
         res.setPage(resPage);
         List<GetUserResponse.User> users = pageUser.getContent().stream()
-                .map(user -> {
-                    GetUserResponse.User resUser = new GetUserResponse.User();
-                    resUser.setId(user.getId());
-                    resUser.setName(user.getName());
-                    resUser.setEmail(user.getEmail());
-                    resUser.setUpdatedAt(user.getUpdatedAt());
-                    resUser.setUpdatedBy(user.getUpdatedBy());
-                    resUser.setCreatedAt(user.getCreatedAt());
-                    resUser.setCreatedBy(user.getCreatedBy());
-                    resUser.setStatus(user.getStatus().toString());
-                    resUser.setRole(user.getRole().getName());
-                    return resUser;
-                }).toList();
+                .map(user -> this.modelMapper.map(user, GetUserResponse.User.class)).toList();
         res.setUsers(users);
 
         return res;
@@ -187,5 +176,16 @@ public class UserServiceImpl implements UserService {
         Optional<UserEntity> user = this.userRepository.findByRefreshTokenAndEmail(refresh, email);
         if (user.isPresent()) return user.get();
         else throw new EmailInvalidException("Email or refresh token is invalid!");
+    }
+
+    @Override
+    public GetUserByIdResponse getUserById(Long id) {
+        Optional<UserEntity> user = this.userRepository.findById(id);
+        if (user.isPresent()){
+            return this.modelMapper.map(user.get(), GetUserByIdResponse.class);
+        }
+        else{
+            throw new IdInvalidException("Id is invalid!");
+        }
     }
 }

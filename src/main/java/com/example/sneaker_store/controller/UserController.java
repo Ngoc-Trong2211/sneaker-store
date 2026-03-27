@@ -5,11 +5,13 @@ import com.example.sneaker_store.model.request.User.CreateUserRequest;
 import com.example.sneaker_store.model.request.User.SpecificationUserRequest;
 import com.example.sneaker_store.model.request.User.UpdateUserRequest;
 import com.example.sneaker_store.model.response.user.CreateUserResponse;
+import com.example.sneaker_store.model.response.user.GetUserByIdResponse;
 import com.example.sneaker_store.model.response.user.GetUserResponse;
 import com.example.sneaker_store.model.response.user.UpdateUserResponse;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.ApiMessage;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
+import com.example.sneaker_store.util.exception.User.IdInvalidException;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.getUser(pageable, req));
     }
 
+    @GetMapping("/users/{id}")
+    @ApiMessage(message = "Lay nguoi dung theo id")
+    @Operation(summary = "Get user by id", description = "Lấy danh sách người dùng theo id trong hệ thống")
+    public ResponseEntity<GetUserByIdResponse> getUserById(@PathVariable("id") Long id) throws IdInvalidException {
+        log.info("Tim nguoi dung co id: {}", id);
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.getUserById(id));
+    }
+
     @PutMapping("/users")
     @Operation(summary = "Update user", description = "Cập nhật người dùng đã chọn trong hệ thống")
     @ApiMessage(message = "Update user")
@@ -48,7 +58,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateUser(req));
     }
 
-    @PatchMapping("/users/{id}")
+    @PatchMapping("/users/{id}/status")
     @Operation(summary = "Update status", description = "Cập nhật trạng thái người dùng trong hệ thống")
     @ApiMessage(message = "Update status")
     public ResponseEntity<GetUserResponse.User> disableUser(@PathVariable("id") Long id,
@@ -57,7 +67,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateStatus(id, status));
     }
 
-    @PatchMapping("/users/delete/{id}")
+    @PatchMapping("/users/{id}")
     @Operation(summary = "Disable user", description = "Vô hiệu hóa người dùng trong hệ thống")
     @ApiMessage(message = "Disable user")
     public ResponseEntity<String> disableUser(@PathVariable("id") Long id) {

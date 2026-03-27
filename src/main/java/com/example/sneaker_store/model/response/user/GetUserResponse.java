@@ -34,11 +34,5 @@ public class GetUserResponse {
         private String name;
         private String email;
         private String status;
-        private String role;
-
-        private Instant createdAt;
-        private String createdBy;
-        private Instant updatedAt;
-        private String updatedBy;
     }
 }

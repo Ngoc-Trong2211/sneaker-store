@@ -6,6 +6,7 @@ import com.example.sneaker_store.model.request.User.CreateUserRequest;
 import com.example.sneaker_store.model.request.User.SpecificationUserRequest;
 import com.example.sneaker_store.model.request.User.UpdateUserRequest;
 import com.example.sneaker_store.model.response.user.CreateUserResponse;
+import com.example.sneaker_store.model.response.user.GetUserByIdResponse;
 import com.example.sneaker_store.model.response.user.GetUserResponse;
 import com.example.sneaker_store.model.response.user.UpdateUserResponse;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
@@ -21,4 +22,5 @@ public interface UserService {
     UserEntity findByEmail(String email);
     void updateRefreshToken(String refresh, UserEntity user);
     UserEntity findByRefreshTokenAndEmail(String refresh, String email);
+    GetUserByIdResponse getUserById(Long id);
 }
