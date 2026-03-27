@@ -76,4 +76,12 @@ public class RoleServiceImpl implements RoleService {
 
         return this.modelMapper.map(role, UpdateRoleResponse.class);
     }
+
+    @Override
+    public void updateActiveRole(Long id, boolean active) {
+        RoleEntity role = this.findById(id);
+        if (role == null) throw new IdInvalidException("Role không tồn tại!");
+        role.setActive(active);
+        this.roleRepository.save(role);
+    }
 }

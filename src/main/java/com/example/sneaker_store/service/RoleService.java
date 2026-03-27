@@ -8,4 +8,5 @@ import com.example.sneaker_store.model.response.role.UpdateRoleResponse;
 public interface RoleService {
     CreateRoleResponse createRole(CreateRoleRequest req);
     UpdateRoleResponse updateRole(UpdateRoleRequest req);
+    void updateActiveRole(Long id, boolean active);
 }

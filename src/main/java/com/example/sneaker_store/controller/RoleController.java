@@ -37,4 +37,16 @@ public class RoleController {
             throws IdInvalidException {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.roleService.updateRole(req));
     }
+
+    @PatchMapping("/roles/{id}")
+    @ApiMessage(message = "Update role active")
+    @Operation(
+            summary = "Update role active",
+            description = "Bật / tắt role theo id"
+    )
+    public ResponseEntity<String> patchRoleActive(@PathVariable Long id, @RequestParam Boolean active)
+            throws IdInvalidException {
+        this.roleService.updateActiveRole(id, active);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Cập nhật thành công!");
+    }
 }
