@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class CreatePermissionResponse {
     private String path;
+    private String name;
     private MethodPermission method;
     private String entity;
     private String description;

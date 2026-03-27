@@ -12,6 +12,9 @@ public class UpdatePermissionRequest {
     @NotNull(message = "id khong duoc de trong")
     private Long id;
 
+    @NotBlank(message = "Name không được để trống")
+    private String name;
+
     @NotBlank(message = "Path không được để trống")
     private String path;
 

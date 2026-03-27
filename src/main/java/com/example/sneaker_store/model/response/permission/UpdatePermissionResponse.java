@@ -10,5 +10,6 @@ public class UpdatePermissionResponse {
     private String path;
     private MethodPermission method;
     private String entity;
+    private String name;
     private String description;
 }

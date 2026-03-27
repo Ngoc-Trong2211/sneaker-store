@@ -35,6 +35,7 @@ public class PermissionServiceImpl implements PermissionService {
         }
 
         PermissionEntity permission = new PermissionEntity();
+        permission.setName(req.getName());
         permission.setPath(req.getPath());
         permission.setEntity(req.getEntity());
         permission.setMethod(req.getMethod());
@@ -61,6 +62,7 @@ public class PermissionServiceImpl implements PermissionService {
 
         permission.setPath(req.getPath());
         permission.setEntity(req.getEntity());
+        permission.setName(req.getName());
         permission.setMethod(req.getMethod());
         permission.setDescription(req.getDescription());
 

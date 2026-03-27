@@ -36,6 +36,7 @@ public class GetPermissionResponse {
         private String path;
         private MethodPermission method;
         private String entity;
+        private String name;
         private String description;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
