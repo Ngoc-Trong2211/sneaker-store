@@ -1,7 +1,9 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.model.request.role.CreateRoleRequest;
+import com.example.sneaker_store.model.request.role.UpdateRoleRequest;
 import com.example.sneaker_store.model.response.role.CreateRoleResponse;
+import com.example.sneaker_store.model.response.role.UpdateRoleResponse;
 import com.example.sneaker_store.service.RoleService;
 import com.example.sneaker_store.util.ApiMessage;
 import com.example.sneaker_store.util.exception.User.IdInvalidException;
@@ -11,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,5 +28,13 @@ public class RoleController {
     public ResponseEntity<CreateRoleResponse> createRole(@Valid @RequestBody CreateRoleRequest req)
             throws IdInvalidException {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.roleService.createRole(req));
+    }
+
+    @PutMapping("/roles")
+    @ApiMessage(message = "Update role")
+    @Operation(summary = "Update role", description = "Cập nhật vai trò người dùng")
+    public ResponseEntity<UpdateRoleResponse> updateRole(@Valid @RequestBody UpdateRoleRequest req)
+            throws IdInvalidException {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.roleService.updateRole(req));
     }
 }
