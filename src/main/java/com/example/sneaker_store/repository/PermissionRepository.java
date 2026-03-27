@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface PermissionRepository extends JpaRepository<PermissionEntity, Long>, JpaSpecificationExecutor<PermissionEntity> {
-    boolean existsByPathAndMethodAndEntity(String path, MethodPermission method, String entity);
-    boolean existsByPathAndMethodAndEntityAndIdNot(String path, MethodPermission method, String entity, Long id);
+    boolean existsByNameAndPathAndMethodAndEntity(String name, String path, MethodPermission method, String entity);
+    boolean existsByNameAndPathAndMethodAndEntityAndIdNot(String name, String path, MethodPermission method, String entity, Long id);
 
     @Query(value = "SELECT * FROM tbl_permission WHERE id in :permissionId", nativeQuery = true)
     List<PermissionEntity> findByIdIn(@Param("permissionId") List<Long> permissionId);
@@ -22,4 +22,6 @@ public interface PermissionRepository extends JpaRepository<PermissionEntity, Lo
     @Transactional
     @Query(value = "DELETE FROM tbl_role_permission WHERE permission_id = :permissionId", nativeQuery = true)
     void deleteRelationshipPermissionId(@Param("permissionId") Long permissionId);
+
+    boolean existsByName(String name);
 }

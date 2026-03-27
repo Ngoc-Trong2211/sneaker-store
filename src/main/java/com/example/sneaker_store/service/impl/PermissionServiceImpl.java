@@ -30,7 +30,12 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public CreatePermissionResponse createPermission(CreatePermissionRequest req) {
-        if (permissionRepository.existsByPathAndMethodAndEntity(req.getPath(), req.getMethod(), req.getEntity())) {
+        if (this.permissionRepository.existsByName(req.getName())){
+            throw new PermissionInvalidException("Tên quyền hạn đã tồn tại!");
+        }
+
+        if (permissionRepository.existsByNameAndPathAndMethodAndEntity(
+                req.getName(), req.getPath(), req.getMethod(), req.getEntity())) {
             throw new PermissionInvalidException("Permission đã tồn tại!");
         }
 
@@ -51,7 +56,12 @@ public class PermissionServiceImpl implements PermissionService {
         PermissionEntity permission = permissionRepository.findById(req.getId())
                 .orElseThrow(() -> new PermissionInvalidException("Không tìm thấy permission!"));
 
-        if (permissionRepository.existsByPathAndMethodAndEntityAndIdNot(
+        if (this.permissionRepository.existsByName(req.getName())){
+            throw new PermissionInvalidException("Tên quyền hạn đã tồn tại!");
+        }
+
+        if (this.permissionRepository.existsByNameAndPathAndMethodAndEntityAndIdNot(
+                req.getName(),
                 req.getPath(),
                 req.getMethod(),
                 req.getEntity(),
