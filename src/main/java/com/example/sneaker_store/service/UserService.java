@@ -16,11 +16,11 @@ public interface UserService {
     CreateUserResponse createUser(CreateUserRequest req) throws Exception;
     GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req);
     UpdateUserResponse updateUser(UpdateUserRequest req);
-    GetUserResponse.User updateStatus(Long id, UserStatus status);
-    void disableUser(Long id);
+    GetUserResponse.User updateStatus(String id, UserStatus status);
+    void disableUser(String id);
     void handleChangePassword(ChangePasswordRequest req);
     UserEntity findByEmail(String email);
     void updateRefreshToken(String refresh, UserEntity user);
     UserEntity findByRefreshTokenAndEmail(String refresh, String email);
-    GetUserByIdResponse getUserById(Long id);
+    GetUserByIdResponse getUserById(String id);
 }

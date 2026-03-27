@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpecificationExecutor<UserEntity> {
+public interface UserRepository extends JpaRepository<UserEntity, String>, JpaSpecificationExecutor<UserEntity> {
 //    @Query(value = "SELECT * FROM tbl_user WHERE email = :email", nativeQuery = true)
 //    Optional<UserEntity> findByEmail(@Param("email") String email);
 

@@ -5,6 +5,7 @@ import com.example.sneaker_store.util.enumEntity.UserStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
 
@@ -14,8 +15,9 @@ import java.time.Instant;
 @Table(name = "tbl_user")
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @UuidGenerator
+    @Column(columnDefinition = "CHAR(36)", updatable = false, nullable = false)
+    private String id;
 
     private String name;
     private String email;

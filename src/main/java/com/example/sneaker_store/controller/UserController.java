@@ -45,7 +45,7 @@ public class UserController {
     @GetMapping("/users/{id}")
     @ApiMessage(message = "Lay nguoi dung theo id")
     @Operation(summary = "Get user by id", description = "Lấy danh sách người dùng theo id trong hệ thống")
-    public ResponseEntity<GetUserByIdResponse> getUserById(@PathVariable("id") Long id) throws IdInvalidException {
+    public ResponseEntity<GetUserByIdResponse> getUserById(@PathVariable("id") String id) throws IdInvalidException {
         log.info("Tim nguoi dung co id: {}", id);
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.getUserById(id));
     }
@@ -61,7 +61,7 @@ public class UserController {
     @PatchMapping("/users/{id}/status")
     @Operation(summary = "Update status", description = "Cập nhật trạng thái người dùng trong hệ thống")
     @ApiMessage(message = "Update status")
-    public ResponseEntity<GetUserResponse.User> disableUser(@PathVariable("id") Long id,
+    public ResponseEntity<GetUserResponse.User> disableUser(@PathVariable("id") String id,
                                                             @RequestParam UserStatus status) {
         log.info("Update status user");
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateStatus(id, status));
@@ -70,7 +70,7 @@ public class UserController {
     @PatchMapping("/users/{id}")
     @Operation(summary = "Disable user", description = "Vô hiệu hóa người dùng trong hệ thống")
     @ApiMessage(message = "Disable user")
-    public ResponseEntity<String> disableUser(@PathVariable("id") Long id) {
+    public ResponseEntity<String> disableUser(@PathVariable("id") String id) {
         log.info("Disable user");
         this.userService.disableUser(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Delete success");

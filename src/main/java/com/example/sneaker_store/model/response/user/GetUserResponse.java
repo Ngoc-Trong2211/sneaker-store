@@ -30,7 +30,6 @@ public class GetUserResponse {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class User{
-        private Long id;
         private String name;
         private String email;
         private String status;

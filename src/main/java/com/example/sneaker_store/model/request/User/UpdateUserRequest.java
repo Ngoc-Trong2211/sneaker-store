@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class UpdateUserRequest {
     @NotNull(message = "Id must not be empty!")
-    private Long id;
+    private String id;
 
     @NotBlank(message = "Name must not be empty!")
     private String name;

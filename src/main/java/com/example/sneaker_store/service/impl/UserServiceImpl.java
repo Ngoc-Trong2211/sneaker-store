@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public GetUserResponse.User updateStatus(Long id, UserStatus status) {
+    public GetUserResponse.User updateStatus(String id, UserStatus status) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
             UserEntity currentUser = user.get();
@@ -120,7 +120,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void disableUser(Long id) {
+    public void disableUser(String id) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
             UserEntity currentUser = user.get();
@@ -179,7 +179,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public GetUserByIdResponse getUserById(Long id) {
+    public GetUserByIdResponse getUserById(String id) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
             return this.modelMapper.map(user.get(), GetUserByIdResponse.class);

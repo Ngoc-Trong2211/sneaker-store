@@ -8,7 +8,7 @@ import java.time.Instant;
 @Getter
 @Setter
 public class GetUserByIdResponse {
-    private Long id;
+    private String id;
     private String name;
     private String email;
     private String status;
