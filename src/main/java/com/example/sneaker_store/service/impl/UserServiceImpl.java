@@ -1,5 +1,6 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.model.RoleEntity;
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.model.request.User.ChangePasswordRequest;
 import com.example.sneaker_store.model.request.User.CreateUserRequest;
@@ -9,6 +10,7 @@ import com.example.sneaker_store.model.response.user.CreateUserResponse;
 import com.example.sneaker_store.model.response.user.GetUserResponse;
 import com.example.sneaker_store.model.response.user.UpdateUserResponse;
 import com.example.sneaker_store.repository.UserRepository;
+import com.example.sneaker_store.service.RoleService;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.service.specification.UserSpecification;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
@@ -35,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private final RoleService roleService;
 
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", Pattern.CASE_INSENSITIVE);
@@ -57,6 +60,9 @@ public class UserServiceImpl implements UserService {
         user.setName(req.getName());
         user.setPhone(req.getPhone());
         user.setStatus(UserStatus.ACTIVE);
+        RoleEntity role = this.roleService.findById(req.getRoleId());
+        if (role==null || !role.isActive()) throw new IdInvalidException("Role không tồn tại!");
+        user.setRole(role);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         this.userRepository.save(user);
         return this.modelMapper.map(user, CreateUserResponse.class);
@@ -87,6 +93,9 @@ public class UserServiceImpl implements UserService {
             UserEntity currentUser = user.get();
             currentUser.setName(req.getName());
             currentUser.setPhone(req.getPhone());
+            RoleEntity role = this.roleService.findById(req.getRoleId());
+            if (role==null || !role.isActive()) throw new IdInvalidException("Role không tồn tại!");
+            currentUser.setRole(role);
             this.userRepository.save(currentUser);
             return this.modelMapper.map(currentUser, UpdateUserResponse.class);
         }

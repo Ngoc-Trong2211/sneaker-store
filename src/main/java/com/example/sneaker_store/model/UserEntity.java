@@ -33,6 +33,10 @@ public class UserEntity {
     private Instant updatedAt;
     private String updatedBy;
 
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private RoleEntity role;
+
     @PrePersist
     public void create(){
         this.createdAt = Instant.now();

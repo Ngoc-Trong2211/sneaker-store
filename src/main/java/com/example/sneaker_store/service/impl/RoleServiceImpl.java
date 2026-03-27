@@ -36,6 +36,7 @@ public class RoleServiceImpl implements RoleService {
     private final PermissionRepository permissionRepository;
     private final ModelMapper modelMapper;
 
+    @Override
     public RoleEntity findById(Long id) {
         return this.roleRepository.findById(id).isPresent() ? this.roleRepository.findById(id).get() : null;
     }

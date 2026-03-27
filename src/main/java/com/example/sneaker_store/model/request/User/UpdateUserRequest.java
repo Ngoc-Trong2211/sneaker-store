@@ -16,4 +16,7 @@ public class UpdateUserRequest {
 
     @NotBlank(message = "Phone must not be empty!")
     private String phone;
+
+    @NotNull(message = "Role không được để trống!")
+    private Long roleId;
 }
