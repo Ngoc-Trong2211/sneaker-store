@@ -73,6 +73,8 @@ public class PermissionServiceImpl implements PermissionService {
     public void deletePermission(Long id) {
         PermissionEntity permission = this.permissionRepository.findById(id).orElseThrow(() ->
                 new PermissionInvalidException("Quyền hạn này không tồn tại!"));
+        permission.getRoles().clear();
+        this.permissionRepository.deleteRelationshipPermissionId(id);
         this.permissionRepository.deleteById(id);
     }
 
