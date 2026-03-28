@@ -111,6 +111,12 @@ public class AuthServiceImpl implements AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(auth.getName());
+        auth.getAuthorities().forEach(a ->
+                System.out.println("AUTH: " + a.getAuthority())
+        );
+
         LoginResult result = new LoginResult();
         LoginResponse loginResponse = new LoginResponse();
         LoginResponse.UserLogin userRes = new LoginResponse.UserLogin();
@@ -122,12 +128,13 @@ public class AuthServiceImpl implements AuthService {
             userRes.setId(user.getId());
             userRes.setName(user.getName());
             userRes.setEmail(user.getEmail());
+            userRes.setRole(user.getRole().getName());
             loginResponse.setUserLogin(userRes);
 
             String accessToken = this.createAccessToken(req.getEmail(), userRes);
             loginResponse.setAccessToken(accessToken);
 
-            String refreshToken = this.createAccessToken(req.getEmail(), userRes);
+            String refreshToken = this.createRefreshToken(req.getEmail(), userRes);
             result.setRefreshToken(refreshToken);
             result.setLoginResponse(loginResponse);
 
@@ -157,12 +164,13 @@ public class AuthServiceImpl implements AuthService {
             userRes.setId(user.getId());
             userRes.setName(user.getName());
             userRes.setEmail(user.getEmail());
+            userRes.setRole(user.getRole().getName());
             loginResponse.setUserLogin(userRes);
 
             String accessToken = this.createAccessToken(jwt.getSubject(), userRes);
             loginResponse.setAccessToken(accessToken);
 
-            String refreshToken = this.createAccessToken(jwt.getSubject(), userRes);
+            String refreshToken = this.createRefreshToken(jwt.getSubject(), userRes);
             result.setRefreshToken(refreshToken);
             result.setLoginResponse(loginResponse);
 

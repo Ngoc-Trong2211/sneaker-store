@@ -5,6 +5,7 @@ import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.exception.User.EmailInvalidException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +13,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Comment("userDetailsService")
@@ -25,7 +28,11 @@ public class UserDetailsConfig implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = this.userService.findByEmail(username);
         if (user == null) throw new EmailInvalidException("Email is invalid!");
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(user.getRole().getName()));
+        user.getRole().getPermissions().forEach(
+                permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
         return new User(user.getEmail(), user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                authorities);
     }
 }

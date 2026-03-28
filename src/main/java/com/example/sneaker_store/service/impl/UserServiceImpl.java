@@ -22,6 +22,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     public CreateUserResponse createUser(CreateUserRequest req) throws Exception {
         UserEntity user = new UserEntity();
         if(!validate(req.getEmail())){
@@ -56,6 +58,9 @@ public class UserServiceImpl implements UserService {
         }
         if(this.userRepository.existsByEmail(req.getEmail())){
             throw new EmailExistsAlreadyException("Email is exists");
+        }
+        if (this.userRepository.existsByPhone(req.getPhone())){
+            throw new PhoneExistsAlreadyException("Phone is already!");
         }
         user.setEmail(req.getEmail());
         user.setName(req.getName());
@@ -70,6 +75,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasRole('USER')")
     public GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req) {
         Specification<UserEntity> spec = UserSpecification.specUser(req);
         Page<UserEntity> pageUser = this.userRepository.findAll(spec, pageable);
