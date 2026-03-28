@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER_GET')")
     public GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req) {
         Specification<UserEntity> spec = UserSpecification.specUser(req);
         Page<UserEntity> pageUser = this.userRepository.findAll(spec, pageable);
@@ -91,6 +91,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public UpdateUserResponse updateUser(UpdateUserRequest req) {
         Optional<UserEntity> user = this.userRepository.findById(req.getId());
         if (this.userRepository.existsByPhone(req.getPhone())){
@@ -112,6 +113,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER_UPDATE_STATUS')")
     public GetUserResponse.User updateStatus(String id, UserStatus status) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
@@ -126,6 +128,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER_DISABLE')")
     public void disableUser(String id) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
@@ -139,6 +142,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER_CHANGE_PASSWORD')")
     public void handleChangePassword(ChangePasswordRequest req) {
         Optional<UserEntity> user = this.userRepository.findByEmail(req.getEmail());
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -165,6 +169,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER_READ_DETAIL')")
+    public GetUserByIdResponse getUserById(String id) {
+        Optional<UserEntity> user = this.userRepository.findById(id);
+        if (user.isPresent()){
+            return this.modelMapper.map(user.get(), GetUserByIdResponse.class);
+        }
+        else{
+            throw new IdInvalidException("Id is invalid!");
+        }
+    }
+
+    @Override
     public UserEntity findByEmail(String email) {
         Optional<UserEntity> user = this.userRepository.findByEmail(email);
         if (user.isPresent()) return user.get();
@@ -182,16 +198,5 @@ public class UserServiceImpl implements UserService {
         Optional<UserEntity> user = this.userRepository.findByRefreshTokenAndEmail(refresh, email);
         if (user.isPresent()) return user.get();
         else throw new EmailInvalidException("Email or refresh token is invalid!");
-    }
-
-    @Override
-    public GetUserByIdResponse getUserById(String id) {
-        Optional<UserEntity> user = this.userRepository.findById(id);
-        if (user.isPresent()){
-            return this.modelMapper.map(user.get(), GetUserByIdResponse.class);
-        }
-        else{
-            throw new IdInvalidException("Id is invalid!");
-        }
     }
 }
