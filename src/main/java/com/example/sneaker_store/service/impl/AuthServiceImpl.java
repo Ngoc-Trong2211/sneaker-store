@@ -33,6 +33,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,13 +73,34 @@ public class AuthServiceImpl implements AuthService {
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, JWT_ALGORITHM.getName());
     }
 
-    public String createAccessToken(String email, LoginResponse.UserLogin user){
+    private static LoginResponse.UserLogin toUserLogin(UserEntity user) {
+        LoginResponse.UserLogin userRes = new LoginResponse.UserLogin();
+        userRes.setId(user.getId());
+        userRes.setName(user.getName());
+        userRes.setEmail(user.getEmail());
+        return userRes;
+    }
+
+    private static List<String> buildJwtAuthorities(UserEntity user) {
+        List<String> authorities = new ArrayList<>();
+        if (user.getRole() != null) {
+            authorities.add(user.getRole().getName());
+            if (user.getRole().getPermissions() != null) {
+                user.getRole().getPermissions().forEach(p -> authorities.add(p.getName()));
+            }
+        }
+        return authorities;
+    }
+
+    public String createAccessToken(UserEntity user) {
         Instant now = Instant.now();
         Instant validity = now.plus(accessTokenTime, ChronoUnit.SECONDS);
+        LoginResponse.UserLogin userPayload = toUserLogin(user);
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .claim("sneaker-store", user)
-                .subject(email)
+                .claim("sneaker-store", userPayload)
+                .claim("authorities", buildJwtAuthorities(user))
+                .subject(user.getEmail())
                 .expiresAt(validity)
                 .issuedAt(now)
                 .build();
@@ -111,12 +134,6 @@ public class AuthServiceImpl implements AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(auth.getName());
-        auth.getAuthorities().forEach(a ->
-                System.out.println("AUTH: " + a.getAuthority())
-        );
-
         LoginResult result = new LoginResult();
         LoginResponse loginResponse = new LoginResponse();
         LoginResponse.UserLogin userRes = new LoginResponse.UserLogin();
@@ -128,10 +145,9 @@ public class AuthServiceImpl implements AuthService {
             userRes.setId(user.getId());
             userRes.setName(user.getName());
             userRes.setEmail(user.getEmail());
-            userRes.setRole(user.getRole().getName());
             loginResponse.setUserLogin(userRes);
 
-            String accessToken = this.createAccessToken(req.getEmail(), userRes);
+            String accessToken = this.createAccessToken(user);
             loginResponse.setAccessToken(accessToken);
 
             String refreshToken = this.createRefreshToken(req.getEmail(), userRes);
@@ -164,10 +180,9 @@ public class AuthServiceImpl implements AuthService {
             userRes.setId(user.getId());
             userRes.setName(user.getName());
             userRes.setEmail(user.getEmail());
-            userRes.setRole(user.getRole().getName());
             loginResponse.setUserLogin(userRes);
 
-            String accessToken = this.createAccessToken(jwt.getSubject(), userRes);
+            String accessToken = this.createAccessToken(user);
             loginResponse.setAccessToken(accessToken);
 
             String refreshToken = this.createRefreshToken(jwt.getSubject(), userRes);
