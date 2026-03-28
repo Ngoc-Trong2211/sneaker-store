@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_GET')")
+    @PreAuthorize("hasAuthority('USER_READ')")
     public GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req) {
         Specification<UserEntity> spec = UserSpecification.specUser(req);
         Page<UserEntity> pageUser = this.userRepository.findAll(spec, pageable);
