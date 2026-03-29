@@ -84,14 +84,30 @@ public class UserServiceImpl implements UserService {
         GetUserResponse.DataPage resPage = this.modelMapper.map(pageUser, GetUserResponse.DataPage.class);
         res.setPage(resPage);
         List<GetUserResponse.User> users = pageUser.getContent().stream()
-                .map(user -> this.modelMapper.map(user, GetUserResponse.User.class)).toList();
+                .map(user -> {
+                    GetUserResponse.User resUser = new GetUserResponse.User();
+                    resUser.setId(user.getId());
+                    resUser.setName(user.getName());
+                    resUser.setEmail(user.getEmail());
+                    resUser.setPhone(user.getPhone());
+                    resUser.setUpdatedAt(user.getUpdatedAt());
+                    resUser.setUpdatedBy(user.getUpdatedBy());
+                    resUser.setCreatedAt(user.getCreatedAt());
+                    resUser.setCreatedBy(user.getCreatedBy());
+                    resUser.setStatus(user.getStatus().toString());
+                    resUser.setRole(user.getRole().getName());
+                    return resUser;
+                }).toList();
         res.setUsers(users);
 
         return res;
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_UPDATE')")
+    @PreAuthorize("""
+                hasAuthority('USER_UPDATE')
+                or #req.id = authentication.principal.id
+            """)
     public UpdateUserResponse updateUser(UpdateUserRequest req) {
         Optional<UserEntity> user = this.userRepository.findById(req.getId());
         if (this.userRepository.existsByPhone(req.getPhone())){
@@ -128,7 +144,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_DISABLE')")
+    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public void disableUser(String id) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
@@ -142,7 +158,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_CHANGE_PASSWORD')")
+    @PreAuthorize("isFullyAuthenticated()")
     public void handleChangePassword(ChangePasswordRequest req) {
         Optional<UserEntity> user = this.userRepository.findByEmail(req.getEmail());
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -169,7 +185,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_READ_DETAIL')")
+    @PreAuthorize("""
+        hasAuthority('USER_READ_DETAIL')
+        or #id == authentication.principal.id
+    """)
     public GetUserByIdResponse getUserById(String id) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
