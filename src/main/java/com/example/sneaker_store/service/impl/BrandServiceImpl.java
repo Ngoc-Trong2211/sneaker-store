@@ -35,6 +35,7 @@ public class BrandServiceImpl implements BrandService {
         if (this.brandRepository.existsByName(req.getName().toUpperCase()))
             throw new NameExistsException("Name is exists");
         brand.setName(req.getName().toUpperCase());
+        brand.setLogo(req.getLogo());
         this.brandRepository.save(brand);
         return this.modelMapper.map(brand, CreateBrandResponse.class);
     }
@@ -49,8 +50,9 @@ public class BrandServiceImpl implements BrandService {
         }
         if (!brand.getName().equals(req.getName().toUpperCase())){
             brand.setName(req.getName().toUpperCase());
-            this.brandRepository.save(brand);
         }
+        brand.setLogo(req.getLogo());
+        this.brandRepository.save(brand);
 
         return this.modelMapper.map(brand, UpdateBrandResponse.class);
     }

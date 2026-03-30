@@ -19,6 +19,8 @@ public class BrandEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
+    private String logo;
+
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;

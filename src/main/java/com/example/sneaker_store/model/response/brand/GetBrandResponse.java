@@ -32,5 +32,6 @@ public class GetBrandResponse {
     public static class Brand{
         private Long id;
         private String name;
+        private String logo;
     }
 }
