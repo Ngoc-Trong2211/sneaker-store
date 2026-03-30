@@ -15,7 +15,7 @@ import com.example.sneaker_store.service.RoleService;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.service.specification.UserSpecification;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
-import com.example.sneaker_store.util.exception.User.*;
+import com.example.sneaker_store.util.exception.user.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;

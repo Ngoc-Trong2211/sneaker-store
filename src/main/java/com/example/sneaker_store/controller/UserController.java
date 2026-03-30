@@ -11,7 +11,7 @@ import com.example.sneaker_store.model.response.user.UpdateUserResponse;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.ApiMessage;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
-import com.example.sneaker_store.util.exception.User.IdInvalidException;
+import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,7 @@ package com.example.sneaker_store.config;
 
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.service.UserService;
-import com.example.sneaker_store.util.exception.User.EmailInvalidException;
+import com.example.sneaker_store.util.exception.user.EmailInvalidException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,9 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Comment("userDetailsService")
 @Service

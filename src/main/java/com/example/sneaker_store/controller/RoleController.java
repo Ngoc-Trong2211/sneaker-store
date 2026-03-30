@@ -8,7 +8,7 @@ import com.example.sneaker_store.model.response.role.GetRoleResponse;
 import com.example.sneaker_store.model.response.role.UpdateRoleResponse;
 import com.example.sneaker_store.service.RoleService;
 import com.example.sneaker_store.util.ApiMessage;
-import com.example.sneaker_store.util.exception.User.IdInvalidException;
+import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

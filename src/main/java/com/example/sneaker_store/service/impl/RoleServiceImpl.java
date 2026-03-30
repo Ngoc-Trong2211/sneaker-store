@@ -12,7 +12,7 @@ import com.example.sneaker_store.repository.PermissionRepository;
 import com.example.sneaker_store.repository.RoleRepository;
 import com.example.sneaker_store.service.RoleService;
 import com.example.sneaker_store.service.specification.RoleSpecification;
-import com.example.sneaker_store.util.exception.User.IdInvalidException;
+import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import com.example.sneaker_store.util.exception.role.NameRoleExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
