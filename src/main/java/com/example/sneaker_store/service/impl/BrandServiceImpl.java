@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class BrandServiceImpl implements BrandService {
     private final ModelMapper modelMapper;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public CreateBrandResponse createBrand(CreateBrandRequest req) {
         BrandEntity brand = new BrandEntity();
         if (this.brandRepository.existsByName(req.getName().toUpperCase()))
@@ -38,6 +40,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public UpdateBrandResponse updateBrand(UpdateBrandRequest req) {
         BrandEntity brand = this.brandRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
@@ -53,6 +56,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public GetBrandResponse getBrand(Pageable pageable, String name) {
         Specification<BrandEntity> spec = BrandSpecification.specBrand(name);
         Page<BrandEntity> page = this.brandRepository.findAll(spec, pageable);
@@ -72,6 +76,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public void deleteBrand(Long id) {
         BrandEntity brand = this.brandRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Brand không tồn tại!"));
