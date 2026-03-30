@@ -39,17 +39,17 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public UpdateBrandResponse updateBrand(UpdateBrandRequest req) {
-        BrandEntity brand = brandRepository.findById(req.getId())
+        BrandEntity brand = this.brandRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
-        if (brandRepository.existsByNameAndIdNot(req.getName().toUpperCase(), req.getId())) {
+        if (this.brandRepository.existsByNameAndIdNot(req.getName().toUpperCase(), req.getId())) {
             throw new RuntimeException("Tên brand đã tồn tại!");
         }
         if (!brand.getName().equals(req.getName().toUpperCase())){
             brand.setName(req.getName().toUpperCase());
-            brandRepository.save(brand);
+            this.brandRepository.save(brand);
         }
 
-        return modelMapper.map(brand, UpdateBrandResponse.class);
+        return this.modelMapper.map(brand, UpdateBrandResponse.class);
     }
 
     @Override
@@ -60,14 +60,22 @@ public class BrandServiceImpl implements BrandService {
         GetBrandResponse res = new GetBrandResponse();
 
         GetBrandResponse.DataPage pageRes =
-                modelMapper.map(page, GetBrandResponse.DataPage.class);
+                this.modelMapper.map(page, GetBrandResponse.DataPage.class);
         res.setDataPage(pageRes);
 
         List<GetBrandResponse.Brand> brands = page.getContent().stream()
-                .map(item -> modelMapper.map(item, GetBrandResponse.Brand.class))
+                .map(item -> this.modelMapper.map(item, GetBrandResponse.Brand.class))
                 .toList();
         res.setBrands(brands);
 
         return res;
+    }
+
+    @Override
+    public void deleteBrand(Long id) {
+        BrandEntity brand = this.brandRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Brand không tồn tại!"));
+
+        this.brandRepository.delete(brand);
     }
 }

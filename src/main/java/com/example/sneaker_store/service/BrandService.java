@@ -11,4 +11,5 @@ public interface BrandService {
     CreateBrandResponse createBrand(CreateBrandRequest req);
     UpdateBrandResponse updateBrand(UpdateBrandRequest req);
     GetBrandResponse getBrand(Pageable pageable, String name);
+    void deleteBrand(Long id);
 }

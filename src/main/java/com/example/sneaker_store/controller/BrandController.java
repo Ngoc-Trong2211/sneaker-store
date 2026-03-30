@@ -27,6 +27,7 @@ public class BrandController {
     @ApiMessage(message = "Tạo brand thành công")
     @Operation(summary = "Create brand", description = "Tạo mới brand")
     public ResponseEntity<CreateBrandResponse> create(@RequestBody @Valid CreateBrandRequest req) {
+        log.info("CREATE BRAND");
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(brandService.createBrand(req));
     }
@@ -35,6 +36,7 @@ public class BrandController {
     @ApiMessage(message = "Update brand thành công")
     @Operation(summary = "Update brand", description = "Update brand")
     public ResponseEntity<UpdateBrandResponse> update(@RequestBody @Valid UpdateBrandRequest req) {
+        log.info("UPDATE BRAND");
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(brandService.updateBrand(req));
     }
@@ -44,6 +46,14 @@ public class BrandController {
     @Operation(summary = "Get brand", description = "Get brand")
     public ResponseEntity<GetBrandResponse> get(Pageable pageable,
                                                 @RequestParam(required = false) String name) {
+        log.info("GET LIST BRAND");
         return ResponseEntity.ok(brandService.getBrand(pageable, name));
+    }
+
+    @DeleteMapping("/brands/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        log.info("DELETE BRAND");
+        this.brandService.deleteBrand(id);
+        return ResponseEntity.noContent().build();
     }
 }
