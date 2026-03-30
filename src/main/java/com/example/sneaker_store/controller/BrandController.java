@@ -51,6 +51,8 @@ public class BrandController {
     }
 
     @DeleteMapping("/brands/{id}")
+    @ApiMessage(message = "Delete brand thành công")
+    @Operation(summary = "Delete brand", description = "Delete brand")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.info("DELETE BRAND");
         this.brandService.deleteBrand(id);

@@ -72,4 +72,12 @@ public class CategoryServiceImpl implements CategoryService {
 
         return res;
     }
+
+    @Override
+    public void deleteCategory(Long id) {
+        CategoryEntity category = this.categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
+        this.categoryRepository.deleteCategoryExistsParentId(id);
+        this.categoryRepository.delete(category);
+    }
 }

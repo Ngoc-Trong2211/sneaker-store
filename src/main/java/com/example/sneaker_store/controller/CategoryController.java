@@ -50,4 +50,13 @@ public class CategoryController {
         log.info("GET LIST CATEGORIES");
         return ResponseEntity.ok(this.categoryService.getCategory(pageable, name));
     }
+
+    @DeleteMapping("/categories/{id}")
+    @ApiMessage(message = "Delete category thành công")
+    @Operation(summary = "Delete category", description = "Delete category")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        log.info("DELETE CATEGORY");
+        this.categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+    }
 }

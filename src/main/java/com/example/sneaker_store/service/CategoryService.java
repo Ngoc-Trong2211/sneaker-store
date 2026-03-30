@@ -11,4 +11,5 @@ public interface CategoryService {
     CreateCategoryResponse createCategory(CreateCategoryRequest req);
     UpdateCategoryResponse updateCategory(UpdateCategoryRequest req);
     GetCategoryResponse getCategory(Pageable pageable, String name);
+    void deleteCategory(Long id);
 }
