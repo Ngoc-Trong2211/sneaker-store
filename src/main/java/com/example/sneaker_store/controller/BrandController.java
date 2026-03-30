@@ -3,6 +3,7 @@ package com.example.sneaker_store.controller;
 import com.example.sneaker_store.model.request.brand.CreateBrandRequest;
 import com.example.sneaker_store.model.request.brand.UpdateBrandRequest;
 import com.example.sneaker_store.model.response.brand.CreateBrandResponse;
+import com.example.sneaker_store.model.response.brand.GetBrandResponse;
 import com.example.sneaker_store.model.response.brand.UpdateBrandResponse;
 import com.example.sneaker_store.service.BrandService;
 import com.example.sneaker_store.util.ApiMessage;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,5 +37,13 @@ public class BrandController {
     public ResponseEntity<UpdateBrandResponse> update(@RequestBody @Valid UpdateBrandRequest req) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(brandService.updateBrand(req));
+    }
+
+    @GetMapping("/brands")
+    @ApiMessage(message = "Get brand thành công")
+    @Operation(summary = "Get brand", description = "Get brand")
+    public ResponseEntity<GetBrandResponse> get(Pageable pageable,
+                                                @RequestParam(required = false) String name) {
+        return ResponseEntity.ok(brandService.getBrand(pageable, name));
     }
 }

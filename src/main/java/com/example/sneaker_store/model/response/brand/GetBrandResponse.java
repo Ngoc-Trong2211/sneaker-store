@@ -1,0 +1,36 @@
+package com.example.sneaker_store.model.response.brand;
+
+import com.example.sneaker_store.model.response.role.GetRoleResponse;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+public class GetBrandResponse {
+    private DataPage dataPage;
+    private List<Brand> brands;
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DataPage{
+        private int number;
+        private int size;
+        private int numberOfElements;
+        private int totalPages;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Brand{
+        private Long id;
+        private String name;
+    }
+}
