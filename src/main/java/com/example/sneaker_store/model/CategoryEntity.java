@@ -1,6 +1,7 @@
 package com.example.sneaker_store.model;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
+import com.example.sneaker_store.util.SlugUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +35,9 @@ public class CategoryEntity {
         this.createdAt = Instant.now();
         this.createdBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
+        if (this.slug == null || this.slug.isBlank()) {
+            this.slug = SlugUtil.toSlug(this.name);
+        }
     }
 
     @PreUpdate
@@ -41,5 +45,6 @@ public class CategoryEntity {
         this.updatedAt = Instant.now();
         this.updatedBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
+        this.slug = SlugUtil.toSlug(this.name);
     }
 }

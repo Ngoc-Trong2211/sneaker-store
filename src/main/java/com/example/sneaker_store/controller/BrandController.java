@@ -29,7 +29,7 @@ public class BrandController {
     public ResponseEntity<CreateBrandResponse> create(@RequestBody @Valid CreateBrandRequest req) {
         log.info("CREATE BRAND");
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(brandService.createBrand(req));
+                .body(this.brandService.createBrand(req));
     }
 
     @PutMapping("/brands")
@@ -38,7 +38,7 @@ public class BrandController {
     public ResponseEntity<UpdateBrandResponse> update(@RequestBody @Valid UpdateBrandRequest req) {
         log.info("UPDATE BRAND");
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(brandService.updateBrand(req));
+                .body(this.brandService.updateBrand(req));
     }
 
     @GetMapping("/brands")
@@ -47,7 +47,7 @@ public class BrandController {
     public ResponseEntity<GetBrandResponse> get(Pageable pageable,
                                                 @RequestParam(required = false) String name) {
         log.info("GET LIST BRAND");
-        return ResponseEntity.ok(brandService.getBrand(pageable, name));
+        return ResponseEntity.ok(this.brandService.getBrand(pageable, name));
     }
 
     @DeleteMapping("/brands/{id}")

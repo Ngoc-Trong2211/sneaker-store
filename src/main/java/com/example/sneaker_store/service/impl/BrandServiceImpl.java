@@ -9,7 +9,7 @@ import com.example.sneaker_store.model.response.brand.UpdateBrandResponse;
 import com.example.sneaker_store.repository.BrandRepository;
 import com.example.sneaker_store.service.BrandService;
 import com.example.sneaker_store.service.specification.BrandSpecification;
-import com.example.sneaker_store.util.exception.brand.NameExistsException;
+import com.example.sneaker_store.util.exception.NameExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
