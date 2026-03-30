@@ -1,17 +1,27 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.model.BrandEntity;
 import com.example.sneaker_store.model.CategoryEntity;
 import com.example.sneaker_store.model.request.category.CreateCategoryRequest;
 import com.example.sneaker_store.model.request.category.UpdateCategoryRequest;
+import com.example.sneaker_store.model.response.brand.GetBrandResponse;
 import com.example.sneaker_store.model.response.category.CreateCategoryResponse;
+import com.example.sneaker_store.model.response.category.GetCategoryResponse;
 import com.example.sneaker_store.model.response.category.UpdateCategoryResponse;
 import com.example.sneaker_store.repository.CategoryRepository;
 import com.example.sneaker_store.service.CategoryService;
+import com.example.sneaker_store.service.specification.BrandSpecification;
+import com.example.sneaker_store.service.specification.CategorySpecification;
 import com.example.sneaker_store.util.exception.NameExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j(topic = "CATEGORY-SERVICE")
@@ -42,5 +52,24 @@ public class CategoryServiceImpl implements CategoryService {
         category.setParentId(req.getParentId());
         this.categoryRepository.save(category);
         return this.modelMapper.map(category, UpdateCategoryResponse.class);
+    }
+
+    @Override
+    public GetCategoryResponse getCategory(Pageable pageable, String name) {
+        Specification<CategoryEntity> spec = CategorySpecification.specCategory(name);
+        Page<CategoryEntity> page = this.categoryRepository.findAll(spec, pageable);
+
+        GetCategoryResponse res = new GetCategoryResponse();
+
+        GetCategoryResponse.DataPage pageRes =
+                this.modelMapper.map(page, GetCategoryResponse.DataPage.class);
+        res.setDataPage(pageRes);
+
+        List<GetCategoryResponse.Category> categories = page.getContent().stream()
+                .map(item -> this.modelMapper.map(item, GetCategoryResponse.Category.class))
+                .toList();
+        res.setCategories(categories);
+
+        return res;
     }
 }
