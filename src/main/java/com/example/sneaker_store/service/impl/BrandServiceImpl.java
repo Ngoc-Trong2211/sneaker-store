@@ -8,17 +8,25 @@ import com.example.sneaker_store.model.response.brand.GetBrandResponse;
 import com.example.sneaker_store.model.response.brand.UpdateBrandResponse;
 import com.example.sneaker_store.repository.BrandRepository;
 import com.example.sneaker_store.service.BrandService;
+import com.example.sneaker_store.service.FileService;
 import com.example.sneaker_store.service.specification.BrandSpecification;
 import com.example.sneaker_store.util.exception.NameExistsException;
+import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -27,6 +35,17 @@ import java.util.List;
 public class BrandServiceImpl implements BrandService {
     private final BrandRepository brandRepository;
     private final ModelMapper modelMapper;
+    private final FileService fileService;
+
+    @Value("${sneaker.upload-file.base-uri}")
+    private String baseUri;
+
+    public void deleteFile(String fileName) throws URISyntaxException {
+        URI uri = new URI(baseUri + "brand" + "/" + fileName);
+        Path path = Paths.get(uri);
+        File file = new File(path.toString());
+        file.delete();
+    }
 
     @Override
     @PreAuthorize("hasRole('ADMIN_SYSTEM')")
@@ -42,7 +61,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN_SYSTEM')")
-    public UpdateBrandResponse updateBrand(UpdateBrandRequest req) {
+    public UpdateBrandResponse updateBrand(UpdateBrandRequest req) throws URISyntaxException {
         BrandEntity brand = this.brandRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
         if (this.brandRepository.existsByNameAndIdNot(req.getName().toUpperCase(), req.getId())) {
@@ -51,6 +70,11 @@ public class BrandServiceImpl implements BrandService {
         if (!brand.getName().equals(req.getName().toUpperCase())){
             brand.setName(req.getName().toUpperCase());
         }
+        long fileLength = this.fileService.existFile(brand.getLogo(), "brand");
+        if (fileLength == 0) {
+            throw new IdInvalidException("Khong ton tai ten file");
+        }
+        else this.deleteFile(brand.getLogo());
         brand.setLogo(req.getLogo());
         this.brandRepository.save(brand);
 
@@ -79,10 +103,10 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN_SYSTEM')")
-    public void deleteBrand(Long id) {
+    public void deleteBrand(Long id) throws URISyntaxException {
         BrandEntity brand = this.brandRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Brand không tồn tại!"));
-
+        this.deleteFile(brand.getLogo());
         this.brandRepository.delete(brand);
     }
 }
