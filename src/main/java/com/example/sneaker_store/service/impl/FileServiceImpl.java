@@ -1,6 +1,7 @@
 package com.example.sneaker_store.service.impl;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -97,12 +99,20 @@ public class FileServiceImpl implements FileService {
         if (fileName == null || folder == null) {
             throw new IdInvalidException("Phai co du fileName va folder");
         }
-
         long fileLength = this.existFile(fileName, folder);
         if (fileLength == 0) {
             throw new IdInvalidException("Khong ton tai ten file");
         }
 
         return this.getFileDownload(fileName, folder);
+    }
+
+    @Override
+    public Resource getImage(String fileName) throws MalformedURLException {
+        Path path = Paths.get("D:/DoAnTN/projectSneaker/images/brand/").resolve(fileName).normalize();
+        if (!Files.exists(path)) {
+            return null;
+        }
+        return new UrlResource(path.toUri());
     }
 }
