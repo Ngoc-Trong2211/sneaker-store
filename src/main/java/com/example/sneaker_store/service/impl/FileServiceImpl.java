@@ -1,8 +1,6 @@
 package com.example.sneaker_store.service.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -19,6 +17,8 @@ import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -74,5 +74,35 @@ public class FileServiceImpl implements FileService {
         String finalName = this.saveFile(file, folder);
 
         return new UploadFileResponse(finalName, Instant.now());
+    }
+
+    @Override
+    public long existFile(String fileName, String folder) throws URISyntaxException {
+        URI uri = new URI(baseUri + folder + "/" + fileName);
+        Path path = Paths.get(uri);
+        File file = new File(path.toString());
+        if (file.isDirectory() || !file.exists()) return 0;
+        return file.length();
+    }
+
+    public Resource getFileDownload(String fileName, String folder) throws URISyntaxException, FileNotFoundException {
+        URI uri = new URI(baseUri + folder + "/" + fileName);
+        Path path = Paths.get(uri);
+        File file = new File(path.toString());
+        return new InputStreamResource(new FileInputStream(file));
+    }
+
+    @Override
+    public Resource downloadFile(String fileName, String folder) throws URISyntaxException, FileNotFoundException {
+        if (fileName == null || folder == null) {
+            throw new IdInvalidException("Phai co du fileName va folder");
+        }
+
+        long fileLength = this.existFile(fileName, folder);
+        if (fileLength == 0) {
+            throw new IdInvalidException("Khong ton tai ten file");
+        }
+
+        return this.getFileDownload(fileName, folder);
     }
 }

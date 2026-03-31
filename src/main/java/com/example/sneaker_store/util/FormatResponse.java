@@ -5,6 +5,7 @@ import com.example.sneaker_store.model.response.SystemResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
@@ -38,7 +39,7 @@ public class FormatResponse implements ResponseBodyAdvice<Object> {
 
         SystemResponse<Object> res = new SystemResponse<>();
         res.setStatus(status);
-
+        if (body instanceof Resource) return body;
         if (body instanceof String) return body;
         if (status >= 400) return body;
         else{
