@@ -1,9 +1,7 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.request.brand.UpdateBrandRequest;
 import com.example.sneaker_store.model.request.productImage.CreateProductImageRequest;
 import com.example.sneaker_store.model.request.productImage.UpdateProductImageRequest;
-import com.example.sneaker_store.model.response.brand.UpdateBrandResponse;
 import com.example.sneaker_store.model.response.productImage.CreateProductImageResponse;
 import com.example.sneaker_store.model.response.productImage.UpdateProductImageResponse;
 import com.example.sneaker_store.service.ProductImageService;
@@ -15,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URISyntaxException;
 
 @RestController
 @RequiredArgsConstructor
