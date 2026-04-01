@@ -8,4 +8,5 @@ import com.example.sneaker_store.model.response.productImage.UpdateProductImageR
 public interface ProductImageService {
     CreateProductImageResponse createProductImage(CreateProductImageRequest req);
     UpdateProductImageResponse updateProductImage(UpdateProductImageRequest req);
+    void deleteProductImage(Long id);
 }

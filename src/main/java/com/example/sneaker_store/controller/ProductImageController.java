@@ -42,4 +42,13 @@ public class ProductImageController {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(this.productImageService.updateProductImage(req));
     }
+
+    @DeleteMapping("/product-images/{id}")
+    @ApiMessage(message = "Delete product image thành công")
+    @Operation(summary = "Delete product image", description = "Delete product image")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        log.info("DELETE PRODUCT IMAGE");
+        this.productImageService.deleteProductImage(id);
+        return ResponseEntity.noContent().build();
+    }
 }

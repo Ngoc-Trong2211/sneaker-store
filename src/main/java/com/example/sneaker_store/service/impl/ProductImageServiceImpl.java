@@ -39,4 +39,11 @@ public class ProductImageServiceImpl implements ProductImageService {
         this.productImageRepository.save(img);
         return this.modelMapper.map(img, UpdateProductImageResponse.class);
     }
+
+    @Override
+    public void deleteProductImage(Long id) {
+        ProductImageEntity img = this.productImageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy image"));
+        this.productImageRepository.delete(img);
+    }
 }
