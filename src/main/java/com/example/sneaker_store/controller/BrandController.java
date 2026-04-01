@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URISyntaxException;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j(topic = "BRAND-CONTROLLER")
@@ -35,7 +37,7 @@ public class BrandController {
     @PutMapping("/brands")
     @ApiMessage(message = "Update brand thành công")
     @Operation(summary = "Update brand", description = "Update brand")
-    public ResponseEntity<UpdateBrandResponse> update(@RequestBody @Valid UpdateBrandRequest req) {
+    public ResponseEntity<UpdateBrandResponse> update(@RequestBody @Valid UpdateBrandRequest req) throws URISyntaxException {
         log.info("UPDATE BRAND");
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(this.brandService.updateBrand(req));
@@ -53,7 +55,7 @@ public class BrandController {
     @DeleteMapping("/brands/{id}")
     @ApiMessage(message = "Delete brand thành công")
     @Operation(summary = "Delete brand", description = "Delete brand")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) throws URISyntaxException {
         log.info("DELETE BRAND");
         this.brandService.deleteBrand(id);
         return ResponseEntity.noContent().build();
