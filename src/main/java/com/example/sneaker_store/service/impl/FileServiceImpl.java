@@ -11,6 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import com.example.sneaker_store.model.response.UploadFileResponse;
 import com.example.sneaker_store.service.FileService;
@@ -46,7 +47,7 @@ public class FileServiceImpl implements FileService {
     }
 
     public String saveFile(MultipartFile file, String folder) throws URISyntaxException {
-        String fileSignature = System.currentTimeMillis() + "-" + file.getOriginalFilename();
+        String fileSignature = UUID.randomUUID() + "-" + file.getOriginalFilename();
 
         URI uri = new URI(baseUri + folder + "/" + fileSignature);
         Path path = Paths.get(uri);
@@ -65,7 +66,7 @@ public class FileServiceImpl implements FileService {
         }
 
         String fileName = file.getOriginalFilename();
-        List<String> checkFile = Arrays.asList("jpg", "jepg", "png");
+        List<String> checkFile = Arrays.asList("jpg", "jpeg", "png");
         boolean checkValid = checkFile.stream().anyMatch(
                 item -> fileName != null && fileName.toLowerCase().endsWith(item));
 
@@ -109,7 +110,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Resource getImage(String fileName) throws MalformedURLException {
-        Path path = Paths.get("D:/DoAnTN/projectSneaker/images/brand/").resolve(fileName).normalize();
+        Path path = Paths.get(baseUri + "brand").resolve(fileName).normalize();
         if (!Files.exists(path)) {
             return null;
         }
