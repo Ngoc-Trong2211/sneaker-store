@@ -19,4 +19,7 @@ public class UpdateProductRequest {
 
     @NotNull(message = "Product price is required")
     private double price;
+
+    @NotNull(message = "Brand ID is required")
+    private Long brandId;
 }

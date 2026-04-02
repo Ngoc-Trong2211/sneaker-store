@@ -15,6 +15,7 @@ public class GetProductByIdResponse {
     private String description;
     private double price;
     private String status;
+    private String brandName;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;

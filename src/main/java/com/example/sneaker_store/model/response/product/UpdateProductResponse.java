@@ -12,4 +12,5 @@ public class UpdateProductResponse {
     private double price;
     private String slug;
     private String status;
+    private String brandName;
 }

@@ -1,11 +1,14 @@
 package com.example.sneaker_store.model;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "tbl_brand")
@@ -25,6 +28,10 @@ public class BrandEntity {
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
+
+    @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ProductEntity> products;
 
     @PrePersist
     public void create(){

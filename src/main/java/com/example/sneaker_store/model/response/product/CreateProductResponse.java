@@ -12,6 +12,6 @@ public class CreateProductResponse {
     private String description;
     private double price;
     private String slug;
-
+    private String brandName;
     private String status;
 }

@@ -13,6 +13,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -41,6 +43,10 @@ public class ProductEntity {
     private String createdBy;  
     private Instant updatedAt;
     private String updatedBy;
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id")
+    private BrandEntity brand;
     
     @PrePersist
     public void create(){

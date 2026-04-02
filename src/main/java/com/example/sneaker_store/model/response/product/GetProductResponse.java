@@ -34,5 +34,6 @@ public class GetProductResponse {
         private String description;
         private double price;
         private String status;
+        private String brandName;
     }
 }

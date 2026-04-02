@@ -48,7 +48,14 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    public BrandEntity findById(Long id) {
+        BrandEntity brand = this.brandRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
+        return brand;
+    }
+
+    @Override
+    // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public CreateBrandResponse createBrand(CreateBrandRequest req) {
         BrandEntity brand = new BrandEntity();
         if (this.brandRepository.existsByName(req.getName().toUpperCase()))
@@ -60,10 +67,9 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public UpdateBrandResponse updateBrand(UpdateBrandRequest req) throws URISyntaxException {
-        BrandEntity brand = this.brandRepository.findById(req.getId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
+        BrandEntity brand = this.findById(req.getId());
         if (this.brandRepository.existsByNameAndIdNot(req.getName().toUpperCase(), req.getId())) {
             throw new RuntimeException("Tên brand đã tồn tại!");
         }
@@ -82,7 +88,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public GetBrandResponse getBrand(Pageable pageable, String name) {
         Specification<BrandEntity> spec = BrandSpecification.specBrand(name);
         Page<BrandEntity> page = this.brandRepository.findAll(spec, pageable);
@@ -102,10 +108,9 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public void deleteBrand(Long id) throws URISyntaxException {
-        BrandEntity brand = this.brandRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Brand không tồn tại!"));
+        BrandEntity brand = this.findById(id);
         this.deleteFile(brand.getLogo());
         this.brandRepository.delete(brand);
     }
