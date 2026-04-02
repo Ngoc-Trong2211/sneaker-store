@@ -77,7 +77,6 @@ public class DiscountController {
         return ResponseEntity.ok(this.discountService.getDiscounts(request, pageable));
     }
     
-
     @DeleteMapping("/discounts/{id}")
     @Operation(summary = "Delete a discount", description = "Delete a discount by its ID")
     @ApiMessage(message = "Discount deleted successfully")  
