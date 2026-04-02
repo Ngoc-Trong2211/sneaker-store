@@ -14,6 +14,8 @@ import com.example.sneaker_store.util.enumEntity.DiscountStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -63,7 +65,7 @@ public class DiscountServiceImpl implements DiscountService {
         @Scheduled(cron = "0 0 * * * ?")
         public void updateExpiredDiscounts() {
             log.info("Running scheduled task to update expired discounts");
-            this.discountRepository.updateExpiredDiscounts();
+            this.discountRepository.updateExpiredDiscounts(Instant.now());
         }
 
         @Override
@@ -73,5 +75,15 @@ public class DiscountServiceImpl implements DiscountService {
             return this.modelMapper.map(discount, GetDiscountResponse.Discount.class);
         }
 
-        
+        @Override
+        public void updateStatusDiscount(String id, DiscountStatus status) {
+            DiscountEntity discount = this.discountRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
+            if (this.discountRepository.checkEndTimeBeforeCurrentTime(id, Instant.now())) {
+                throw new RuntimeException("Cannot update status of an expired discount");
+            }
+            discount.setStatus(status);
+            this.discountRepository.save(discount);
+        }
+
 }
