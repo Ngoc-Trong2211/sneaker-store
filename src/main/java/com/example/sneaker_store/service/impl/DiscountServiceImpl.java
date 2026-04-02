@@ -2,6 +2,7 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.DiscountEntity;
 import com.example.sneaker_store.model.request.discount.CreateDiscountRequest;
+import com.example.sneaker_store.model.request.discount.DiscountSpecificationRequest;
 import com.example.sneaker_store.model.request.discount.UpdateDiscountRequest;
 import com.example.sneaker_store.model.response.discount.CreateDiscountResponse;
 import com.example.sneaker_store.model.response.discount.GetDiscountResponse;
@@ -9,6 +10,7 @@ import com.example.sneaker_store.model.response.discount.GetDiscountResponse.Dis
 import com.example.sneaker_store.model.response.discount.UpdateDiscountResponse;
 import com.example.sneaker_store.repository.DiscountRepository;
 import com.example.sneaker_store.service.DiscountService;
+import com.example.sneaker_store.service.specification.DiscountSpecification;
 import com.example.sneaker_store.util.enumEntity.DiscountStatus;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -86,4 +91,15 @@ public class DiscountServiceImpl implements DiscountService {
             this.discountRepository.save(discount);
         }
 
+        @Override
+        public GetDiscountResponse getDiscounts(DiscountSpecificationRequest request, Pageable pageable) {
+            Specification<DiscountEntity> spec = DiscountSpecification.specDiscount(request);
+            Page<DiscountEntity> discountPage = this.discountRepository.findAll(spec, pageable);
+            GetDiscountResponse response = new GetDiscountResponse();
+            response.setPage(this.modelMapper.map(discountPage, GetDiscountResponse.DataPage.class));
+            response.setDiscounts(discountPage.map(discount -> this.modelMapper.map(discount, GetDiscountResponse.Discount.class)).getContent());
+            return response;
+        }
+
+        
 }

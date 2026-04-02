@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sneaker_store.model.request.discount.CreateDiscountRequest;
+import com.example.sneaker_store.model.request.discount.DiscountSpecificationRequest;
 import com.example.sneaker_store.model.request.discount.UpdateDiscountRequest;
 import com.example.sneaker_store.model.response.discount.CreateDiscountResponse;
 import com.example.sneaker_store.model.response.discount.GetDiscountResponse;
@@ -18,6 +19,7 @@ import com.example.sneaker_store.util.enumEntity.DiscountStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,4 +66,14 @@ public class DiscountController {
         this.discountService.updateStatusDiscount(id, status);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/discounts")
+    @Operation(summary = "Get discounts with pagination and filtering", 
+    description = "Retrieve a paginated list of discounts based on filtering criteria")
+    @ApiMessage(message = "Discounts retrieved successfully")
+    public ResponseEntity<GetDiscountResponse> getDiscount(Pageable pageable, DiscountSpecificationRequest request) {
+        log.info("Received request to get discounts with filters");
+        return ResponseEntity.ok(this.discountService.getDiscounts(request, pageable));
+    }
+    
 }
