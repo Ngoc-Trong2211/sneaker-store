@@ -92,4 +92,14 @@ public class ProductServiceImpl implements ProductService {
         product.setStatus(status);
         this.productRepository.save(product);
     }
+
+    @Override
+    public void deleteProduct(String id) {
+        ProductEntity product = this.productRepository.findById(id).orElseThrow(() -> {
+            log.warn("Product with id '{}' not found", id);
+            return new RuntimeException("Product not found");
+        });
+        product.setStatus(ProductStatus.DELETED);
+        this.productRepository.save(product);
+    }
 }

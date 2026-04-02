@@ -77,4 +77,13 @@ public class ProductController {
         this.productService.updateStatusProduct(id, status);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/products/{id}/delete")
+    @Operation(summary = "Delete a product", description = "Marks a product as deleted by its unique ID")
+    @ApiMessage(message = "Product deleted successfully")
+    public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
+        log.info("Received request to delete product with id '{}'", id);
+        this.productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
 }
