@@ -5,9 +5,13 @@ import java.time.Instant;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
+import com.example.sneaker_store.util.SlugUtil;
+import com.example.sneaker_store.util.enumEntity.ProductStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -30,6 +34,9 @@ public class ProductEntity {
     private double price;
     private String slug;
 
+    @Enumerated(EnumType.STRING)
+    private ProductStatus status;
+
     private Instant createdAt;
     private String createdBy;  
     private Instant updatedAt;
@@ -40,6 +47,9 @@ public class ProductEntity {
         this.createdAt = Instant.now();
         this.createdBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
+        if (this.slug == null || this.slug.trim().isEmpty()) {
+            this.slug = SlugUtil.toSlug(this.name);
+        }
     }
 
     @PreUpdate
@@ -47,5 +57,6 @@ public class ProductEntity {
         this.updatedAt = Instant.now();
         this.updatedBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
+        this.slug = SlugUtil.toSlug(this.name);
     }
 }
