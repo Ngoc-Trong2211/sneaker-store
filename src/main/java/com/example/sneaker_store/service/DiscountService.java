@@ -16,4 +16,5 @@ public interface DiscountService {
     GetDiscountResponse.Discount getDiscountById(String id);
     void updateStatusDiscount(String id, DiscountStatus status);
     GetDiscountResponse getDiscounts(DiscountSpecificationRequest request, Pageable pageable);
+    void deleteDiscount(String id);
 }

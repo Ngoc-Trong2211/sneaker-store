@@ -29,77 +29,82 @@ import org.springframework.stereotype.Service;
 @Slf4j(topic = "DISCOUNT-SERVICE")
 @RequiredArgsConstructor
 public class DiscountServiceImpl implements DiscountService {
-        private final DiscountRepository discountRepository;
-        private final ModelMapper modelMapper;
+    private final DiscountRepository discountRepository;
+    private final ModelMapper modelMapper;
 
-        @Override
-        public CreateDiscountResponse createDiscount(CreateDiscountRequest request) {
-            if (this.discountRepository.existsByNameApply(request.getNameApply())) {
-                throw new RuntimeException("Discount with nameApply already exists: " + request.getNameApply());
-            }
-            DiscountEntity discount = new DiscountEntity();
-            discount.setPercent(request.getPercent()); 
-            discount.setDescription(request.getDescription());
-            discount.setStartTime(request.getStartTime());
-            discount.setEndTime(request.getEndTime());
-            discount.setStatus(DiscountStatus.ACTIVE);
-            discount.setApplyFor(request.getApplyFor());
-            discount.setNameApply(request.getNameApply());
-            this.discountRepository.save(discount);
-            return this.modelMapper.map(discount, CreateDiscountResponse.class);
+    @Override
+    public CreateDiscountResponse createDiscount(CreateDiscountRequest request) {
+        if (this.discountRepository.existsByNameApply(request.getNameApply())) {
+            throw new RuntimeException("Discount with nameApply already exists: " + request.getNameApply());
         }
+        DiscountEntity discount = new DiscountEntity();
+        discount.setPercent(request.getPercent()); 
+        discount.setDescription(request.getDescription());
+        discount.setStartTime(request.getStartTime());
+        discount.setEndTime(request.getEndTime());
+        discount.setStatus(DiscountStatus.ACTIVE);
+        discount.setApplyFor(request.getApplyFor());
+        discount.setNameApply(request.getNameApply());
+        this.discountRepository.save(discount);
+        return this.modelMapper.map(discount, CreateDiscountResponse.class);
+    }
 
-        @Override
-        public UpdateDiscountResponse updateDiscount(UpdateDiscountRequest request) {
-            DiscountEntity discount = this.discountRepository.findById(request.getId())
-                    .orElseThrow(() -> new RuntimeException("Discount not found with id: " + request.getId()));
-            if (this.discountRepository.existsByNameApply(request.getNameApply()) 
-                && !discount.getNameApply().equals(request.getNameApply())) {
-                throw new RuntimeException("Discount with nameApply already exists: " + request.getNameApply());
-            }
-            discount.setPercent(request.getPercent());
-            discount.setDescription(request.getDescription());
-            discount.setStartTime(request.getStartTime());
-            discount.setEndTime(request.getEndTime());
-            discount.setApplyFor(request.getApplyFor());
-            discount.setNameApply(request.getNameApply());
-            this.discountRepository.save(discount);
-            return this.modelMapper.map(discount, UpdateDiscountResponse.class);
+    @Override
+    public UpdateDiscountResponse updateDiscount(UpdateDiscountRequest request) {
+        DiscountEntity discount = this.discountRepository.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("Discount not found with id: " + request.getId()));
+        if (this.discountRepository.existsByNameApply(request.getNameApply()) 
+            && !discount.getNameApply().equals(request.getNameApply())) {
+            throw new RuntimeException("Discount with nameApply already exists: " + request.getNameApply());
         }
+        discount.setPercent(request.getPercent());
+        discount.setDescription(request.getDescription());
+        discount.setStartTime(request.getStartTime());
+        discount.setEndTime(request.getEndTime());
+        discount.setApplyFor(request.getApplyFor());
+        discount.setNameApply(request.getNameApply());
+        this.discountRepository.save(discount);
+        return this.modelMapper.map(discount, UpdateDiscountResponse.class);
+    }
 
-        @Scheduled(cron = "0 0 * * * ?")
-        public void updateExpiredDiscounts() {
-            log.info("Running scheduled task to update expired discounts");
-            this.discountRepository.updateExpiredDiscounts(Instant.now());
+    @Scheduled(cron = "0 0 * * * ?")
+    public void updateExpiredDiscounts() {
+        log.info("Running scheduled task to update expired discounts");
+        this.discountRepository.updateExpiredDiscounts(Instant.now());
+    }
+
+    @Override
+    public Discount getDiscountById(String id) {
+        DiscountEntity discount = this.discountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
+        return this.modelMapper.map(discount, GetDiscountResponse.Discount.class);
+    }
+
+    @Override
+    public void updateStatusDiscount(String id, DiscountStatus status) {
+        DiscountEntity discount = this.discountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
+        if (this.discountRepository.checkEndTimeBeforeCurrentTime(id, Instant.now())) {
+            throw new RuntimeException("Cannot update status of an expired discount");
         }
+        discount.setStatus(status);
+        this.discountRepository.save(discount);
+    }
 
-        @Override
-        public Discount getDiscountById(String id) {
-            DiscountEntity discount = this.discountRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
-            return this.modelMapper.map(discount, GetDiscountResponse.Discount.class);
-        }
+    @Override
+    public GetDiscountResponse getDiscounts(DiscountSpecificationRequest request, Pageable pageable) {
+        Specification<DiscountEntity> spec = DiscountSpecification.specDiscount(request);
+        Page<DiscountEntity> discountPage = this.discountRepository.findAll(spec, pageable);
+        GetDiscountResponse response = new GetDiscountResponse();
+        response.setPage(this.modelMapper.map(discountPage, GetDiscountResponse.DataPage.class));
+        response.setDiscounts(discountPage.map(discount -> this.modelMapper.map(discount, GetDiscountResponse.Discount.class)).getContent());
+        return response;
+    }
 
-        @Override
-        public void updateStatusDiscount(String id, DiscountStatus status) {
-            DiscountEntity discount = this.discountRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
-            if (this.discountRepository.checkEndTimeBeforeCurrentTime(id, Instant.now())) {
-                throw new RuntimeException("Cannot update status of an expired discount");
-            }
-            discount.setStatus(status);
-            this.discountRepository.save(discount);
-        }
-
-        @Override
-        public GetDiscountResponse getDiscounts(DiscountSpecificationRequest request, Pageable pageable) {
-            Specification<DiscountEntity> spec = DiscountSpecification.specDiscount(request);
-            Page<DiscountEntity> discountPage = this.discountRepository.findAll(spec, pageable);
-            GetDiscountResponse response = new GetDiscountResponse();
-            response.setPage(this.modelMapper.map(discountPage, GetDiscountResponse.DataPage.class));
-            response.setDiscounts(discountPage.map(discount -> this.modelMapper.map(discount, GetDiscountResponse.Discount.class)).getContent());
-            return response;
-        }
-
-        
+    @Override
+    public void deleteDiscount(String id) {
+        DiscountEntity discount = this.discountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
+        this.discountRepository.delete(discount);
+    }
 }
