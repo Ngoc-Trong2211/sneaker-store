@@ -19,4 +19,7 @@ public class CreateProductRequest {
     
     @NotNull(message = "Brand ID is required")
     private Long brandId;
+
+    @NotNull(message = "Category ID is required")
+    private Long categoryId;
 }

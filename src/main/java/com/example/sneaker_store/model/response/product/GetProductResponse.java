@@ -17,7 +17,7 @@ public class GetProductResponse {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DataPage{
+    public static class DataPage {
         private int number;
         private int size;
         private int numberOfElements;
@@ -28,12 +28,13 @@ public class GetProductResponse {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Product{
+    public static class Product {
         private String id;
         private String name;
         private String description;
         private double price;
         private String status;
+        private String categoryName;
         private String brandName;
     }
 }

@@ -2,11 +2,14 @@ package com.example.sneaker_store.model;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
 import com.example.sneaker_store.util.SlugUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "tbl_category")
@@ -29,6 +32,10 @@ public class CategoryEntity {
     private String createdBy;
     private Instant updatedAt;
     private String updatedBy;
+
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ProductEntity> products;
 
     @PrePersist
     public void create(){

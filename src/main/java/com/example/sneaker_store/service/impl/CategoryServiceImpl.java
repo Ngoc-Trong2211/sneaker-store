@@ -28,6 +28,13 @@ public class CategoryServiceImpl implements CategoryService {
     private final ModelMapper modelMapper;
 
     @Override
+    public CategoryEntity findById(Long id) {
+        CategoryEntity category = this.categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
+        return category;
+    }
+
+    @Override
     public CreateCategoryResponse createCategory(CreateCategoryRequest req) {
         if (this.categoryRepository.existsByName(req.getName().toUpperCase()))
             throw new NameExistsException("Name is exists");
@@ -40,8 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public UpdateCategoryResponse updateCategory(UpdateCategoryRequest req) {
-        CategoryEntity category = this.categoryRepository.findById(req.getId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
+        CategoryEntity category = this.findById(req.getId());
         if (this.categoryRepository.existsByNameAndIdNot(req.getName(), req.getId())) {
             throw new RuntimeException("Tên category đã tồn tại!");
         }
@@ -72,8 +78,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategory(Long id) {
-        CategoryEntity category = this.categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
+        CategoryEntity category = this.findById(id);
         this.categoryRepository.deleteCategoryExistsParentId(id);
         this.categoryRepository.delete(category);
     }

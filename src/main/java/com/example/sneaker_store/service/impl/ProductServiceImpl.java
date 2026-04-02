@@ -1,6 +1,7 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.service.BrandService;
+import com.example.sneaker_store.service.CategoryService;
 import com.example.sneaker_store.service.ProductService;
 import com.example.sneaker_store.service.specification.ProductSpecification;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
@@ -16,6 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.example.sneaker_store.model.BrandEntity;
+import com.example.sneaker_store.model.CategoryEntity;
 import com.example.sneaker_store.model.ProductEntity;
 import com.example.sneaker_store.model.request.product.CreateProductRequest;
 import com.example.sneaker_store.model.request.product.SpecificationProductRequest;
@@ -33,25 +35,29 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
     private final BrandService brandService;
+    private final CategoryService categoryService;
 
-        @Override
-        public CreateProductResponse createProduct(CreateProductRequest request) {
-            if (productRepository.existsByName(request.getName())) {
-                log.warn("Product with name '{}' already exists", request.getName());
-                throw new NameExistsException("Product with the same name already exists");
-            }
-            BrandEntity brand = this.brandService.findById(request.getBrandId());
-            ProductEntity product = new ProductEntity();
-            product.setName(request.getName());
-            product.setDescription(request.getDescription());
-            product.setPrice(request.getPrice());
-            product.setStatus(ProductStatus.ACTIVE);
-            product.setBrand(brand);
-            this.productRepository.save(product);
-            CreateProductResponse res = this.modelMapper.map(product, CreateProductResponse.class);
-            res.setBrandName(product.getBrand().getName());
-            return res;
+    @Override
+    public CreateProductResponse createProduct(CreateProductRequest request) {
+        if (productRepository.existsByName(request.getName())) {
+            log.warn("Product with name '{}' already exists", request.getName());
+            throw new NameExistsException("Product with the same name already exists");
         }
+        BrandEntity brand = this.brandService.findById(request.getBrandId());
+        CategoryEntity category = this.categoryService.findById(request.getCategoryId());
+        ProductEntity product = new ProductEntity();
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setStatus(ProductStatus.ACTIVE);
+        product.setBrand(brand);
+        product.setCategory(category);
+        this.productRepository.save(product);
+        CreateProductResponse res = this.modelMapper.map(product, CreateProductResponse.class);
+        res.setBrandName(product.getBrand().getName());
+        res.setCategoryName(product.getCategory().getName());
+        return res;
+    }
 
     @Override
     public UpdateProductResponse updateProduct(UpdateProductRequest request) {
@@ -63,12 +69,17 @@ public class ProductServiceImpl implements ProductService {
             log.warn("Product with name '{}' already exists", request.getName());
             throw new NameExistsException("Product with the same name already exists");
         }
+        BrandEntity brand = this.brandService.findById(request.getBrandId());
+        CategoryEntity category = this.categoryService.findById(request.getCategoryId());
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
+        product.setBrand(brand);
+        product.setCategory(category);
         this.productRepository.save(product);
         UpdateProductResponse res = this.modelMapper.map(product, UpdateProductResponse.class);
         res.setBrandName(product.getBrand().getName());
+        res.setCategoryName(product.getCategory().getName());
         return res;
     }
 
@@ -82,6 +93,7 @@ public class ProductServiceImpl implements ProductService {
         response.setProducts(productPage.map(product -> {
             GetProductResponse.Product prod = this.modelMapper.map(product, GetProductResponse.Product.class);
             prod.setBrandName(product.getBrand().getName());
+            prod.setCategoryName(product.getCategory().getName());
             return prod;
         }).getContent());
         return response;
@@ -95,6 +107,7 @@ public class ProductServiceImpl implements ProductService {
         });
         GetProductByIdResponse res = this.modelMapper.map(product, GetProductByIdResponse.class);
         res.setBrandName(product.getBrand().getName());
+        res.setCategoryName(product.getCategory().getName());
         return res;
     }
 

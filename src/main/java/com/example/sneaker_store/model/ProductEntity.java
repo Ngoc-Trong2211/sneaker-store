@@ -47,6 +47,10 @@ public class ProductEntity {
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private BrandEntity brand;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private CategoryEntity category;
     
     @PrePersist
     public void create(){

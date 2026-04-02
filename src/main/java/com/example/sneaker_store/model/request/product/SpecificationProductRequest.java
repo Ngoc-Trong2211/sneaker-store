@@ -11,4 +11,5 @@ public class SpecificationProductRequest {
     private Double maxPrice;
     private String status;
     private String brandName;
+    private String categoryName;
 }
