@@ -1,17 +1,21 @@
 package com.example.sneaker_store.model;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.hibernate.annotations.UuidGenerator;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
 import com.example.sneaker_store.util.enumEntity.DiscountStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -43,7 +47,11 @@ public class DiscountEntity {
     private String createdBy;  
     private Instant updatedAt;
     private String updatedBy;
-    
+
+    @OneToMany(mappedBy = "discount", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ProductEntity> products;
+
     @PrePersist
     public void create(){
         this.createdAt = Instant.now();

@@ -53,6 +53,13 @@ public class BrandServiceImpl implements BrandService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
         return brand;
     }
+    
+    @Override
+    public BrandEntity findByName(String name) {
+        BrandEntity brand = this.brandRepository.findByName(name)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
+        return brand;
+    }
 
     @Override
     // @PreAuthorize("hasRole('ADMIN_SYSTEM')")

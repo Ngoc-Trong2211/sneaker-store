@@ -35,6 +35,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public CategoryEntity findByName(String name) {
+        CategoryEntity category = this.categoryRepository.findByName(name)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
+        return category;
+    }
+
+    @Override
     public CreateCategoryResponse createCategory(CreateCategoryRequest req) {
         if (this.categoryRepository.existsByName(req.getName().toUpperCase()))
             throw new NameExistsException("Name is exists");

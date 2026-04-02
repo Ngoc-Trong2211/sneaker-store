@@ -51,6 +51,10 @@ public class ProductEntity {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
+
+    @ManyToOne
+    @JoinColumn(name = "discount_id")
+    private DiscountEntity discount;
     
     @PrePersist
     public void create(){

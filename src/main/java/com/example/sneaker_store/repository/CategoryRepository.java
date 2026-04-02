@@ -1,6 +1,9 @@
 package com.example.sneaker_store.repository;
 
 import com.example.sneaker_store.model.CategoryEntity;
+
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,4 +20,6 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>,
     @Transactional
     @Query(value = "DELETE FROM tbl_category WHERE parent_id = :id", nativeQuery = true)
     void deleteCategoryExistsParentId(@Param("id") Long id);
+
+    Optional<CategoryEntity> findByName(String name);
 }

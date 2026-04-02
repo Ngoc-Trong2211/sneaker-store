@@ -16,4 +16,5 @@ public interface BrandService {
     GetBrandResponse getBrand(Pageable pageable, String name);
     void deleteBrand(Long id) throws URISyntaxException;
     BrandEntity findById(Long id);
+    BrandEntity findByName(String name);
 }

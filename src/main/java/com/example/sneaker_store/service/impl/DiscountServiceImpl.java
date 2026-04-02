@@ -1,6 +1,9 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.model.BrandEntity;
+import com.example.sneaker_store.model.CategoryEntity;
 import com.example.sneaker_store.model.DiscountEntity;
+import com.example.sneaker_store.model.ProductEntity;
 import com.example.sneaker_store.model.request.discount.CreateDiscountRequest;
 import com.example.sneaker_store.model.request.discount.DiscountSpecificationRequest;
 import com.example.sneaker_store.model.request.discount.UpdateDiscountRequest;
@@ -9,6 +12,9 @@ import com.example.sneaker_store.model.response.discount.GetDiscountResponse;
 import com.example.sneaker_store.model.response.discount.GetDiscountResponse.Discount;
 import com.example.sneaker_store.model.response.discount.UpdateDiscountResponse;
 import com.example.sneaker_store.repository.DiscountRepository;
+import com.example.sneaker_store.repository.ProductRepository;
+import com.example.sneaker_store.service.BrandService;
+import com.example.sneaker_store.service.CategoryService;
 import com.example.sneaker_store.service.DiscountService;
 import com.example.sneaker_store.service.specification.DiscountSpecification;
 import com.example.sneaker_store.util.enumEntity.DiscountStatus;
@@ -17,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -31,6 +38,9 @@ import org.springframework.stereotype.Service;
 public class DiscountServiceImpl implements DiscountService {
     private final DiscountRepository discountRepository;
     private final ModelMapper modelMapper;
+    private final CategoryService categoryService;
+    private final BrandService brandService;
+    private final ProductRepository productRepository;
 
     @Override
     public CreateDiscountResponse createDiscount(CreateDiscountRequest request) {
@@ -46,6 +56,25 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setApplyFor(request.getApplyFor());
         discount.setNameApply(request.getNameApply());
         this.discountRepository.save(discount);
+
+        List<ProductEntity> products;
+        switch (request.getApplyFor().toUpperCase()) {
+            case "CATEGORY":
+                CategoryEntity category = categoryService.findByName(request.getNameApply());
+                products = productRepository.findByCategoryId(category.getId());
+                break;
+            case "BRAND":
+                BrandEntity brand = brandService.findByName(request.getNameApply());
+                products = productRepository.findByBrandId(brand.getId());
+                break;
+            case "ALL":
+                products = productRepository.findAll();
+                break;
+            default:
+                throw new RuntimeException("Invalid applyFor value: " + request.getApplyFor());
+        }
+        products.forEach(p -> p.setDiscount(discount));
+        this.productRepository.saveAll(products);
         return this.modelMapper.map(discount, CreateDiscountResponse.class);
     }
 
@@ -64,6 +93,25 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setApplyFor(request.getApplyFor());
         discount.setNameApply(request.getNameApply());
         this.discountRepository.save(discount);
+
+        List<ProductEntity> products;
+        switch (request.getApplyFor().toUpperCase()) {
+            case "CATEGORY":
+                CategoryEntity category = categoryService.findByName(request.getNameApply());
+                products = productRepository.findByCategoryId(category.getId());
+                break;
+            case "BRAND":
+                BrandEntity brand = brandService.findByName(request.getNameApply());
+                products = productRepository.findByBrandId(brand.getId());
+                break;
+            case "ALL":
+                products = productRepository.findAll();
+                break;
+            default:
+                throw new RuntimeException("Invalid applyFor value: " + request.getApplyFor());
+        }
+        products.forEach(p -> p.setDiscount(discount));
+        this.productRepository.saveAll(products);
         return this.modelMapper.map(discount, UpdateDiscountResponse.class);
     }
 
@@ -105,6 +153,9 @@ public class DiscountServiceImpl implements DiscountService {
     public void deleteDiscount(String id) {
         DiscountEntity discount = this.discountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
+        List<ProductEntity> products = this.productRepository.findByDiscountId(discount.getId());
+        products.forEach(p -> p.setDiscount(null));
+        this.productRepository.saveAll(products);
         this.discountRepository.delete(discount);
     }
 }
