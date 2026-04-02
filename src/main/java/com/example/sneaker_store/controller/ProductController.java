@@ -3,6 +3,7 @@ package com.example.sneaker_store.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sneaker_store.model.request.product.CreateProductRequest;
@@ -14,6 +15,7 @@ import com.example.sneaker_store.model.response.product.GetProductResponse;
 import com.example.sneaker_store.model.response.product.UpdateProductResponse;
 import com.example.sneaker_store.service.ProductService;
 import com.example.sneaker_store.util.ApiMessage;
+import com.example.sneaker_store.util.enumEntity.ProductStatus;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
@@ -64,5 +67,14 @@ public class ProductController {
     public ResponseEntity<GetProductByIdResponse> getProductById(@PathVariable String id) {
         log.info("Received request to get product with id '{}'", id);
         return ResponseEntity.ok(this.productService.getProductById(id));
+    }
+
+    @PatchMapping("/products/{id}/status")
+    @Operation(summary = "Update product status", description = "Updates the status of a product by its unique ID")
+    @ApiMessage(message = "Product status updated successfully")    
+    public ResponseEntity<Void> updateStatusProduct(@PathVariable String id, @RequestParam ProductStatus status) {
+        log.info("Received request to update status of product with id '{}' to '{}'", id, status);
+        this.productService.updateStatusProduct(id, status);
+        return ResponseEntity.ok().build();
     }
 }

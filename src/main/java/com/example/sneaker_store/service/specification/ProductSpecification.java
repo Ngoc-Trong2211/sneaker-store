@@ -15,7 +15,7 @@ public class ProductSpecification {
         return text != null && !text.trim().isEmpty();
     }
 
-    public static Specification<ProductEntity> specDiscount(SpecificationProductRequest request) {
+    public static Specification<ProductEntity> specProduct(SpecificationProductRequest request) {
         return ((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 

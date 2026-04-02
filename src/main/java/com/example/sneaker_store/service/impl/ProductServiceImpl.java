@@ -65,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public GetProductResponse getProducts(Pageable pageable, SpecificationProductRequest request) {
-        Specification<ProductEntity> specification = ProductSpecification.specDiscount(request);
+        Specification<ProductEntity> specification = ProductSpecification.specProduct(request);
         Page<ProductEntity> productPage = this.productRepository.findAll(specification, pageable);
 
         GetProductResponse response = new GetProductResponse();
@@ -83,4 +83,13 @@ public class ProductServiceImpl implements ProductService {
         return this.modelMapper.map(product, GetProductByIdResponse.class);
     }
 
+    @Override
+    public void updateStatusProduct(String id, ProductStatus status) {
+        ProductEntity product = this.productRepository.findById(id).orElseThrow(() -> {
+            log.warn("Product with id '{}' not found", id);
+            return new RuntimeException("Product not found");
+        });
+        product.setStatus(status);
+        this.productRepository.save(product);
+    }
 }

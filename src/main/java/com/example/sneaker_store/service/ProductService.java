@@ -9,10 +9,12 @@ import com.example.sneaker_store.model.response.product.CreateProductResponse;
 import com.example.sneaker_store.model.response.product.GetProductByIdResponse;
 import com.example.sneaker_store.model.response.product.GetProductResponse;
 import com.example.sneaker_store.model.response.product.UpdateProductResponse;
+import com.example.sneaker_store.util.enumEntity.ProductStatus;
 
 public interface ProductService {
     CreateProductResponse createProduct(CreateProductRequest request);
     UpdateProductResponse updateProduct(UpdateProductRequest request);
     GetProductResponse getProducts(Pageable pageable, SpecificationProductRequest request);
     GetProductByIdResponse getProductById(String id);
+    void updateStatusProduct(String id, ProductStatus status);
 }
