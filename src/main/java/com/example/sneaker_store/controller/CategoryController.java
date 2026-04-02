@@ -2,7 +2,6 @@ package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.model.request.category.CreateCategoryRequest;
 import com.example.sneaker_store.model.request.category.UpdateCategoryRequest;
-import com.example.sneaker_store.model.response.brand.GetBrandResponse;
 import com.example.sneaker_store.model.response.category.CreateCategoryResponse;
 import com.example.sneaker_store.model.response.category.GetCategoryResponse;
 import com.example.sneaker_store.model.response.category.UpdateCategoryResponse;

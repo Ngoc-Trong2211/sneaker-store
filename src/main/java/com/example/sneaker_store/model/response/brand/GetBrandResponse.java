@@ -1,6 +1,5 @@
 package com.example.sneaker_store.model.response.brand;
 
-import com.example.sneaker_store.model.response.role.GetRoleResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

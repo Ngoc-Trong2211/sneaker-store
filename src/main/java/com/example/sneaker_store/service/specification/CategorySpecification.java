@@ -1,6 +1,5 @@
 package com.example.sneaker_store.service.specification;
 
-import com.example.sneaker_store.model.BrandEntity;
 import com.example.sneaker_store.model.CategoryEntity;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
