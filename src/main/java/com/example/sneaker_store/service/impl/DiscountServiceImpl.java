@@ -2,7 +2,9 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.DiscountEntity;
 import com.example.sneaker_store.model.request.discount.CreateDiscountRequest;
+import com.example.sneaker_store.model.request.discount.UpdateDiscountRequest;
 import com.example.sneaker_store.model.response.discount.CreateDiscountResponse;
+import com.example.sneaker_store.model.response.discount.UpdateDiscountResponse;
 import com.example.sneaker_store.repository.DiscountRepository;
 import com.example.sneaker_store.service.DiscountService;
 import com.example.sneaker_store.util.enumEntity.DiscountStatus;
@@ -22,6 +24,9 @@ public class DiscountServiceImpl implements DiscountService {
 
         @Override
         public CreateDiscountResponse createDiscount(CreateDiscountRequest request) {
+            if (this.discountRepository.existsByNameApply(request.getNameApply())) {
+                throw new RuntimeException("Discount with nameApply already exists: " + request.getNameApply());
+            }
             DiscountEntity discount = new DiscountEntity();
             discount.setPercent(request.getPercent()); 
             discount.setDescription(request.getDescription());
@@ -33,4 +38,24 @@ public class DiscountServiceImpl implements DiscountService {
             this.discountRepository.save(discount);
             return this.modelMapper.map(discount, CreateDiscountResponse.class);
         }
+
+        @Override
+        public UpdateDiscountResponse updateDiscount(UpdateDiscountRequest request) {
+            DiscountEntity discount = this.discountRepository.findById(request.getId())
+                    .orElseThrow(() -> new RuntimeException("Discount not found with id: " + request.getId()));
+            if (this.discountRepository.existsByNameApply(request.getNameApply()) 
+                && !discount.getNameApply().equals(request.getNameApply())) {
+                throw new RuntimeException("Discount with nameApply already exists: " + request.getNameApply());
+            }
+            discount.setPercent(request.getPercent());
+            discount.setDescription(request.getDescription());
+            discount.setStartTime(request.getStartTime());
+            discount.setEndTime(request.getEndTime());
+            discount.setApplyFor(request.getApplyFor());
+            discount.setNameApply(request.getNameApply());
+            this.discountRepository.save(discount);
+            return this.modelMapper.map(discount, UpdateDiscountResponse.class);
+        }
+
+        
 }
