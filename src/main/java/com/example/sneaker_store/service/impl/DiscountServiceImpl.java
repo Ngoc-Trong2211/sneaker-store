@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -57,5 +58,9 @@ public class DiscountServiceImpl implements DiscountService {
             return this.modelMapper.map(discount, UpdateDiscountResponse.class);
         }
 
-        
+        @Scheduled(cron = "0 0 * * * ?")
+        public void updateExpiredDiscounts() {
+            log.info("Running scheduled task to update expired discounts");
+            this.discountRepository.updateExpiredDiscounts();
+        }
 }
