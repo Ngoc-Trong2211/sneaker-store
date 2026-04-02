@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.sneaker_store.model.request.discount.CreateDiscountRequest;
 import com.example.sneaker_store.model.request.discount.UpdateDiscountRequest;
 import com.example.sneaker_store.model.response.discount.CreateDiscountResponse;
+import com.example.sneaker_store.model.response.discount.GetDiscountResponse;
 import com.example.sneaker_store.model.response.discount.UpdateDiscountResponse;
 import com.example.sneaker_store.service.DiscountService;
 import com.example.sneaker_store.util.ApiMessage;
@@ -20,7 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,4 +47,11 @@ public class DiscountController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.discountService.updateDiscount(request));
     }
 
+    @GetMapping("/discounts/{id}")
+    @Operation(summary = "Get discount by ID", description = "Retrieve a discount by its ID")
+    @ApiMessage(message = "Discount retrieved successfully")
+    public ResponseEntity<GetDiscountResponse.Discount> getDiscountById(@PathVariable String id) {
+        return ResponseEntity.ok(this.discountService.getDiscountById(id));
+    }
+    
 }

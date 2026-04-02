@@ -4,6 +4,8 @@ import com.example.sneaker_store.model.DiscountEntity;
 import com.example.sneaker_store.model.request.discount.CreateDiscountRequest;
 import com.example.sneaker_store.model.request.discount.UpdateDiscountRequest;
 import com.example.sneaker_store.model.response.discount.CreateDiscountResponse;
+import com.example.sneaker_store.model.response.discount.GetDiscountResponse;
+import com.example.sneaker_store.model.response.discount.GetDiscountResponse.Discount;
 import com.example.sneaker_store.model.response.discount.UpdateDiscountResponse;
 import com.example.sneaker_store.repository.DiscountRepository;
 import com.example.sneaker_store.service.DiscountService;
@@ -63,4 +65,13 @@ public class DiscountServiceImpl implements DiscountService {
             log.info("Running scheduled task to update expired discounts");
             this.discountRepository.updateExpiredDiscounts();
         }
+
+        @Override
+        public Discount getDiscountById(String id) {
+            DiscountEntity discount = this.discountRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
+            return this.modelMapper.map(discount, GetDiscountResponse.Discount.class);
+        }
+
+        
 }
