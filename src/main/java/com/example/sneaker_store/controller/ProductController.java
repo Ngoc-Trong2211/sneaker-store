@@ -6,8 +6,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sneaker_store.model.request.product.CreateProductRequest;
+import com.example.sneaker_store.model.request.product.SpecificationProductRequest;
 import com.example.sneaker_store.model.request.product.UpdateProductRequest;
 import com.example.sneaker_store.model.response.product.CreateProductResponse;
+import com.example.sneaker_store.model.response.product.GetProductByIdResponse;
+import com.example.sneaker_store.model.response.product.GetProductResponse;
 import com.example.sneaker_store.model.response.product.UpdateProductResponse;
 import com.example.sneaker_store.service.ProductService;
 import com.example.sneaker_store.util.ApiMessage;
@@ -15,11 +18,14 @@ import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,5 +48,21 @@ public class ProductController {
     public ResponseEntity<UpdateProductResponse> putMethodName(@RequestBody @Valid UpdateProductRequest request) {
         log.info("Received request to update product with id '{}'", request.getId());
         return ResponseEntity.ok(this.productService.updateProduct(request));
+    }
+
+    @GetMapping("/products")
+    @Operation(summary = "Get products with pagination and filtering", description = "Retrieves a paginated list of products based on the provided filters")
+    @ApiMessage(message = "Products retrieved successfully")
+    public ResponseEntity<GetProductResponse> getMethodName(Pageable pageable, SpecificationProductRequest request) {
+        log.info("Received request to get products with filters");
+        return ResponseEntity.ok(this.productService.getProducts(pageable, request));
+    }
+    
+    @GetMapping("/products/{id}")
+    @Operation(summary = "Get product by ID", description = "Retrieves a product by its unique ID")
+    @ApiMessage(message = "Product retrieved successfully")
+    public ResponseEntity<GetProductByIdResponse> getProductById(@PathVariable String id) {
+        log.info("Received request to get product with id '{}'", id);
+        return ResponseEntity.ok(this.productService.getProductById(id));
     }
 }
