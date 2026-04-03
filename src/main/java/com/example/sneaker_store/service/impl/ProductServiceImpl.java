@@ -10,6 +10,10 @@ import com.example.sneaker_store.util.exception.NameExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +23,7 @@ import org.springframework.stereotype.Service;
 import com.example.sneaker_store.model.BrandEntity;
 import com.example.sneaker_store.model.CategoryEntity;
 import com.example.sneaker_store.model.ProductEntity;
+import com.example.sneaker_store.model.ProductImageEntity;
 import com.example.sneaker_store.model.request.product.CreateProductRequest;
 import com.example.sneaker_store.model.request.product.SpecificationProductRequest;
 import com.example.sneaker_store.model.request.product.UpdateProductRequest;
@@ -53,6 +58,27 @@ public class ProductServiceImpl implements ProductService {
         product.setBrand(brand);
         product.setCategory(category);
         this.productRepository.save(product);
+
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            if (request.getImages().size() > 6) {
+                log.warn("Too many images provided for product '{}'", request.getName());
+                throw new IllegalArgumentException("Maximum 6 images allowed");
+            }
+            else{
+                List<ProductImageEntity> productImages = IntStream.range(0, request.getImages().size())
+                    .mapToObj(i -> {
+                        ProductImageEntity image = new ProductImageEntity();
+                        image.setImageURL(request.getImages().get(i));
+                        image.setMain(i == 0);
+                        image.setProduct(product);
+                        return image;
+                    })
+                    .collect(Collectors.toList());
+                product.setImages(productImages);
+            }
+        }
+        this.productRepository.save(product);
+
         CreateProductResponse res = this.modelMapper.map(product, CreateProductResponse.class);
         res.setBrandName(product.getBrand().getName());
         res.setCategoryName(product.getCategory().getName());
@@ -77,6 +103,27 @@ public class ProductServiceImpl implements ProductService {
         product.setBrand(brand);
         product.setCategory(category);
         this.productRepository.save(product);
+
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            if (request.getImages().size() > 6) {
+                log.warn("Too many images provided for product '{}'", request.getName());
+                throw new IllegalArgumentException("Maximum 6 images allowed");
+            }
+            else{
+                List<ProductImageEntity> productImages = IntStream.range(0, request.getImages().size())
+                    .mapToObj(i -> {
+                        ProductImageEntity image = new ProductImageEntity();
+                        image.setImageURL(request.getImages().get(i));
+                        image.setMain(i == 0);
+                        image.setProduct(product);
+                        return image;
+                    })
+                    .collect(Collectors.toList());
+                product.setImages(productImages);
+            }
+        }
+        this.productRepository.save(product);
+        
         UpdateProductResponse res = this.modelMapper.map(product, UpdateProductResponse.class);
         res.setBrandName(product.getBrand().getName());
         res.setCategoryName(product.getCategory().getName());
@@ -128,6 +175,7 @@ public class ProductServiceImpl implements ProductService {
             return new RuntimeException("Product not found");
         });
         product.setStatus(ProductStatus.DELETED);
+        product.getImages().clear();
         this.productRepository.save(product);
     }
 }

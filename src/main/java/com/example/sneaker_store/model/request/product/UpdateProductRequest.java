@@ -1,7 +1,10 @@
 package com.example.sneaker_store.model.request.product;
 
+import java.util.List;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,4 +28,7 @@ public class UpdateProductRequest {
 
     @NotNull(message = "Category ID is required")
     private Long categoryId;
+
+    @Size(max = 6, message = "Maximum 6 images allowed")
+    private List<String> images;
 }

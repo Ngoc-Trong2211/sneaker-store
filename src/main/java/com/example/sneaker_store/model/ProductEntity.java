@@ -1,13 +1,16 @@
 package com.example.sneaker_store.model;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.hibernate.annotations.UuidGenerator;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
 import com.example.sneaker_store.util.SlugUtil;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +18,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -55,7 +59,11 @@ public class ProductEntity {
     @ManyToOne
     @JoinColumn(name = "discount_id")
     private DiscountEntity discount;
-    
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ProductImageEntity> images;
+
     @PrePersist
     public void create(){
         this.createdAt = Instant.now();

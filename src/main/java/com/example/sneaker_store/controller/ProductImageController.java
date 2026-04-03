@@ -3,6 +3,7 @@ package com.example.sneaker_store.controller;
 import com.example.sneaker_store.model.request.productImage.CreateProductImageRequest;
 import com.example.sneaker_store.model.request.productImage.UpdateProductImageRequest;
 import com.example.sneaker_store.model.response.productImage.CreateProductImageResponse;
+import com.example.sneaker_store.model.response.productImage.GetProductImageResponse;
 import com.example.sneaker_store.model.response.productImage.UpdateProductImageResponse;
 import com.example.sneaker_store.service.ProductImageService;
 import com.example.sneaker_store.util.ApiMessage;
@@ -46,5 +47,13 @@ public class ProductImageController {
         log.info("DELETE PRODUCT IMAGE");
         this.productImageService.deleteProductImage(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/product-images/{productId}")
+    @ApiMessage(message = "Lấy product image thành công")
+    @Operation(summary = "Get product image by product id", description = "Lấy product image theo product id")
+    public ResponseEntity<GetProductImageResponse> getByProductId(@PathVariable String productId) {
+        log.info("GET PRODUCT IMAGE BY ID");
+        return ResponseEntity.ok(this.productImageService.getProductImageById(productId));
     }
 }

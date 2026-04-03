@@ -25,6 +25,10 @@ public class ProductImageEntity {
     private Instant updatedAt;
     private String updatedBy;
 
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private ProductEntity product;
+
     @PrePersist
     public void create(){
         this.createdAt = Instant.now();
