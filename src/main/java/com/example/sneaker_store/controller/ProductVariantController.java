@@ -23,7 +23,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
@@ -55,12 +57,22 @@ public class ProductVariantController {
     }
 
     @GetMapping("product-variants")
+    @Operation(summary = "Get product variants with pagination and filtering", description = "Get a paginated list of product variants filtered by size and color.")
+    @ApiMessage(message = "Product variants retrieved successfully")
     public ResponseEntity<GetProductVariantResponse> getMethodName(Pageable pageable,
             @RequestParam(required = false) String size, @RequestParam(required = false) String color) {
         SpecificationProductVariantRequest request = new SpecificationProductVariantRequest();
         request.setSize(size);
         request.setColor(color);
         return ResponseEntity.ok(this.productVariantService.getProductVariant(pageable, request));
+    }
+
+    @DeleteMapping("/product-variants/{id}")
+    @Operation(summary = "Delete a product variant", description = "Delete a product variant with the specified ID.")
+    @ApiMessage(message = "Product variant deleted successfully")
+    public ResponseEntity<Void> deleteProductVariant(@PathVariable String id) {
+        this.productVariantService.deleteProductVariant(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

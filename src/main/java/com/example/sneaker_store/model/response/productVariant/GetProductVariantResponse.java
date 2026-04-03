@@ -34,5 +34,6 @@ public class GetProductVariantResponse {
         private String color;
         private int stock;
         private String sku;
+        private String status;
     }
 }

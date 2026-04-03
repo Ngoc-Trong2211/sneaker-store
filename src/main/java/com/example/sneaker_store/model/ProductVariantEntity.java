@@ -5,8 +5,11 @@ import java.time.Instant;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
+import com.example.sneaker_store.util.enumEntity.VariantStatus;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.PrePersist;
@@ -29,6 +32,9 @@ public class ProductVariantEntity {
     private int stock;
     private String sku;
 
+    @Enumerated(EnumType.STRING)
+    private VariantStatus status;
+
     private Instant createdAt;
     private String createdBy;
     private Instant updatedAt;
@@ -39,6 +45,7 @@ public class ProductVariantEntity {
         this.createdAt = Instant.now();
         this.createdBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
+        this.status = VariantStatus.ACTIVE;
     }
 
     @PreUpdate

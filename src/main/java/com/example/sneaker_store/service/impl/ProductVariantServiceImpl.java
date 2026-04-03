@@ -2,6 +2,7 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.service.ProductVariantService;
 import com.example.sneaker_store.service.specification.ProductVariantSpecification;
+import com.example.sneaker_store.util.enumEntity.VariantStatus;
 import com.example.sneaker_store.model.ProductVariantEntity;
 import com.example.sneaker_store.model.request.productVariant.CreateProductVariantRequest;
 import com.example.sneaker_store.model.request.productVariant.SpecificationProductVariantRequest;
@@ -85,6 +86,17 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         response.setProductVariants(productVariantPage.getContent().stream().map(
             productVariant -> this.modelMapper.map(productVariant, GetProductVariantResponse.ProductVariant.class)).toList());
         return response;
+    }
+
+    @Override
+    public void deleteProductVariant(String id) {
+        ProductVariantEntity existingVariant = this.productVariantRepository.findById(id).orElse(null);
+        if (existingVariant == null) {
+            log.warn("Product variant with id: {} not found", id);
+            throw new RuntimeException("Product variant not found");
+        }
+        existingVariant.setStatus(VariantStatus.DELETED);
+        this.productVariantRepository.save(existingVariant);
     }  
 
     

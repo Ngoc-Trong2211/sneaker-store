@@ -13,4 +13,5 @@ public interface ProductVariantService {
     CreateProductVariantResponse createProductVariant(CreateProductVariantRequest request);
     UpdateProductVariantResponse updateProductVariant(UpdateProductVariantRequest request);
     GetProductVariantResponse getProductVariant(Pageable pageable, SpecificationProductVariantRequest request);
+    void deleteProductVariant(String id);
 }
