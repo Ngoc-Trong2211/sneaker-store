@@ -1,11 +1,13 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.service.ProductVariantService;
-
+import com.example.sneaker_store.service.specification.ProductVariantSpecification;
 import com.example.sneaker_store.model.ProductVariantEntity;
 import com.example.sneaker_store.model.request.productVariant.CreateProductVariantRequest;
+import com.example.sneaker_store.model.request.productVariant.SpecificationProductVariantRequest;
 import com.example.sneaker_store.model.request.productVariant.UpdateProductVariantRequest;
 import com.example.sneaker_store.model.response.productVariant.CreateProductVariantResponse;
+import com.example.sneaker_store.model.response.productVariant.GetProductVariantResponse;
 import com.example.sneaker_store.model.response.productVariant.UpdateProductVariantResponse;
 import com.example.sneaker_store.repository.ProductVariantRepository;
 
@@ -13,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -69,5 +74,18 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             this.productVariantRepository.save(existingVariant);
             return this.modelMapper.map(existingVariant, UpdateProductVariantResponse.class);
         }
+    }
+
+    @Override
+    public GetProductVariantResponse getProductVariant(Pageable pageable, SpecificationProductVariantRequest request) {
+        Specification<ProductVariantEntity> specification = ProductVariantSpecification.specVariant(request);
+        Page<ProductVariantEntity> productVariantPage = this.productVariantRepository.findAll(specification, pageable);
+        GetProductVariantResponse response = new GetProductVariantResponse();
+        response.setPage(this.modelMapper.map(productVariantPage, GetProductVariantResponse.DataPage.class));
+        response.setProductVariants(productVariantPage.getContent().stream().map(
+            productVariant -> this.modelMapper.map(productVariant, GetProductVariantResponse.ProductVariant.class)).toList());
+        return response;
     }  
+
+    
 }

@@ -4,8 +4,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sneaker_store.model.request.productVariant.CreateProductVariantRequest;
+import com.example.sneaker_store.model.request.productVariant.SpecificationProductVariantRequest;
 import com.example.sneaker_store.model.request.productVariant.UpdateProductVariantRequest;
 import com.example.sneaker_store.model.response.productVariant.CreateProductVariantResponse;
+import com.example.sneaker_store.model.response.productVariant.GetProductVariantResponse;
 import com.example.sneaker_store.model.response.productVariant.UpdateProductVariantResponse;
 import com.example.sneaker_store.service.ProductVariantService;
 import com.example.sneaker_store.util.ApiMessage;
@@ -15,11 +17,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,17 +36,31 @@ public class ProductVariantController {
     @PostMapping("/product-variants")
     @Operation(summary = "Create a new product variant", description = "Create a new product variant with the specified size, color, stock, and SKU.")
     @ApiMessage(message = "Product variant created successfully")
-    public ResponseEntity<CreateProductVariantResponse> createProductVariant(@RequestBody @Valid CreateProductVariantRequest request) {
+    public ResponseEntity<CreateProductVariantResponse> createProductVariant(
+            @RequestBody @Valid CreateProductVariantRequest request) {
         log.info("Received request to create product variant with size: {}, color: {}, stock: {}, sku: {}",
                 request.getSize(), request.getColor(), request.getStock(), request.getSku());
         return ResponseEntity.status(HttpStatus.CREATED).body(this.productVariantService.createProductVariant(request));
     }
 
     @PutMapping("/product-variants")
-    public ResponseEntity<UpdateProductVariantResponse> updateProductVariant(@RequestBody @Valid UpdateProductVariantRequest request) {
+    @Operation(summary = "Update an existing product variant", description = "Update an existing product variant with the specified ID, size, color, stock, and SKU.")
+    @ApiMessage(message = "Product variant updated successfully")
+    public ResponseEntity<UpdateProductVariantResponse> updateProductVariant(
+            @RequestBody @Valid UpdateProductVariantRequest request) {
         log.info("Received request to update product variant with id: {}, size: {}, color: {}, stock: {}, sku: {}",
                 request.getId(), request.getSize(), request.getColor(), request.getStock(), request.getSku());
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.productVariantService.updateProductVariant(request));
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(this.productVariantService.updateProductVariant(request));
     }
-    
+
+    @GetMapping("product-variants")
+    public ResponseEntity<GetProductVariantResponse> getMethodName(Pageable pageable,
+            @RequestParam(required = false) String size, @RequestParam(required = false) String color) {
+        SpecificationProductVariantRequest request = new SpecificationProductVariantRequest();
+        request.setSize(size);
+        request.setColor(color);
+        return ResponseEntity.ok(this.productVariantService.getProductVariant(pageable, request));
+    }
+
 }
