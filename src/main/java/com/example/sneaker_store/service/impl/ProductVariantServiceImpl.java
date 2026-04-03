@@ -143,6 +143,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             log.warn("Product variant with id: {} not found", id);
             throw new RuntimeException("Product variant not found");
         }
+        if (status == VariantStatus.SOLD_OUT && existingVariant.getStock() > 0) throw new RuntimeException("Stock > 0");
         existingVariant.setStatus(status);
         this.productVariantRepository.save(existingVariant);
     }
