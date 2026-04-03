@@ -16,7 +16,7 @@ public class CreateProductVariantRequest {
 
     @NotNull(message = "Stock is required")
     private Integer stock;
-    
-    @NotBlank(message = "SKU is required")
-    private String sku;
+
+    @NotBlank(message = "Product ID is required")
+    private String productId;
 }

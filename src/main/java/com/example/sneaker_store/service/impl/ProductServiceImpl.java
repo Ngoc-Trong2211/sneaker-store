@@ -164,6 +164,7 @@ public class ProductServiceImpl implements ProductService {
             log.warn("Product with id '{}' not found", id);
             return new RuntimeException("Product not found");
         });
+        if (status == ProductStatus.SOLD_OUT && product.getQuantity() > 0) throw new RuntimeException("Quantity > 0");
         product.setStatus(status);
         this.productRepository.save(product);
     }

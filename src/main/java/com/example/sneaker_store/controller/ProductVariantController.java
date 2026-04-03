@@ -42,8 +42,8 @@ public class ProductVariantController {
     @ApiMessage(message = "Product variant created successfully")
     public ResponseEntity<CreateProductVariantResponse> createProductVariant(
             @RequestBody @Valid CreateProductVariantRequest request) {
-        log.info("Received request to create product variant with size: {}, color: {}, stock: {}, sku: {}",
-                request.getSize(), request.getColor(), request.getStock(), request.getSku());
+        log.info("Received request to create product variant with size: {}, color: {}, stock: {}",
+                request.getSize(), request.getColor(), request.getStock());
         return ResponseEntity.status(HttpStatus.CREATED).body(this.productVariantService.createProductVariant(request));
     }
 
@@ -52,8 +52,8 @@ public class ProductVariantController {
     @ApiMessage(message = "Product variant updated successfully")
     public ResponseEntity<UpdateProductVariantResponse> updateProductVariant(
             @RequestBody @Valid UpdateProductVariantRequest request) {
-        log.info("Received request to update product variant with id: {}, size: {}, color: {}, stock: {}, sku: {}",
-                request.getId(), request.getSize(), request.getColor(), request.getStock(), request.getSku());
+        log.info("Received request to update product variant with id: {}, size: {}, color: {}, stock: {}",
+                request.getId(), request.getSize(), request.getColor(), request.getStock());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(this.productVariantService.updateProductVariant(request));
     }

@@ -15,6 +15,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -39,6 +40,7 @@ public class ProductEntity {
     private String description;
     private double price;
     private String slug;
+    private int quantity;
 
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
@@ -59,6 +61,10 @@ public class ProductEntity {
     @ManyToOne
     @JoinColumn(name = "discount_id")
     private DiscountEntity discount;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ProductVariantEntity> variants;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

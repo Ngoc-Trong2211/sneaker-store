@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import com.example.sneaker_store.model.ProductVariantEntity;
 
 public interface ProductVariantRepository extends JpaRepository<ProductVariantEntity, String>, JpaSpecificationExecutor<ProductVariantEntity> {
-    ProductVariantEntity findByColorAndSize(String color, String size);
+    ProductVariantEntity findByColorAndSizeAndProductId(String color, String size, String productId);
 }
