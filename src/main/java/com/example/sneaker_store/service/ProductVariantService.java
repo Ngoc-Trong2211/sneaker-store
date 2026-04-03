@@ -8,10 +8,12 @@ import com.example.sneaker_store.model.request.productVariant.UpdateProductVaria
 import com.example.sneaker_store.model.response.productVariant.CreateProductVariantResponse;
 import com.example.sneaker_store.model.response.productVariant.GetProductVariantResponse;
 import com.example.sneaker_store.model.response.productVariant.UpdateProductVariantResponse;
+import com.example.sneaker_store.util.enumEntity.VariantStatus;
 
 public interface ProductVariantService {
     CreateProductVariantResponse createProductVariant(CreateProductVariantRequest request);
     UpdateProductVariantResponse updateProductVariant(UpdateProductVariantRequest request);
     GetProductVariantResponse getProductVariant(Pageable pageable, SpecificationProductVariantRequest request);
     void deleteProductVariant(String id);
+    void updateProductVariantStatus(String id, VariantStatus status);
 }

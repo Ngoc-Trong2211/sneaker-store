@@ -11,6 +11,7 @@ import com.example.sneaker_store.model.response.productVariant.GetProductVariant
 import com.example.sneaker_store.model.response.productVariant.UpdateProductVariantResponse;
 import com.example.sneaker_store.service.ProductVariantService;
 import com.example.sneaker_store.util.ApiMessage;
+import com.example.sneaker_store.util.enumEntity.VariantStatus;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -75,4 +77,11 @@ public class ProductVariantController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/product-variants/{id}/status")
+    @Operation(summary = "Update the status of a product variant", description = "Update the status of a product variant with the specified ID.")
+    @ApiMessage(message = "Product variant status updated successfully")
+    public ResponseEntity<Void> updateProductVariantStatus(@PathVariable String id, @RequestParam VariantStatus status) {
+        this.productVariantService.updateProductVariantStatus(id, status);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
 }

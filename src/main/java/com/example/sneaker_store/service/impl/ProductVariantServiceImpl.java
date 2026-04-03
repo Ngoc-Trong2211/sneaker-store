@@ -99,5 +99,14 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         this.productVariantRepository.save(existingVariant);
     }  
 
-    
+    @Override
+    public void updateProductVariantStatus(String id, VariantStatus status) {
+        ProductVariantEntity existingVariant = this.productVariantRepository.findById(id).orElse(null);
+        if (existingVariant == null) {
+            log.warn("Product variant with id: {} not found", id);
+            throw new RuntimeException("Product variant not found");
+        }
+        existingVariant.setStatus(status);
+        this.productVariantRepository.save(existingVariant);
+    }
 }
