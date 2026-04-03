@@ -4,7 +4,9 @@ import com.example.sneaker_store.service.ProductVariantService;
 
 import com.example.sneaker_store.model.ProductVariantEntity;
 import com.example.sneaker_store.model.request.productVariant.CreateProductVariantRequest;
+import com.example.sneaker_store.model.request.productVariant.UpdateProductVariantRequest;
 import com.example.sneaker_store.model.response.productVariant.CreateProductVariantResponse;
+import com.example.sneaker_store.model.response.productVariant.UpdateProductVariantResponse;
 import com.example.sneaker_store.repository.ProductVariantRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -42,4 +44,30 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             return this.modelMapper.map(productVariant, CreateProductVariantResponse.class);
         }
     }
+
+    @Override
+    public UpdateProductVariantResponse updateProductVariant(UpdateProductVariantRequest request) {
+        log.info("Updating product variant with id: {}, size: {}, color: {}, stock: {}, sku: {}",
+                request.getId(), request.getSize(), request.getColor(), request.getStock(), request.getSku());  
+        ProductVariantEntity existingVariant = this.productVariantRepository.findById(request.getId()).orElse(null);
+        if (existingVariant == null) {
+            log.warn("Product variant with id: {} not found", request.getId());
+            throw new RuntimeException("Product variant not found");
+        } 
+        if (this.productVariantRepository.findByColorAndSize(request.getColor(), request.getSize()) != null) {
+            log.warn("Product variant with size: {} and color: {} already exists", request.getSize(), request.getColor());
+            ProductVariantEntity productVariant = this.productVariantRepository.findByColorAndSize(request.getColor(), request.getSize());
+            existingVariant.setStock(productVariant.getStock() + request.getStock());
+            this.productVariantRepository.save(productVariant);
+            return this.modelMapper.map(productVariant, UpdateProductVariantResponse.class);
+        }
+        else{
+            existingVariant.setSize(request.getSize());
+            existingVariant.setColor(request.getColor());
+            existingVariant.setStock(request.getStock());
+            existingVariant.setSku(request.getSku());
+            this.productVariantRepository.save(existingVariant);
+            return this.modelMapper.map(existingVariant, UpdateProductVariantResponse.class);
+        }
+    }  
 }

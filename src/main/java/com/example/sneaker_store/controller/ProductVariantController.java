@@ -4,7 +4,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sneaker_store.model.request.productVariant.CreateProductVariantRequest;
+import com.example.sneaker_store.model.request.productVariant.UpdateProductVariantRequest;
 import com.example.sneaker_store.model.response.productVariant.CreateProductVariantResponse;
+import com.example.sneaker_store.model.response.productVariant.UpdateProductVariantResponse;
 import com.example.sneaker_store.service.ProductVariantService;
 import com.example.sneaker_store.util.ApiMessage;
 
@@ -17,7 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +35,13 @@ public class ProductVariantController {
         log.info("Received request to create product variant with size: {}, color: {}, stock: {}, sku: {}",
                 request.getSize(), request.getColor(), request.getStock(), request.getSku());
         return ResponseEntity.status(HttpStatus.CREATED).body(this.productVariantService.createProductVariant(request));
+    }
+
+    @PutMapping("/product-variants")
+    public ResponseEntity<UpdateProductVariantResponse> updateProductVariant(@RequestBody @Valid UpdateProductVariantRequest request) {
+        log.info("Received request to update product variant with id: {}, size: {}, color: {}, stock: {}, sku: {}",
+                request.getId(), request.getSize(), request.getColor(), request.getStock(), request.getSku());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.productVariantService.updateProductVariant(request));
     }
     
 }
