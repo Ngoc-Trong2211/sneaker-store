@@ -4,7 +4,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sneaker_store.model.request.address.CreateAddressRequest;
+import com.example.sneaker_store.model.request.address.UpdateAddressRequest;
 import com.example.sneaker_store.model.response.address.CreateAddressResponse;
+import com.example.sneaker_store.model.response.address.UpdateAddressResponse;
 import com.example.sneaker_store.service.AddressService;
 import com.example.sneaker_store.util.ApiMessage;
 
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -34,4 +37,11 @@ public class AddressController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.addressService.createAddress(req));
     }
     
+    @PutMapping("/address")
+    @Operation(summary = "Update an existing address", description = "Updates an existing address with the provided details")
+    @ApiMessage(message = "Address updated successfully")
+    public ResponseEntity<UpdateAddressResponse> putMethodName(@RequestBody @Valid UpdateAddressRequest request) {
+        log.info("Received request to update address with id '{}'", request.getId());
+        return ResponseEntity.ok(this.addressService.updateAddress(request));
+    }
 }

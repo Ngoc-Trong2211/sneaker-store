@@ -5,9 +5,12 @@ import org.springframework.stereotype.Service;
 
 import com.example.sneaker_store.model.AddressEntity;
 import com.example.sneaker_store.model.request.address.CreateAddressRequest;
+import com.example.sneaker_store.model.request.address.UpdateAddressRequest;
 import com.example.sneaker_store.model.response.address.CreateAddressResponse;
+import com.example.sneaker_store.model.response.address.UpdateAddressResponse;
 import com.example.sneaker_store.repository.AddressRepository;
 import com.example.sneaker_store.service.AddressService;
+import com.example.sneaker_store.util.exception.user.IdInvalidException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +31,17 @@ public class AddressServiceImpl implements AddressService{
         address.setDefault(false);
         this.addressRepository.save(address);
         return this.modelMapper.map(address, CreateAddressResponse.class);
+    }
+
+    @Override
+    public UpdateAddressResponse updateAddress(UpdateAddressRequest req) {
+        AddressEntity address = this.addressRepository.findById(req.getId())
+            .orElseThrow(() -> new IdInvalidException("khong ton tai address nay"));
+        address.setWard(req.getWard());
+        address.setAddressLine(req.getAddressLine());
+        address.setCity(req.getCity());
+        this.addressRepository.save(address);
+        return this.modelMapper.map(address, UpdateAddressResponse.class);
     }
     
 }
