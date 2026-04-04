@@ -9,4 +9,5 @@ public interface AddressService {
     CreateAddressResponse createAddress(CreateAddressRequest req);
     UpdateAddressResponse updateAddress(UpdateAddressRequest req);
     void updateDefault(Long id);
+    void deleteAddress(Long id);
 }

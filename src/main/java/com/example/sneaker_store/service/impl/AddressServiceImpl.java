@@ -51,5 +51,12 @@ public class AddressServiceImpl implements AddressService{
         address.setDefault(true);
         this.addressRepository.save(address);
     }
+
+    @Override
+    public void deleteAddress(Long id) {
+        AddressEntity address = this.addressRepository.findById(id)
+            .orElseThrow(() -> new IdInvalidException("khong ton tai address nay"));
+        this.addressRepository.deleteById(address.getId());
+    }
     
 }

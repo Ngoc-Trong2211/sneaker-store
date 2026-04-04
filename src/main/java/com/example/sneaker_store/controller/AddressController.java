@@ -17,12 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 
 @RestController
 @Slf4j(topic = "ADDRESS-CONTROLLER")
@@ -54,5 +54,13 @@ public class AddressController {
         log.info("Received request to update default address with id '{}'", id);
         this.addressService.updateDefault(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(null);
+    }
+
+    @DeleteMapping("/address/{id}/remove")
+    @Operation(summary = "Delete a address", description = "Delete a address with the specified ID.")
+    @ApiMessage(message = "Address deleted successfully")
+    public ResponseEntity<Void> deleteProductVariant(@PathVariable Long id) {
+        this.addressService.deleteAddress(id);
+        return ResponseEntity.noContent().build();
     }
 }
