@@ -43,5 +43,13 @@ public class AddressServiceImpl implements AddressService{
         this.addressRepository.save(address);
         return this.modelMapper.map(address, UpdateAddressResponse.class);
     }
+
+    @Override
+    public void updateDefault(Long id) {
+        AddressEntity address = this.addressRepository.findById(id)
+            .orElseThrow(() -> new IdInvalidException("khong ton tai address nay"));
+        address.setDefault(true);
+        this.addressRepository.save(address);
+    }
     
 }

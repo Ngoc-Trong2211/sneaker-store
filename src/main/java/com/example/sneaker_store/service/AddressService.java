@@ -8,4 +8,5 @@ import com.example.sneaker_store.model.response.address.UpdateAddressResponse;
 public interface AddressService {
     CreateAddressResponse createAddress(CreateAddressRequest req);
     UpdateAddressResponse updateAddress(UpdateAddressRequest req);
+    void updateDefault(Long id);
 }
