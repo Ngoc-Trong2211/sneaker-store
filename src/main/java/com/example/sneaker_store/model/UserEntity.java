@@ -2,12 +2,15 @@ package com.example.sneaker_store.model;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Getter
@@ -38,6 +41,10 @@ public class UserEntity {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private RoleEntity role;
+    
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<AddressEntity> address;
 
     @PrePersist
     public void create(){

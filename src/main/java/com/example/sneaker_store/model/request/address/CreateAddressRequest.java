@@ -1,7 +1,7 @@
 package com.example.sneaker_store.model.request.address;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +17,15 @@ public class CreateAddressRequest {
     @NotBlank(message = "City không được để trống")
     private String city;
 
-    @NotNull(message = "Is default không được để trống")
-    private boolean isDefault;
+    @NotBlank(message = "User id không được để trống")
+    private String userId;
+
+    @NotBlank(message = "Name không được để trống")
+    private String name;
+
+    @Pattern(
+        regexp = "^(?:\\+84|0)[35789]\\d{8}$",
+        message = "Số điện thoại không hợp lệ"
+    )
+    private String phone;
 }

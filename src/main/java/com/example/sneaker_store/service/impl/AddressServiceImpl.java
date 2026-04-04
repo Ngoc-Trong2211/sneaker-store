@@ -1,14 +1,19 @@
 package com.example.sneaker_store.service.impl;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.example.sneaker_store.model.AddressEntity;
+import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.model.request.address.CreateAddressRequest;
 import com.example.sneaker_store.model.request.address.UpdateAddressRequest;
 import com.example.sneaker_store.model.response.address.CreateAddressResponse;
+import com.example.sneaker_store.model.response.address.GetAddressResponse;
 import com.example.sneaker_store.model.response.address.UpdateAddressResponse;
 import com.example.sneaker_store.repository.AddressRepository;
+import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.AddressService;
 import com.example.sneaker_store.util.exception.user.IdInvalidException;
 
@@ -21,14 +26,23 @@ import lombok.extern.slf4j.Slf4j;
 public class AddressServiceImpl implements AddressService{
     private final AddressRepository addressRepository;
     private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
 
     @Override
     public CreateAddressResponse createAddress(CreateAddressRequest req) {
+        UserEntity user = this.userRepository.findById(req.getUserId())
+            .orElseThrow(() -> new IdInvalidException("User khong ton tai"));
         AddressEntity address = new AddressEntity();
+        if (this.addressRepository.existsByWardAndAddressLineAndCityAndUserId
+            (req.getWard(), req.getAddressLine(), req.getCity(), req.getUserId())) throw new RuntimeException("Da ton tai dia chi nay!");
         address.setWard(req.getWard());
         address.setAddressLine(req.getAddressLine());
         address.setCity(req.getCity());
-        address.setDefault(false);
+        if (user.getAddress().isEmpty()) address.setDefault(true);
+        else address.setDefault(false);
+        address.setName(req.getName());
+        address.setPhone(req.getPhone());
+        address.setUser(user);
         this.addressRepository.save(address);
         return this.modelMapper.map(address, CreateAddressResponse.class);
     }
@@ -45,7 +59,13 @@ public class AddressServiceImpl implements AddressService{
     }
 
     @Override
-    public void updateDefault(Long id) {
+    public void updateDefault(Long id, String userId) {
+        UserEntity user = this.userRepository.findById(userId)
+            .orElseThrow(() -> new IdInvalidException("User khong ton tai"));
+        user.getAddress().forEach(address -> {
+            address.setDefault(false);
+            this.addressRepository.save(address);
+        });
         AddressEntity address = this.addressRepository.findById(id)
             .orElseThrow(() -> new IdInvalidException("khong ton tai address nay"));
         address.setDefault(true);
@@ -58,5 +78,12 @@ public class AddressServiceImpl implements AddressService{
             .orElseThrow(() -> new IdInvalidException("khong ton tai address nay"));
         this.addressRepository.deleteById(address.getId());
     }
-    
+
+    @Override
+    public GetAddressResponse getAddressByUserId(String userId) {
+        List<AddressEntity> address = this.addressRepository.findByUserId(userId);
+        GetAddressResponse res = new GetAddressResponse();
+        res.setAddress(address.stream().map(add -> this.modelMapper.map(add, GetAddressResponse.Address.class)).toList());
+        return res;
+    }
 }

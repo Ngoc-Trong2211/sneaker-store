@@ -8,6 +8,8 @@ import lombok.Setter;
 public class CreateAddressResponse {
     private Long id;
 
+    private String name;
+    private String phone;
     private String ward;
     private String addressLine;
     private String city;
