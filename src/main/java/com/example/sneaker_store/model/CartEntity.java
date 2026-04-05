@@ -6,9 +6,9 @@ import org.hibernate.annotations.UuidGenerator;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -22,7 +22,7 @@ import lombok.Setter;
 public class CartEntity {
     @Id
     @UuidGenerator
-    @JoinColumn(columnDefinition = "CHAR(36)", nullable = false, updatable = false)
+    @Column(columnDefinition = "CHAR(36)", nullable = false, updatable = false)
     private String id;
 
     private String guestId;

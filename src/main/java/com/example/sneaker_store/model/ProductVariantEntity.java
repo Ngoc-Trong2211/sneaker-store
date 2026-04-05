@@ -7,6 +7,7 @@ import org.hibernate.annotations.UuidGenerator;
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
 import com.example.sneaker_store.util.enumEntity.VariantStatus;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,7 +27,7 @@ import lombok.Setter;
 public class ProductVariantEntity {
     @Id
     @UuidGenerator
-    @JoinColumn(columnDefinition = "CHAR(36)", nullable = false, updatable = false)
+    @Column(columnDefinition = "CHAR(36)", nullable = false, updatable = false)
     private String id;
     private String size;
     private String color;
