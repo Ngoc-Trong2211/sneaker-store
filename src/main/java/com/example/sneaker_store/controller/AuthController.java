@@ -30,9 +30,10 @@ public class AuthController {
     @PostMapping("/auth/login")
     @ApiMessage(message = "Login success")
     @Operation(summary = "Login user", description = "Login user in system")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest auth) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest auth,
+                                               @CookieValue(name = "guestId", required = false) String guestId) {
         log.info("Login");
-        LoginResult loginResult = this.authService.loginUser(auth);
+        LoginResult loginResult = this.authService.loginUser(auth, guestId);
 
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh", loginResult.getRefreshToken())

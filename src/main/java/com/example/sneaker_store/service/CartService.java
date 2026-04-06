@@ -1,7 +1,7 @@
 package com.example.sneaker_store.service;
 
-import com.example.sneaker_store.model.response.cart.CreateCartResponse;
+import com.example.sneaker_store.model.CartEntity;
 
 public interface CartService {
-    CreateCartResponse createCart(String guestId);
+    CartEntity createCart(String guestId);
 }

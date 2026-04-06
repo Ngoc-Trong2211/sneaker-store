@@ -1,7 +1,9 @@
 package com.example.sneaker_store.model;
 
 import java.time.Instant;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -21,16 +23,16 @@ public class CartEntity {
     private String id;
 
     private String guestId;
+    private String userId;
 
     private Instant createdAt;
     private String createdBy;
     private Instant updatedAt;
     private String updatedBy;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
+    @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<CartItemEntity> cartItems;
 
     @PrePersist
     public void create(){

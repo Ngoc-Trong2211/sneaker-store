@@ -7,6 +7,7 @@ import com.example.sneaker_store.model.response.auth.LoginResponse;
 import com.example.sneaker_store.model.response.auth.LoginResult;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.AuthService;
+import com.example.sneaker_store.service.CartService;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
 import com.example.sneaker_store.util.exception.RefreshTokenInvalidException;
@@ -48,6 +49,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtEncoder jwtEncoder;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CartService cartService;
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
@@ -112,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
 
     public String createRefreshToken(String email, LoginResponse.UserLogin user){
         Instant now = Instant.now();
-        Instant validity = now.plus(accessTokenTime, ChronoUnit.SECONDS);
+        Instant validity = now.plus(refreshTokenTime, ChronoUnit.SECONDS);
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .claim("sneaker-store", user.getId())
@@ -127,7 +129,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResult loginUser(LoginRequest req) {
+    public LoginResult loginUser(LoginRequest req, String guestId) {
         UsernamePasswordAuthenticationToken authenticationToken = new
                 UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword());
         Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
@@ -155,6 +157,10 @@ public class AuthServiceImpl implements AuthService {
             result.setLoginResponse(loginResponse);
 
             this.userService.updateRefreshToken(refreshToken, user);
+        }
+
+        if (guestId != null && !guestId.isBlank()) {
+            this.cartService.createCart(guestId);
         }
 
         return result;

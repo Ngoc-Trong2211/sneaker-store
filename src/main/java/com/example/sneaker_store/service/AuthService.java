@@ -6,7 +6,7 @@ import com.example.sneaker_store.model.response.auth.LoginResponse;
 import com.example.sneaker_store.model.response.auth.LoginResult;
 
 public interface AuthService {
-    LoginResult loginUser(LoginRequest req);
+    LoginResult loginUser(LoginRequest req, String guestId);
     LoginResult refreshToken(String refresh);
     void registerUser(RegisterRequest req);
     void logoutUser(String refresh);

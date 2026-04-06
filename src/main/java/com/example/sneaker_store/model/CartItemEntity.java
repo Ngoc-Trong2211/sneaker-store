@@ -26,6 +26,10 @@ public class CartItemEntity {
     @JoinColumn(name = "product_variant_id")
     private ProductVariantEntity productVariant;
 
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    private CartEntity cart;
+
     @PrePersist
     public void create(){
         this.createdAt = Instant.now();

@@ -46,10 +46,6 @@ public class UserEntity {
     @JsonIgnore
     private List<AddressEntity> address;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-    private CartEntity cart;
-
     @PrePersist
     public void create(){
         this.createdAt = Instant.now();
