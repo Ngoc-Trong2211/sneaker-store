@@ -24,6 +24,7 @@ public class CartItemServiceImpl implements CartItemService {
             log.warn("Product variant with id: {} not found", req.getVariantId());
             return new RuntimeException("Product variant not found");
         });
+        if (existingVariant.getStock() < req.getQuantity()) throw new RuntimeException("San pham khong du");
         CartItemEntity cartItem = new CartItemEntity();
         cartItem.setQuantity(req.getQuantity());
         cartItem.setProductVariant(existingVariant);
@@ -37,5 +38,12 @@ public class CartItemServiceImpl implements CartItemService {
         cartItemResponse.setNameProduct(cartItem.getProductVariant().getProduct().getName());
 
         return cartItemResponse;
+    }
+
+    @Override
+    public void deleteCartItem(Long id) {
+        CartItemEntity cartItem = this.cartItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+        this.cartItemRepository.deleteById(cartItem.getId());
     }
 }

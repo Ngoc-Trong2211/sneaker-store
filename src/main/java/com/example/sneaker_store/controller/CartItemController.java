@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,5 +27,13 @@ public class CartItemController {
             @RequestBody @Valid CreateCartItemRequest request) {
         log.info("Received request to create cart item");
         return ResponseEntity.status(HttpStatus.CREATED).body(this.cartItemService.createCartItem(request));
+    }
+
+    @PatchMapping("/cart-items/{id}")
+    @Operation(summary = "Delete a cart item", description = "Delete a cart item with the specified ID.")
+    @ApiMessage(message = "Cart item deleted successfully")
+    public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {
+        this.cartItemService.deleteCartItem(id);
+        return ResponseEntity.noContent().build();
     }
 }
