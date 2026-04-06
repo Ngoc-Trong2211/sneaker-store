@@ -42,7 +42,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public CreateRoleResponse createRole(CreateRoleRequest req) {
         if (this.roleRepository.existsByName(req.getName())) throw new NameRoleExistsException("Tên role đã tồn tại!");
         RoleEntity role = new RoleEntity();
@@ -59,7 +59,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public UpdateRoleResponse updateRole(UpdateRoleRequest req) {
         RoleEntity role = this.findById(req.getId());
         if (role == null) throw new IdInvalidException("Role không tồn tại!");
@@ -87,7 +87,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public void updateActiveRole(Long id, boolean active) {
         RoleEntity role = this.findById(id);
         if (role == null) throw new IdInvalidException("Role không tồn tại!");
@@ -96,7 +96,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public GetRoleResponse handleGetRole(Pageable pageable, RoleSpecificationRequest req) {
         Specification<RoleEntity> spec = RoleSpecification.specRole(req);
         Page<RoleEntity> rolePage = this.roleRepository.findAll(spec, pageable);

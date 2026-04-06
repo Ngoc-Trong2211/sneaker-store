@@ -30,7 +30,7 @@ public class PermissionServiceImpl implements PermissionService {
     private final ModelMapper modelMapper;
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public CreatePermissionResponse createPermission(CreatePermissionRequest req) {
         if (this.permissionRepository.existsByName(req.getName())){
             throw new PermissionInvalidException("Tên quyền hạn đã tồn tại!");
@@ -54,7 +54,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public UpdatePermissionResponse updatePermission(UpdatePermissionRequest req) {
         PermissionEntity permission = permissionRepository.findById(req.getId())
                 .orElseThrow(() -> new PermissionInvalidException("Không tìm thấy permission!"));
@@ -85,7 +85,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public void deletePermission(Long id) {
         PermissionEntity permission = this.permissionRepository.findById(id).orElseThrow(() ->
                 new PermissionInvalidException("Quyền hạn này không tồn tại!"));
@@ -95,7 +95,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public GetPermissionResponse getPermission(Pageable pageable, PermissionSpecificationRequest req) {
         Specification<PermissionEntity> spec = PermissionSpecification.specPermission(req);
         Page<PermissionEntity> pagePermission = this.permissionRepository.findAll(spec, pageable);

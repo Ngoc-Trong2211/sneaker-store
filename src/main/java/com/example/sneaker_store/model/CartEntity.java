@@ -2,17 +2,11 @@ package com.example.sneaker_store.model;
 
 import java.time.Instant;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,7 +27,9 @@ public class CartEntity {
     private Instant updatedAt;
     private String updatedBy;
 
-    @OneToOne(mappedBy = "cart")
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
     private UserEntity user;
 
     @PrePersist

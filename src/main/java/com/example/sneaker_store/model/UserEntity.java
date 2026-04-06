@@ -46,8 +46,8 @@ public class UserEntity {
     @JsonIgnore
     private List<AddressEntity> address;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_id", referencedColumnName = "id")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
     private CartEntity cart;
 
     @PrePersist
