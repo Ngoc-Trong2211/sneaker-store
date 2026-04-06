@@ -1,22 +1,15 @@
 package com.example.sneaker_store.model;
 
 import java.time.Instant;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
 import com.example.sneaker_store.util.enumEntity.VariantStatus;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,6 +22,7 @@ public class ProductVariantEntity {
     @UuidGenerator
     @Column(columnDefinition = "CHAR(36)", nullable = false, updatable = false)
     private String id;
+
     private String size;
     private String color;
     private int stock;
@@ -41,6 +35,10 @@ public class ProductVariantEntity {
     private String createdBy;
     private Instant updatedAt;
     private String updatedBy;
+
+    @OneToMany(mappedBy = "productVariant", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<CartItemEntity> cartItems;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
