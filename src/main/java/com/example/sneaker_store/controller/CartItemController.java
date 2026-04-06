@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Slf4j(topic = "CART-CONTROLLER")
+@Slf4j(topic = "CART-ITEM-CONTROLLER")
 @RequiredArgsConstructor
-@RequestMapping("/cart/v1")
-public class CartController {
+@RequestMapping("/cart-item/v1")
+public class CartItemController {
     
 }
