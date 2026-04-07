@@ -22,7 +22,7 @@ public class OrderController {
     @PostMapping("/orders")
     @Operation(summary = "Create a new order", description = "Create a new order")
     @ApiMessage(message = "Order created successfully")
-    public ResponseEntity<CreateOrderResponse> createProductVariant(
+    public ResponseEntity<CreateOrderResponse> createOrder(
             @RequestBody @Valid CreateOrderRequest request,
             @CookieValue(name = "guestId", required = false) String guestId) {
         log.info("Received request to create order");

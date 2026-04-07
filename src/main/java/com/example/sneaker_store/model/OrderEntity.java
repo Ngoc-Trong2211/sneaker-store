@@ -19,15 +19,17 @@ public class OrderEntity {
     @Column(columnDefinition = "CHAR(36)", nullable = false, updatable = false)
     private String id;
 
+    private String userId;
+    private String guestId;
+
     private double totalAmount;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private String guestAddress;
-    private String guestPhone;
-    private String guestName;
     private String address;
+    private String phone;
+    private String receiverName;
 
     private Instant createdAt;
     private String createdBy;
@@ -37,14 +39,12 @@ public class OrderEntity {
     @PrePersist
     public void create(){
         this.createdAt = Instant.now();
-        this.createdBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
-                AuthServiceImpl.getCurrentUserLogin().get() : null;
+        this.createdBy = AuthServiceImpl.getCurrentUserLogin().orElse(null);
     }
 
     @PreUpdate
     public void update(){
         this.updatedAt = Instant.now();
-        this.updatedBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
-                AuthServiceImpl.getCurrentUserLogin().get() : null;
+        this.updatedBy = AuthServiceImpl.getCurrentUserLogin().orElse(null);
     }
 }

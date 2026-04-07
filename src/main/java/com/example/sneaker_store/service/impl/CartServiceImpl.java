@@ -6,6 +6,7 @@ import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.repository.CartItemRepository;
 import com.example.sneaker_store.repository.CartRepository;
 import com.example.sneaker_store.service.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.example.sneaker_store.service.CartService;
@@ -54,6 +55,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
+    @Transactional
     public void mergeCart(CartEntity cartUser, String guestId){
         Optional<CartEntity> cartGuest = this.cartRepository.findByGuestId(guestId);
         if (cartGuest.isPresent()) {
