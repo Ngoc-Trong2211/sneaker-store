@@ -2,7 +2,9 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.CouponEntity;
 import com.example.sneaker_store.model.request.coupon.CreateCouponRequest;
+import com.example.sneaker_store.model.request.coupon.UpdateCouponRequest;
 import com.example.sneaker_store.model.response.coupon.CreateCouponResponse;
+import com.example.sneaker_store.model.response.coupon.UpdateCouponResponse;
 import com.example.sneaker_store.repository.CouponRepository;
 import com.example.sneaker_store.service.CouponService;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +30,22 @@ public class CouponServiceImpl implements CouponService {
         coupon.setMinOrderValue(req.getMinOrderValue());
         this.couponRepository.save(coupon);
         return this.modelMapper.map(coupon, CreateCouponResponse.class);
+    }
+
+    @Override
+    public UpdateCouponResponse updateCoupon(UpdateCouponRequest req) {
+        CouponEntity coupon = this.couponRepository.findById(req.getId())
+                .orElseThrow(() -> new RuntimeException("Coupon not found"));
+
+        coupon.setCode(req.getCode());
+        coupon.setQuantity(req.getQuantity());
+        coupon.setType(req.getType());
+        coupon.setDiscountValue(req.getDiscountValue());
+        coupon.setExpiresAt(req.getExpiresAt());
+        coupon.setMinOrderValue(req.getMinOrderValue());
+
+        this.couponRepository.save(coupon);
+
+        return this.modelMapper.map(coupon, UpdateCouponResponse.class);
     }
 }
