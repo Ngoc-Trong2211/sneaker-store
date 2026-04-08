@@ -2,6 +2,7 @@ package com.example.sneaker_store.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,7 +73,7 @@ public class DiscountController {
     @Operation(summary = "Get discounts with pagination and filtering", 
     description = "Retrieve a paginated list of discounts based on filtering criteria")
     @ApiMessage(message = "Discounts retrieved successfully")
-    public ResponseEntity<GetDiscountResponse> getDiscount(Pageable pageable, DiscountSpecificationRequest request) {
+    public ResponseEntity<GetDiscountResponse> getDiscount(@ParameterObject Pageable pageable, DiscountSpecificationRequest request) {
         log.info("Received request to get discounts with filters");
         return ResponseEntity.ok(this.discountService.getDiscounts(request, pageable));
     }

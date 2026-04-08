@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,7 @@ public class CategoryController {
     @GetMapping("/categories")
     @ApiMessage(message = "Get category thành công")
     @Operation(summary = "Get category", description = "Get category")
-    public ResponseEntity<GetCategoryResponse> get(Pageable pageable,
+    public ResponseEntity<GetCategoryResponse> get(@ParameterObject Pageable pageable,
                                                    @RequestParam(required = false) String name) {
         log.info("GET LIST CATEGORIES");
         return ResponseEntity.ok(this.categoryService.getCategory(pageable, name));

@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class UserController {
     @GetMapping("/users")
     @Operation(summary = "Get user", description = "Lấy danh sách người dùng trong hệ thống")
     @ApiMessage(message = "Get user")
-    public ResponseEntity<GetUserResponse> getUser(SpecificationUserRequest req, Pageable pageable){
+    public ResponseEntity<GetUserResponse> getUser(SpecificationUserRequest req,  @ParameterObject Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.getUser(pageable, req));
     }
 

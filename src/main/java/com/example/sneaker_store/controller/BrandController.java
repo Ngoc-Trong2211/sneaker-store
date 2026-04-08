@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,7 @@ public class BrandController {
     @GetMapping("/brands")
     @ApiMessage(message = "Get brand thành công")
     @Operation(summary = "Get brand", description = "Get brand")
-    public ResponseEntity<GetBrandResponse> get(Pageable pageable,
+    public ResponseEntity<GetBrandResponse> get(@ParameterObject Pageable pageable,
                                                 @RequestParam(required = false) String name) {
         log.info("GET LIST BRAND");
         return ResponseEntity.ok(this.brandService.getBrand(pageable, name));

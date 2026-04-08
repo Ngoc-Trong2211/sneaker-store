@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +57,7 @@ public class RoleController {
     @GetMapping("/roles")
     @Operation(summary = "Get role", description = "Lấy danh sách vai trò trong hệ thống")
     @ApiMessage(message = "Get role")
-    public ResponseEntity<GetRoleResponse> getUser(RoleSpecificationRequest req, Pageable pageable){
+    public ResponseEntity<GetRoleResponse> getUser(RoleSpecificationRequest req, @ParameterObject Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(this.roleService.handleGetRole(pageable, req));
     }
 }

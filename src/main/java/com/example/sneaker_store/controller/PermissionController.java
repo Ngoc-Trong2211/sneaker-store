@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +53,7 @@ public class PermissionController {
     @GetMapping("/permissions")
     @ApiMessage(message = "Xem danh sách quyền hạn")
     @Operation(summary = "Get permissions", description = "Xem danh sách quyền hạn")
-    public ResponseEntity<GetPermissionResponse> getPermission(Pageable pageable,
+    public ResponseEntity<GetPermissionResponse> getPermission(@ParameterObject Pageable pageable,
                                                                PermissionSpecificationRequest req){
         return ResponseEntity.ok(this.permissionService.getPermission(pageable, req));
     }
