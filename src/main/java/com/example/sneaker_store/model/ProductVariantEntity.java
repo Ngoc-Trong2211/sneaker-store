@@ -42,7 +42,7 @@ public class ProductVariantEntity {
 
     @OneToMany(mappedBy = "productVariant", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<OrderEntity> orders;
+    private List<OrderItemEntity> orderItems;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

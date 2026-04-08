@@ -1,6 +1,11 @@
 package com.example.sneaker_store.service.impl;
 
-import com.example.sneaker_store.model.*;
+import com.example.sneaker_store.model.CartEntity;
+import com.example.sneaker_store.model.CartItemEntity;
+import com.example.sneaker_store.model.OrderEntity;
+import com.example.sneaker_store.model.OrderItemEntity;
+import com.example.sneaker_store.model.ProductVariantEntity;
+import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.repository.CartItemRepository;
 import com.example.sneaker_store.repository.CartRepository;
 import com.example.sneaker_store.repository.OrderItemRepository;
@@ -36,7 +41,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             cart = cartRepository.findByGuestId(guestId)
                     .orElseThrow(() -> new RuntimeException("Cart not found"));
         }
-        List<CartItemEntity> listCartItem = cart.getCartItems();
+        List<CartItemEntity> listCartItem = this.cartItemRepository.findByCartId(cart.getId());
         if (listCartItem.isEmpty()) {
             throw new RuntimeException("Cart is empty");
         }

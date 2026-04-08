@@ -1,7 +1,7 @@
 package com.example.sneaker_store.repository;
 
-import com.example.sneaker_store.service.CouponService;
+import com.example.sneaker_store.model.CouponEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CouponRepository extends JpaRepository<CouponService, Long> {
+public interface CouponRepository extends JpaRepository<CouponEntity, Long> {
 }
