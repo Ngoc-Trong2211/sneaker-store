@@ -12,7 +12,6 @@ public class CreateOrderResponse {
     private double totalAmount;
     private OrderStatus status;
 
-    private String guestAddress;
     private String guestPhone;
     private String guestName;
     private String address;

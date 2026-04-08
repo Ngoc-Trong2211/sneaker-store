@@ -12,4 +12,6 @@ public interface AddressRepository extends JpaRepository<AddressEntity, Long> {
     List<AddressEntity> findByUserId(String userId);
 
     boolean existsByWardAndAddressLineAndCityAndUserId(String ward, String addressLine, String city, String userId);
+
+    AddressEntity findByUserIdAndIsDefault(String userId, boolean isDefault);
 }

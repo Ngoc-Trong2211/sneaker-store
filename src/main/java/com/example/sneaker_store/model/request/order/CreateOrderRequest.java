@@ -6,8 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateOrderRequest {
-    private String guestAddress;
-    private String guestPhone;
-    private String guestName;
+    private String phone;
+    private String receiverName;
     private String address;
 }

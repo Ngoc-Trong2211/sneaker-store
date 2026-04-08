@@ -40,6 +40,10 @@ public class ProductVariantEntity {
     @JsonIgnore
     private List<CartItemEntity> cartItems;
 
+    @OneToMany(mappedBy = "productVariant", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<OrderEntity> orders;
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     private ProductEntity product;

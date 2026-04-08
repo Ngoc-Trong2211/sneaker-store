@@ -1,46 +1,39 @@
 package com.example.sneaker_store.model;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
-import com.example.sneaker_store.util.enumEntity.OrderStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "tbl_order")
-public class OrderEntity {
+@Table(name = "tbl_order_item")
+public class OrderItemEntity {
     @Id
     @UuidGenerator
     @Column(columnDefinition = "CHAR(36)", nullable = false, updatable = false)
     private String id;
 
-    private String userId;
-    private String guestId;
-
-    private double totalAmount;
-
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-
-    private String address;
-    private String phone;
-    private String receiverName;
+    private int quantity;
+    private double price;
+    private String productName;
 
     private Instant createdAt;
     private String createdBy;
     private Instant updatedAt;
     private String updatedBy;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<OrderItemEntity> orderItems;
+    @ManyToOne
+    @JoinColumn(name = "product_variant_id")
+    private ProductVariantEntity productVariant;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private OrderEntity order;
 
     @PrePersist
     public void create(){
