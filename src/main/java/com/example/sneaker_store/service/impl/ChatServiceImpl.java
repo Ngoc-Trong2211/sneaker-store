@@ -27,7 +27,6 @@ import java.util.UUID;
 
 @Service
 @Slf4j(topic = "CHAT-SERVICE")
-@RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
     private final ChatClient chatClient;
     private final UserService userService;
@@ -53,7 +52,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     private void loadExcelData() {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("Chat.xlsx")) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("ChatSneaker.xlsx")) {
             assert is != null;
             try (Workbook workbook = new XSSFWorkbook(is)) {
 
@@ -73,7 +72,7 @@ public class ChatServiceImpl implements ChatService {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
-            System.err.println("Không tìm thấy file Excel: " + "Chat.xlsx");
+            System.err.println("Không tìm thấy file Excel: " + "ChatSneaker.xlsx");
         }
     }
 
@@ -113,7 +112,7 @@ public class ChatServiceImpl implements ChatService {
 
     private static Prompt getPrompt(String message){
         SystemMessage systemMessage = new SystemMessage("""
-            You are NT-Kara
+            You are assistant Sneaker Store
             If you don't know name user, you must ask user their name
             If user writes in English, reply in English
             If user writes in Vietnamese, reply in Vietnamese
