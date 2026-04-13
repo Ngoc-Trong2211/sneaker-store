@@ -8,4 +8,5 @@ import lombok.Setter;
 public class SpecificationUserRequest {
     private String keySearch;
     private String status;
+    private int roleId;
 }

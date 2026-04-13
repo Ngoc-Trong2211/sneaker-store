@@ -31,6 +31,7 @@ public class UserSpecification {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("status")),
                         "%" + req.getStatus().toLowerCase() + "%"));
             }
+            predicates.add(criteriaBuilder.equal(root.get("role").get("id"), req.getRoleId()));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
     }
