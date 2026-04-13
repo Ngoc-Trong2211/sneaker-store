@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SpecificationUserRequest {
+    private String keySearch;
     private String name;
     private String email;
     private String phone;
