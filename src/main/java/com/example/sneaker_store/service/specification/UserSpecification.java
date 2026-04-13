@@ -27,17 +27,9 @@ public class UserSpecification {
                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
             }
 
-            if (hasText(req.getEmail())){
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("email")),
-                        "%" + req.getEmail().toLowerCase() + "%"));
-            }
-            if (hasText(req.getName())){
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),
-                        "%" + req.getName().toLowerCase() + "%"));
-            }
-            if (hasText(req.getPhone())){
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("phone")),
-                        "%" + req.getPhone().toLowerCase() + "%"));
+            if (hasText(req.getStatus())){
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("status")),
+                        "%" + req.getStatus().toLowerCase() + "%"));
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });

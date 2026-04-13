@@ -7,7 +7,5 @@ import lombok.Setter;
 @Setter
 public class SpecificationUserRequest {
     private String keySearch;
-    private String name;
-    private String email;
-    private String phone;
+    private String status;
 }
