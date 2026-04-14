@@ -90,7 +90,13 @@ public class CategoryServiceImpl implements CategoryService {
         res.setDataPage(pageRes);
 
         List<GetCategoryResponse.Category> categories = page.getContent().stream()
-                .map(item -> this.modelMapper.map(item, GetCategoryResponse.Category.class))
+                .map(item -> {
+                    GetCategoryResponse.Category resCate = this.modelMapper.map(item, GetCategoryResponse.Category.class);
+                    Optional<CategoryEntity> categoryParent = this.categoryRepository.findById(item.getParentId());
+                    if (categoryParent.isPresent()) resCate.setNameParent(categoryParent.get().getName());
+                    else resCate.setNameParent("");
+                    return resCate;
+                })
                 .toList();
         res.setCategories(categories);
 
