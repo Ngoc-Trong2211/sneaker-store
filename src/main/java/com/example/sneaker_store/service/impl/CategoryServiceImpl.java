@@ -9,6 +9,7 @@ import com.example.sneaker_store.model.response.category.UpdateCategoryResponse;
 import com.example.sneaker_store.repository.CategoryRepository;
 import com.example.sneaker_store.service.CategoryService;
 import com.example.sneaker_store.service.specification.CategorySpecification;
+import com.example.sneaker_store.util.SlugUtil;
 import com.example.sneaker_store.util.exception.NameExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j(topic = "CATEGORY-SERVICE")
@@ -29,25 +31,30 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryEntity findById(Long id) {
-        CategoryEntity category = this.categoryRepository.findById(id)
+        return this.categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
-        return category;
     }
 
     @Override
     public CategoryEntity findByName(String name) {
-        CategoryEntity category = this.categoryRepository.findByName(name)
+        return this.categoryRepository.findByName(name)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
-        return category;
     }
 
     @Override
     public CreateCategoryResponse createCategory(CreateCategoryRequest req) {
-        if (this.categoryRepository.existsByName(req.getName().toUpperCase()))
+        if (this.categoryRepository.existsByNameAndParentId(req.getName().toUpperCase(), req.getParentId()))
             throw new NameExistsException("Name is exists");
         CategoryEntity category = new CategoryEntity();
-        category.setName(req.getName());
+        category.setName(req.getName().toUpperCase());
         category.setParentId(req.getParentId());
+
+        Optional<CategoryEntity> categoryParent = this.categoryRepository.findById(req.getParentId());
+        if (categoryParent.isPresent()){
+            category.setSlug(SlugUtil.toSlug(req.getName()) + "-" + SlugUtil.toSlug(categoryParent.get().getName()));
+        }
+        else category.setSlug(SlugUtil.toSlug(req.getName()));
+
         this.categoryRepository.save(category);
         return this.modelMapper.map(category, CreateCategoryResponse.class);
     }
@@ -55,11 +62,18 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public UpdateCategoryResponse updateCategory(UpdateCategoryRequest req) {
         CategoryEntity category = this.findById(req.getId());
-        if (this.categoryRepository.existsByNameAndIdNot(req.getName(), req.getId())) {
+        if (this.categoryRepository.existsByNameAndIdNot(req.getName().toUpperCase(), req.getId())) {
             throw new RuntimeException("Tên category đã tồn tại!");
         }
-        category.setName(req.getName());
+        category.setName(req.getName().toUpperCase());
         category.setParentId(req.getParentId());
+
+        Optional<CategoryEntity> categoryParent = this.categoryRepository.findById(req.getParentId());
+        if (categoryParent.isPresent()){
+            category.setSlug(SlugUtil.toSlug(req.getName()) + "-" + SlugUtil.toSlug(categoryParent.get().getName()));
+        }
+        else category.setSlug(SlugUtil.toSlug(req.getName()));
+
         this.categoryRepository.save(category);
         return this.modelMapper.map(category, UpdateCategoryResponse.class);
     }
