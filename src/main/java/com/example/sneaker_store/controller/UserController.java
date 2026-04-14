@@ -63,7 +63,7 @@ public class UserController {
     @Operation(summary = "Update status", description = "Cập nhật trạng thái người dùng trong hệ thống")
     @ApiMessage(message = "Update status")
     public ResponseEntity<GetUserResponse.User> disableUser(@PathVariable("id") String id,
-                                                            @RequestParam UserStatus status) {
+                                                            @RequestParam String status) {
         log.info("Update status user");
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateStatus(id, status));
     }

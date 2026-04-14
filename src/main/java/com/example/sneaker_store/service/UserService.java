@@ -16,7 +16,7 @@ public interface UserService {
     CreateUserResponse createUser(CreateUserRequest req) throws Exception;
     GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req);
     UpdateUserResponse updateUser(UpdateUserRequest req);
-    GetUserResponse.User updateStatus(String id, UserStatus status);
+    GetUserResponse.User updateStatus(String id, String status);
     void disableUser(String id);
     void handleChangePassword(ChangePasswordRequest req);
     UserEntity findByEmail(String email);

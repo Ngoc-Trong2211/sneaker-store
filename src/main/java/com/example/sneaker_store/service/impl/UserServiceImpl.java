@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
 //            """)
     public UpdateUserResponse updateUser(UpdateUserRequest req) {
         Optional<UserEntity> user = this.userRepository.findById(req.getId());
-        if (this.userRepository.existsByPhone(req.getPhone())){
+        if (this.userRepository.existsByPhoneAndIdNot(req.getPhone(), req.getId())){
             throw new PhoneExistsAlreadyException("Phone is already!");
         }
         if (user.isPresent()){
@@ -130,11 +130,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
 //    @PreAuthorize("hasAuthority('USER_UPDATE_STATUS')")
-    public GetUserResponse.User updateStatus(String id, UserStatus status) {
+    public GetUserResponse.User updateStatus(String id, String status) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
             UserEntity currentUser = user.get();
-            currentUser.setStatus(status);
+            currentUser.setStatus(UserStatus.valueOf(status));
             this.userRepository.save(currentUser);
             return this.modelMapper.map(currentUser, GetUserResponse.User.class);
         }
