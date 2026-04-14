@@ -1,5 +1,6 @@
 package com.example.sneaker_store.model.response.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,8 +38,11 @@ public class GetUserResponse {
         private String role;
         private String phone;
 
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
         private Instant createdAt;
         private String createdBy;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
         private Instant updatedAt;
         private String updatedBy;
     }
