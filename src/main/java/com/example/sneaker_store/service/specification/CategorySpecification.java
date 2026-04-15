@@ -12,7 +12,9 @@ public class CategorySpecification {
         return (((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (hasText(name)){
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
+                Predicate keyName = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+                Predicate keySlug = criteriaBuilder.like(criteriaBuilder.lower(root.get("slug")), "%" + name.toLowerCase() + "%");
+                predicates.add(criteriaBuilder.or(keyName, keySlug));
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }));
