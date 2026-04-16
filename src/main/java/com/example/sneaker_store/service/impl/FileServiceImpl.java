@@ -125,4 +125,20 @@ public class FileServiceImpl implements FileService {
         }
         return new UrlResource(path.toUri());
     }
+
+    @Override
+    public void deleteFile(String fileUrl) throws URISyntaxException {
+        URI uri = new URI(baseUri + "brand" + "/" + fileUrl);
+        Path path = Paths.get(uri);
+        File file = new File(path.toString());
+        if (file.exists()) {
+            boolean deleted = file.delete();
+
+            if (!deleted) {
+                throw new RuntimeException("Không thể xóa file: " + fileUrl);
+            }
+        } else {
+            throw new RuntimeException("File không tồn tại: " + fileUrl);
+        }
+    }
 }

@@ -13,4 +13,5 @@ public interface FileService {
     Resource downloadFile(String fileName, String folder) throws URISyntaxException, FileNotFoundException;
     long existFile(String fileName, String folder) throws URISyntaxException;
     Resource getImage(String fileName) throws MalformedURLException;
+    void deleteFile(String fileUrl) throws URISyntaxException;
 }

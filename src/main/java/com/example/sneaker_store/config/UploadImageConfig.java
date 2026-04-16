@@ -8,12 +8,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class UploadImageConfig implements WebMvcConfigurer {
-    @Value("${spring.web.resources.static-locations}")
-    private String baseUri;
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations(baseUri);
+                .addResourceLocations("file:///D:/DoAnTN/projectSneaker/images/");
     }
 }

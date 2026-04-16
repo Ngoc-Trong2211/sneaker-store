@@ -53,4 +53,10 @@ public class FileController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(resource);
     }
+
+    @DeleteMapping("/files")
+    public ResponseEntity<Void> deleteFile(@RequestParam String fileUrl) throws URISyntaxException {
+        this.fileService.deleteFile(fileUrl);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -46,7 +46,15 @@ public class BrandServiceImpl implements BrandService {
         URI uri = new URI(baseUri + "brand" + "/" + fileName);
         Path path = Paths.get(uri);
         File file = new File(path.toString());
-        file.delete();
+        if (file.exists()) {
+            boolean deleted = file.delete();
+
+            if (!deleted) {
+                throw new RuntimeException("Không thể xóa file: " + fileName);
+            }
+        } else {
+            throw new RuntimeException("File không tồn tại: " + fileName);
+        }
     }
 
     @Override
