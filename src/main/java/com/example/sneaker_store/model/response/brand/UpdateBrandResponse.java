@@ -9,4 +9,5 @@ public class UpdateBrandResponse {
     private Long id;
     private String name;
     private String logo;
+    private String country;
 }

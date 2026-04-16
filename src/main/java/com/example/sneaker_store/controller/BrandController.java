@@ -1,6 +1,7 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.model.request.brand.CreateBrandRequest;
+import com.example.sneaker_store.model.request.brand.SpecificationBrandRequest;
 import com.example.sneaker_store.model.request.brand.UpdateBrandRequest;
 import com.example.sneaker_store.model.response.brand.CreateBrandResponse;
 import com.example.sneaker_store.model.response.brand.GetBrandResponse;
@@ -48,9 +49,9 @@ public class BrandController {
     @ApiMessage(message = "Get brand thành công")
     @Operation(summary = "Get brand", description = "Get brand")
     public ResponseEntity<GetBrandResponse> get(@ParameterObject Pageable pageable,
-                                                @RequestParam(required = false) String name) {
+                                                SpecificationBrandRequest request) {
         log.info("GET LIST BRAND");
-        return ResponseEntity.ok(this.brandService.getBrand(pageable, name));
+        return ResponseEntity.ok(this.brandService.getBrand(pageable, request));
     }
 
     @DeleteMapping("/brands/{id}")

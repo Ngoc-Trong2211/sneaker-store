@@ -12,4 +12,7 @@ public class CreateBrandRequest {
 
     @NotBlank(message = "Logo không được để trống")
     private String logo;
+
+    @NotBlank(message = "Country không được để trống")
+    private String countryCode;
 }

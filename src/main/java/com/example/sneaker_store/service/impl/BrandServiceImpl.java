@@ -2,6 +2,7 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.BrandEntity;
 import com.example.sneaker_store.model.request.brand.CreateBrandRequest;
+import com.example.sneaker_store.model.request.brand.SpecificationBrandRequest;
 import com.example.sneaker_store.model.request.brand.UpdateBrandRequest;
 import com.example.sneaker_store.model.response.brand.CreateBrandResponse;
 import com.example.sneaker_store.model.response.brand.GetBrandResponse;
@@ -28,6 +29,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Slf4j(topic = "BRAND-SERVICE")
@@ -49,16 +51,14 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public BrandEntity findById(Long id) {
-        BrandEntity brand = this.brandRepository.findById(id)
+        return this.brandRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
-        return brand;
     }
     
     @Override
     public BrandEntity findByName(String name) {
-        BrandEntity brand = this.brandRepository.findByName(name)
+        return this.brandRepository.findByName(name)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
-        return brand;
     }
 
     @Override
@@ -69,9 +69,28 @@ public class BrandServiceImpl implements BrandService {
             throw new NameExistsException("Name is exists");
         brand.setName(req.getName().toUpperCase());
         brand.setLogo(req.getLogo());
+        brand.setCountryCode(req.getCountryCode());
+
+        Locale obj = new Locale("vi", req.getCountryCode());
+        Locale viLocale = new Locale("vi", "VN");
+        brand.setCountry(obj.getDisplayCountry(viLocale));
+
         this.brandRepository.save(brand);
         return this.modelMapper.map(brand, CreateBrandResponse.class);
     }
+
+
+//    String[] countryCodes = Locale.getISOCountries();
+//
+//            for (String countryCode : countryCodes) {
+//
+//        Locale obj = new Locale("vi", countryCode);
+//        Locale viLocale = new Locale("vi", "VN");
+//
+//        System.out.println("Country Code = " + obj.getCountry()
+//                + ", Country Name = " + obj.getDisplayCountry(viLocale));
+//
+//    }
 
     @Override
     // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
@@ -89,6 +108,12 @@ public class BrandServiceImpl implements BrandService {
         }
         else this.deleteFile(brand.getLogo());
         brand.setLogo(req.getLogo());
+        brand.setCountryCode(req.getCountryCode());
+
+        Locale obj = new Locale("vi", req.getCountryCode());
+        Locale viLocale = new Locale("vi", "VN");
+        brand.setCountry(obj.getDisplayCountry(viLocale));
+
         this.brandRepository.save(brand);
 
         return this.modelMapper.map(brand, UpdateBrandResponse.class);
@@ -96,8 +121,8 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
-    public GetBrandResponse getBrand(Pageable pageable, String name) {
-        Specification<BrandEntity> spec = BrandSpecification.specBrand(name);
+    public GetBrandResponse getBrand(Pageable pageable, SpecificationBrandRequest request) {
+        Specification<BrandEntity> spec = BrandSpecification.specBrand(request);
         Page<BrandEntity> page = this.brandRepository.findAll(spec, pageable);
 
         GetBrandResponse res = new GetBrandResponse();
