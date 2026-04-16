@@ -47,7 +47,16 @@ public class FileServiceImpl implements FileService {
     }
 
     public String saveFile(MultipartFile file, String folder) throws URISyntaxException {
-        String fileSignature = UUID.randomUUID() + "-" + file.getOriginalFilename();
+        String fileOriginal = file.getOriginalFilename();
+        assert fileOriginal != null;
+        String[] fileOriginals = fileOriginal.split("\\s+");
+        StringBuilder stringBuilder = new StringBuilder();
+        for(String fi : fileOriginals){
+            stringBuilder.append(fi);
+        }
+        System.out.println(stringBuilder);
+
+        String fileSignature = UUID.randomUUID() + "-" + stringBuilder;
 
         URI uri = new URI(baseUri + folder + "/" + fileSignature);
         Path path = Paths.get(uri);
