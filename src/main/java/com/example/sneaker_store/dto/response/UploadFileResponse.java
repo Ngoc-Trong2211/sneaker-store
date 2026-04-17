@@ -1,5 +1,6 @@
 package com.example.sneaker_store.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UploadFileResponse {
-    private String fileName;
+    private String url;
+    private String publicId;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant uploadedAt;
 }

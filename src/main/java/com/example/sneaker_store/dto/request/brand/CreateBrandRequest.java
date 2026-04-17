@@ -15,4 +15,7 @@ public class CreateBrandRequest {
 
     @NotBlank(message = "Country không được để trống")
     private String countryCode;
+
+    @NotBlank(message = "PublicId không được để trống")
+    private String publicId;
 }

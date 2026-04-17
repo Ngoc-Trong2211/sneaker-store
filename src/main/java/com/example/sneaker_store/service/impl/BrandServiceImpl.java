@@ -12,22 +12,14 @@ import com.example.sneaker_store.service.BrandService;
 import com.example.sneaker_store.service.FileService;
 import com.example.sneaker_store.specification.BrandSpecification;
 import com.example.sneaker_store.util.exception.NameExistsException;
-import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-// import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,24 +30,6 @@ public class BrandServiceImpl implements BrandService {
     private final BrandRepository brandRepository;
     private final ModelMapper modelMapper;
     private final FileService fileService;
-
-    @Value("${sneaker.upload-file.base-uri}")
-    private String baseUri;
-
-    public void deleteFile(String fileName) throws URISyntaxException {
-        URI uri = new URI(baseUri + "brand" + "/" + fileName);
-        Path path = Paths.get(uri);
-        File file = new File(path.toString());
-        if (file.exists()) {
-            boolean deleted = file.delete();
-
-            if (!deleted) {
-                throw new RuntimeException("Không thể xóa file: " + fileName);
-            }
-        } else {
-            throw new RuntimeException("File không tồn tại: " + fileName);
-        }
-    }
 
     @Override
     public BrandEntity findById(Long id) {
@@ -78,6 +52,7 @@ public class BrandServiceImpl implements BrandService {
         brand.setName(req.getName().toUpperCase());
         brand.setLogo(req.getLogo());
         brand.setCountryCode(req.getCountryCode());
+        brand.setPublicId(req.getPublicId());
 
         Locale obj = new Locale("vi", req.getCountryCode());
         Locale viLocale = new Locale("vi", "VN");
@@ -102,19 +77,21 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
-    public UpdateBrandResponse updateBrand(UpdateBrandRequest req) throws URISyntaxException {
+    public UpdateBrandResponse updateBrand(UpdateBrandRequest req){
         BrandEntity brand = this.findById(req.getId());
+
         if (this.brandRepository.existsByNameAndIdNot(req.getName().toUpperCase(), req.getId())) {
             throw new RuntimeException("Tên brand đã tồn tại!");
         }
-        if (!brand.getName().equals(req.getName().toUpperCase())){
-            brand.setName(req.getName().toUpperCase());
+
+        brand.setName(req.getName().toUpperCase());
+
+        if (req.getLogo() != null && !req.getLogo().equals(brand.getLogo())) {
+            fileService.deleteFile(brand.getPublicId());
+            brand.setLogo(req.getLogo());
+            brand.setPublicId(req.getPublicId());
         }
-        long fileLength = this.fileService.existFile(brand.getLogo(), "brand");
-        if (fileLength == 0) {
-            throw new IdInvalidException("Khong ton tai ten file");
-        }
-        brand.setLogo(req.getLogo());
+
         brand.setCountryCode(req.getCountryCode());
 
         Locale obj = new Locale("vi", req.getCountryCode());
@@ -148,9 +125,9 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
-    public void deleteBrand(Long id) throws URISyntaxException {
+    public void deleteBrand(Long id) {
         BrandEntity brand = this.findById(id);
-        this.deleteFile(brand.getLogo());
+        fileService.deleteFile(brand.getPublicId());
         this.brandRepository.delete(brand);
     }
 }

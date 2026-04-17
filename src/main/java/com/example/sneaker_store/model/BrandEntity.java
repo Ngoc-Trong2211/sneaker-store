@@ -24,7 +24,12 @@ public class BrandEntity {
 
     private String country;
     private String countryCode;
+
+    @Column(name = "logo")
     private String logo;
+
+    @Column(name = "public_id")
+    private String publicId;
 
     private Instant createdAt;
     private Instant updatedAt;
