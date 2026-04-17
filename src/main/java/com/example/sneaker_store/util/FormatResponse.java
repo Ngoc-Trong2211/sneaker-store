@@ -1,7 +1,7 @@
 package com.example.sneaker_store.util;
 
 
-import com.example.sneaker_store.model.response.SystemResponse;
+import com.example.sneaker_store.dto.response.SystemResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.MethodParameter;

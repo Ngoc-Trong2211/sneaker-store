@@ -1,15 +1,15 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.PermissionEntity;
-import com.example.sneaker_store.model.request.permssion.CreatePermissionRequest;
-import com.example.sneaker_store.model.request.permssion.UpdatePermissionRequest;
-import com.example.sneaker_store.model.response.permission.CreatePermissionResponse;
-import com.example.sneaker_store.model.response.permission.UpdatePermissionResponse;
-import com.example.sneaker_store.model.request.permssion.PermissionSpecificationRequest;
-import com.example.sneaker_store.model.response.permission.GetPermissionResponse;
+import com.example.sneaker_store.dto.request.permssion.CreatePermissionRequest;
+import com.example.sneaker_store.dto.request.permssion.UpdatePermissionRequest;
+import com.example.sneaker_store.dto.response.permission.CreatePermissionResponse;
+import com.example.sneaker_store.dto.response.permission.UpdatePermissionResponse;
+import com.example.sneaker_store.dto.request.permssion.PermissionSpecificationRequest;
+import com.example.sneaker_store.dto.response.permission.GetPermissionResponse;
 import com.example.sneaker_store.repository.PermissionRepository;
 import com.example.sneaker_store.service.PermissionService;
-import com.example.sneaker_store.service.specification.PermissionSpecification;
+import com.example.sneaker_store.specification.PermissionSpecification;
 import com.example.sneaker_store.util.exception.PermissionInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

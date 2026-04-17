@@ -1,16 +1,15 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.request.User.ChangePasswordRequest;
-import com.example.sneaker_store.model.request.User.CreateUserRequest;
-import com.example.sneaker_store.model.request.User.SpecificationUserRequest;
-import com.example.sneaker_store.model.request.User.UpdateUserRequest;
-import com.example.sneaker_store.model.response.user.CreateUserResponse;
-import com.example.sneaker_store.model.response.user.GetUserByIdResponse;
-import com.example.sneaker_store.model.response.user.GetUserResponse;
-import com.example.sneaker_store.model.response.user.UpdateUserResponse;
+import com.example.sneaker_store.dto.request.User.ChangePasswordRequest;
+import com.example.sneaker_store.dto.request.User.CreateUserRequest;
+import com.example.sneaker_store.dto.request.User.SpecificationUserRequest;
+import com.example.sneaker_store.dto.request.User.UpdateUserRequest;
+import com.example.sneaker_store.dto.response.user.CreateUserResponse;
+import com.example.sneaker_store.dto.response.user.GetUserByIdResponse;
+import com.example.sneaker_store.dto.response.user.GetUserResponse;
+import com.example.sneaker_store.dto.response.user.UpdateUserResponse;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.ApiMessage;
-import com.example.sneaker_store.util.enumEntity.UserStatus;
 import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;

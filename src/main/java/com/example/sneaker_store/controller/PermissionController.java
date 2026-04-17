@@ -1,11 +1,11 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.request.permssion.CreatePermissionRequest;
-import com.example.sneaker_store.model.request.permssion.PermissionSpecificationRequest;
-import com.example.sneaker_store.model.request.permssion.UpdatePermissionRequest;
-import com.example.sneaker_store.model.response.permission.CreatePermissionResponse;
-import com.example.sneaker_store.model.response.permission.GetPermissionResponse;
-import com.example.sneaker_store.model.response.permission.UpdatePermissionResponse;
+import com.example.sneaker_store.dto.request.permssion.CreatePermissionRequest;
+import com.example.sneaker_store.dto.request.permssion.PermissionSpecificationRequest;
+import com.example.sneaker_store.dto.request.permssion.UpdatePermissionRequest;
+import com.example.sneaker_store.dto.response.permission.CreatePermissionResponse;
+import com.example.sneaker_store.dto.response.permission.GetPermissionResponse;
+import com.example.sneaker_store.dto.response.permission.UpdatePermissionResponse;
 import com.example.sneaker_store.service.PermissionService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;

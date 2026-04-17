@@ -1,7 +1,7 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.service.ProductVariantService;
-import com.example.sneaker_store.service.specification.ProductVariantSpecification;
+import com.example.sneaker_store.specification.ProductVariantSpecification;
 import com.example.sneaker_store.util.SkuGenerator;
 import com.example.sneaker_store.util.enumEntity.VariantStatus;
 
@@ -9,12 +9,12 @@ import jakarta.transaction.Transactional;
 
 import com.example.sneaker_store.model.ProductEntity;
 import com.example.sneaker_store.model.ProductVariantEntity;
-import com.example.sneaker_store.model.request.productVariant.CreateProductVariantRequest;
-import com.example.sneaker_store.model.request.productVariant.SpecificationProductVariantRequest;
-import com.example.sneaker_store.model.request.productVariant.UpdateProductVariantRequest;
-import com.example.sneaker_store.model.response.productVariant.CreateProductVariantResponse;
-import com.example.sneaker_store.model.response.productVariant.GetProductVariantResponse;
-import com.example.sneaker_store.model.response.productVariant.UpdateProductVariantResponse;
+import com.example.sneaker_store.dto.request.productVariant.CreateProductVariantRequest;
+import com.example.sneaker_store.dto.request.productVariant.SpecificationProductVariantRequest;
+import com.example.sneaker_store.dto.request.productVariant.UpdateProductVariantRequest;
+import com.example.sneaker_store.dto.response.productVariant.CreateProductVariantResponse;
+import com.example.sneaker_store.dto.response.productVariant.GetProductVariantResponse;
+import com.example.sneaker_store.dto.response.productVariant.UpdateProductVariantResponse;
 import com.example.sneaker_store.repository.ProductRepository;
 import com.example.sneaker_store.repository.ProductVariantRepository;
 

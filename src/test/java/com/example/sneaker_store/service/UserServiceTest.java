@@ -2,7 +2,7 @@ package com.example.sneaker_store.service;
 
 import com.example.sneaker_store.model.RoleEntity;
 import com.example.sneaker_store.model.UserEntity;
-import com.example.sneaker_store.model.request.User.CreateUserRequest;
+import com.example.sneaker_store.dto.request.User.CreateUserRequest;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.AfterEach;

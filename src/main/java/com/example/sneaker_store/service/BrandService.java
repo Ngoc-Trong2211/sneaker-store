@@ -1,12 +1,12 @@
 package com.example.sneaker_store.service;
 
 import com.example.sneaker_store.model.BrandEntity;
-import com.example.sneaker_store.model.request.brand.CreateBrandRequest;
-import com.example.sneaker_store.model.request.brand.SpecificationBrandRequest;
-import com.example.sneaker_store.model.request.brand.UpdateBrandRequest;
-import com.example.sneaker_store.model.response.brand.CreateBrandResponse;
-import com.example.sneaker_store.model.response.brand.GetBrandResponse;
-import com.example.sneaker_store.model.response.brand.UpdateBrandResponse;
+import com.example.sneaker_store.dto.request.brand.CreateBrandRequest;
+import com.example.sneaker_store.dto.request.brand.SpecificationBrandRequest;
+import com.example.sneaker_store.dto.request.brand.UpdateBrandRequest;
+import com.example.sneaker_store.dto.response.brand.CreateBrandResponse;
+import com.example.sneaker_store.dto.response.brand.GetBrandResponse;
+import com.example.sneaker_store.dto.response.brand.UpdateBrandResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.net.URISyntaxException;

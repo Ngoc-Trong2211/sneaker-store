@@ -1,10 +1,10 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.request.category.CreateCategoryRequest;
-import com.example.sneaker_store.model.request.category.UpdateCategoryRequest;
-import com.example.sneaker_store.model.response.category.CreateCategoryResponse;
-import com.example.sneaker_store.model.response.category.GetCategoryResponse;
-import com.example.sneaker_store.model.response.category.UpdateCategoryResponse;
+import com.example.sneaker_store.dto.request.category.CreateCategoryRequest;
+import com.example.sneaker_store.dto.request.category.UpdateCategoryRequest;
+import com.example.sneaker_store.dto.response.category.CreateCategoryResponse;
+import com.example.sneaker_store.dto.response.category.GetCategoryResponse;
+import com.example.sneaker_store.dto.response.category.UpdateCategoryResponse;
 import com.example.sneaker_store.service.CategoryService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;

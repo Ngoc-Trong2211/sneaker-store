@@ -1,8 +1,8 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.*;
-import com.example.sneaker_store.model.request.order.CreateOrderRequest;
-import com.example.sneaker_store.model.response.order.CreateOrderResponse;
+import com.example.sneaker_store.dto.request.order.CreateOrderRequest;
+import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
 import com.example.sneaker_store.repository.AddressRepository;
 import com.example.sneaker_store.repository.OrderItemRepository;
 import com.example.sneaker_store.repository.OrderRepository;
@@ -15,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Slf4j(topic = "ORDER-SERVICE")

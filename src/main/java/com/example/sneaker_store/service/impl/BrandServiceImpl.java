@@ -1,16 +1,16 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.BrandEntity;
-import com.example.sneaker_store.model.request.brand.CreateBrandRequest;
-import com.example.sneaker_store.model.request.brand.SpecificationBrandRequest;
-import com.example.sneaker_store.model.request.brand.UpdateBrandRequest;
-import com.example.sneaker_store.model.response.brand.CreateBrandResponse;
-import com.example.sneaker_store.model.response.brand.GetBrandResponse;
-import com.example.sneaker_store.model.response.brand.UpdateBrandResponse;
+import com.example.sneaker_store.dto.request.brand.CreateBrandRequest;
+import com.example.sneaker_store.dto.request.brand.SpecificationBrandRequest;
+import com.example.sneaker_store.dto.request.brand.UpdateBrandRequest;
+import com.example.sneaker_store.dto.response.brand.CreateBrandResponse;
+import com.example.sneaker_store.dto.response.brand.GetBrandResponse;
+import com.example.sneaker_store.dto.response.brand.UpdateBrandResponse;
 import com.example.sneaker_store.repository.BrandRepository;
 import com.example.sneaker_store.service.BrandService;
 import com.example.sneaker_store.service.FileService;
-import com.example.sneaker_store.service.specification.BrandSpecification;
+import com.example.sneaker_store.specification.BrandSpecification;
 import com.example.sneaker_store.util.exception.NameExistsException;
 import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import lombok.RequiredArgsConstructor;

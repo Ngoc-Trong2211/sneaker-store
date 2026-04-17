@@ -1,7 +1,7 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.request.order.CreateOrderRequest;
-import com.example.sneaker_store.model.response.order.CreateOrderResponse;
+import com.example.sneaker_store.dto.request.order.CreateOrderRequest;
+import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
 import com.example.sneaker_store.service.OrderService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;

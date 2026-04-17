@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.sneaker_store.model.request.discount.CreateDiscountRequest;
-import com.example.sneaker_store.model.request.discount.DiscountSpecificationRequest;
-import com.example.sneaker_store.model.request.discount.UpdateDiscountRequest;
-import com.example.sneaker_store.model.response.discount.CreateDiscountResponse;
-import com.example.sneaker_store.model.response.discount.GetDiscountResponse;
-import com.example.sneaker_store.model.response.discount.UpdateDiscountResponse;
+import com.example.sneaker_store.dto.request.discount.CreateDiscountRequest;
+import com.example.sneaker_store.dto.request.discount.DiscountSpecificationRequest;
+import com.example.sneaker_store.dto.request.discount.UpdateDiscountRequest;
+import com.example.sneaker_store.dto.response.discount.CreateDiscountResponse;
+import com.example.sneaker_store.dto.response.discount.GetDiscountResponse;
+import com.example.sneaker_store.dto.response.discount.UpdateDiscountResponse;
 import com.example.sneaker_store.service.DiscountService;
 import com.example.sneaker_store.util.ApiMessage;
 import com.example.sneaker_store.util.enumEntity.DiscountStatus;

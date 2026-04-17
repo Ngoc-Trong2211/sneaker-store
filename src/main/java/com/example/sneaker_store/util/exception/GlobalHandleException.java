@@ -1,6 +1,6 @@
 package com.example.sneaker_store.util.exception;
 
-import com.example.sneaker_store.model.response.SystemResponse;
+import com.example.sneaker_store.dto.response.SystemResponse;
 import com.example.sneaker_store.util.exception.user.*;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;

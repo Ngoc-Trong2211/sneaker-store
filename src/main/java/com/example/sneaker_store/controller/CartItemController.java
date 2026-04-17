@@ -1,7 +1,7 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.request.cartItem.CreateCartItemRequest;
-import com.example.sneaker_store.model.response.cartItem.CreateCartItemResponse;
+import com.example.sneaker_store.dto.request.cartItem.CreateCartItemRequest;
+import com.example.sneaker_store.dto.response.cartItem.CreateCartItemResponse;
 import com.example.sneaker_store.service.CartItemService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;

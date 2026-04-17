@@ -2,13 +2,13 @@ package com.example.sneaker_store.service;
 
 import org.springframework.data.domain.Pageable;
 
-import com.example.sneaker_store.model.request.product.CreateProductRequest;
-import com.example.sneaker_store.model.request.product.SpecificationProductRequest;
-import com.example.sneaker_store.model.request.product.UpdateProductRequest;
-import com.example.sneaker_store.model.response.product.CreateProductResponse;
-import com.example.sneaker_store.model.response.product.GetProductByIdResponse;
-import com.example.sneaker_store.model.response.product.GetProductResponse;
-import com.example.sneaker_store.model.response.product.UpdateProductResponse;
+import com.example.sneaker_store.dto.request.product.CreateProductRequest;
+import com.example.sneaker_store.dto.request.product.SpecificationProductRequest;
+import com.example.sneaker_store.dto.request.product.UpdateProductRequest;
+import com.example.sneaker_store.dto.response.product.CreateProductResponse;
+import com.example.sneaker_store.dto.response.product.GetProductByIdResponse;
+import com.example.sneaker_store.dto.response.product.GetProductResponse;
+import com.example.sneaker_store.dto.response.product.UpdateProductResponse;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
 
 public interface ProductService {

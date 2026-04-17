@@ -2,12 +2,12 @@ package com.example.sneaker_store.service;
 
 import org.springframework.data.domain.Pageable;
 
-import com.example.sneaker_store.model.request.discount.CreateDiscountRequest;
-import com.example.sneaker_store.model.request.discount.DiscountSpecificationRequest;
-import com.example.sneaker_store.model.request.discount.UpdateDiscountRequest;
-import com.example.sneaker_store.model.response.discount.CreateDiscountResponse;
-import com.example.sneaker_store.model.response.discount.GetDiscountResponse;
-import com.example.sneaker_store.model.response.discount.UpdateDiscountResponse;
+import com.example.sneaker_store.dto.request.discount.CreateDiscountRequest;
+import com.example.sneaker_store.dto.request.discount.DiscountSpecificationRequest;
+import com.example.sneaker_store.dto.request.discount.UpdateDiscountRequest;
+import com.example.sneaker_store.dto.response.discount.CreateDiscountResponse;
+import com.example.sneaker_store.dto.response.discount.GetDiscountResponse;
+import com.example.sneaker_store.dto.response.discount.UpdateDiscountResponse;
 import com.example.sneaker_store.util.enumEntity.DiscountStatus;
 
 public interface DiscountService {

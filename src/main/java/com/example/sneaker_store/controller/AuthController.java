@@ -1,9 +1,9 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.request.auth.LoginRequest;
-import com.example.sneaker_store.model.request.auth.RegisterRequest;
-import com.example.sneaker_store.model.response.auth.LoginResponse;
-import com.example.sneaker_store.model.response.auth.LoginResult;
+import com.example.sneaker_store.dto.request.auth.LoginRequest;
+import com.example.sneaker_store.dto.request.auth.RegisterRequest;
+import com.example.sneaker_store.dto.response.auth.LoginResponse;
+import com.example.sneaker_store.dto.response.auth.LoginResult;
 import com.example.sneaker_store.service.AuthService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;

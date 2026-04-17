@@ -3,7 +3,7 @@ package com.example.sneaker_store.service.impl;
 import com.example.sneaker_store.service.BrandService;
 import com.example.sneaker_store.service.CategoryService;
 import com.example.sneaker_store.service.ProductService;
-import com.example.sneaker_store.service.specification.ProductSpecification;
+import com.example.sneaker_store.specification.ProductSpecification;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
 import com.example.sneaker_store.util.exception.NameExistsException;
 
@@ -24,13 +24,13 @@ import com.example.sneaker_store.model.BrandEntity;
 import com.example.sneaker_store.model.CategoryEntity;
 import com.example.sneaker_store.model.ProductEntity;
 import com.example.sneaker_store.model.ProductImageEntity;
-import com.example.sneaker_store.model.request.product.CreateProductRequest;
-import com.example.sneaker_store.model.request.product.SpecificationProductRequest;
-import com.example.sneaker_store.model.request.product.UpdateProductRequest;
-import com.example.sneaker_store.model.response.product.CreateProductResponse;
-import com.example.sneaker_store.model.response.product.GetProductByIdResponse;
-import com.example.sneaker_store.model.response.product.GetProductResponse;
-import com.example.sneaker_store.model.response.product.UpdateProductResponse;
+import com.example.sneaker_store.dto.request.product.CreateProductRequest;
+import com.example.sneaker_store.dto.request.product.SpecificationProductRequest;
+import com.example.sneaker_store.dto.request.product.UpdateProductRequest;
+import com.example.sneaker_store.dto.response.product.CreateProductResponse;
+import com.example.sneaker_store.dto.response.product.GetProductByIdResponse;
+import com.example.sneaker_store.dto.response.product.GetProductResponse;
+import com.example.sneaker_store.dto.response.product.UpdateProductResponse;
 import com.example.sneaker_store.repository.ProductRepository;
 
 @Service

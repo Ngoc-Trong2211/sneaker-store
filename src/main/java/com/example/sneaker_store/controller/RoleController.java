@@ -1,11 +1,11 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.request.role.CreateRoleRequest;
-import com.example.sneaker_store.model.request.role.RoleSpecificationRequest;
-import com.example.sneaker_store.model.request.role.UpdateRoleRequest;
-import com.example.sneaker_store.model.response.role.CreateRoleResponse;
-import com.example.sneaker_store.model.response.role.GetRoleResponse;
-import com.example.sneaker_store.model.response.role.UpdateRoleResponse;
+import com.example.sneaker_store.dto.request.role.CreateRoleRequest;
+import com.example.sneaker_store.dto.request.role.RoleSpecificationRequest;
+import com.example.sneaker_store.dto.request.role.UpdateRoleRequest;
+import com.example.sneaker_store.dto.response.role.CreateRoleResponse;
+import com.example.sneaker_store.dto.response.role.GetRoleResponse;
+import com.example.sneaker_store.dto.response.role.UpdateRoleResponse;
 import com.example.sneaker_store.service.RoleService;
 import com.example.sneaker_store.util.ApiMessage;
 import com.example.sneaker_store.util.exception.user.IdInvalidException;

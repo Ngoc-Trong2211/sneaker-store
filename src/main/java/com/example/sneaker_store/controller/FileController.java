@@ -1,6 +1,6 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.model.response.UploadFileResponse;
+import com.example.sneaker_store.dto.response.UploadFileResponse;
 import com.example.sneaker_store.service.FileService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;

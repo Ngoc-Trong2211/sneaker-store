@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import com.example.sneaker_store.model.response.UploadFileResponse;
+import com.example.sneaker_store.dto.response.UploadFileResponse;
 import com.example.sneaker_store.service.FileService;
 import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import lombok.RequiredArgsConstructor;

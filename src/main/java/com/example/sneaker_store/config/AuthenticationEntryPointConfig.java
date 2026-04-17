@@ -1,6 +1,6 @@
 package com.example.sneaker_store.config;
 
-import com.example.sneaker_store.model.response.SystemResponse;
+import com.example.sneaker_store.dto.response.SystemResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
