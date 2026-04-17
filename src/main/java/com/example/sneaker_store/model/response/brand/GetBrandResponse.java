@@ -33,5 +33,6 @@ public class GetBrandResponse {
         private String name;
         private String logo;
         private String country;
+        private String countryCode;
     }
 }

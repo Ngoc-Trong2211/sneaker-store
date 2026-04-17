@@ -114,7 +114,6 @@ public class BrandServiceImpl implements BrandService {
         if (fileLength == 0) {
             throw new IdInvalidException("Khong ton tai ten file");
         }
-        else this.deleteFile(brand.getLogo());
         brand.setLogo(req.getLogo());
         brand.setCountryCode(req.getCountryCode());
 
