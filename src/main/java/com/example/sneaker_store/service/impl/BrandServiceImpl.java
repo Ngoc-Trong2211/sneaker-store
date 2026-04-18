@@ -87,7 +87,7 @@ public class BrandServiceImpl implements BrandService {
         brand.setName(req.getName().toUpperCase());
 
         if (req.getLogo() != null && !req.getLogo().equals(brand.getLogo())) {
-            fileService.deleteFile(brand.getPublicId());
+            this.fileService.deleteFile(brand.getPublicId());
             brand.setLogo(req.getLogo());
             brand.setPublicId(req.getPublicId());
         }
@@ -127,7 +127,7 @@ public class BrandServiceImpl implements BrandService {
     // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public void deleteBrand(Long id) {
         BrandEntity brand = this.findById(id);
-        fileService.deleteFile(brand.getPublicId());
+        this.fileService.deleteFile(brand.getPublicId());
         this.brandRepository.delete(brand);
     }
 }
