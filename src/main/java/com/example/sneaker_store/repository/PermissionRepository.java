@@ -24,4 +24,5 @@ public interface PermissionRepository extends JpaRepository<PermissionEntity, Lo
     void deleteRelationshipPermissionId(@Param("permissionId") Long permissionId);
 
     boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
 }

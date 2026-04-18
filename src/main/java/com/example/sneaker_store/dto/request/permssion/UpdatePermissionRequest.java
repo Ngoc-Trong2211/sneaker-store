@@ -1,6 +1,5 @@
 package com.example.sneaker_store.dto.request.permssion;
 
-import com.example.sneaker_store.util.enumEntity.MethodPermission;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -22,7 +21,7 @@ public class UpdatePermissionRequest {
     private String entity;
 
     @NotNull(message = "Method không được để trống")
-    private MethodPermission method;
+    private String method;
 
     private String description;
 }

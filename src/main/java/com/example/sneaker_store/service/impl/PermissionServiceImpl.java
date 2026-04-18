@@ -10,6 +10,7 @@ import com.example.sneaker_store.dto.response.permission.GetPermissionResponse;
 import com.example.sneaker_store.repository.PermissionRepository;
 import com.example.sneaker_store.service.PermissionService;
 import com.example.sneaker_store.specification.PermissionSpecification;
+import com.example.sneaker_store.util.enumEntity.MethodPermission;
 import com.example.sneaker_store.util.exception.PermissionInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class PermissionServiceImpl implements PermissionService {
         }
 
         if (permissionRepository.existsByNameAndPathAndMethodAndEntity(
-                req.getName(), req.getPath(), req.getMethod(), req.getEntity())) {
+                req.getName(), req.getPath(), MethodPermission.valueOf(req.getMethod()), req.getEntity())) {
             throw new PermissionInvalidException("Permission đã tồn tại!");
         }
 
@@ -44,7 +45,7 @@ public class PermissionServiceImpl implements PermissionService {
         permission.setName(req.getName());
         permission.setPath(req.getPath());
         permission.setEntity(req.getEntity());
-        permission.setMethod(req.getMethod());
+        permission.setMethod(MethodPermission.valueOf(req.getMethod()));
         permission.setDescription(req.getDescription());
 
         permissionRepository.save(permission);
@@ -58,24 +59,24 @@ public class PermissionServiceImpl implements PermissionService {
         PermissionEntity permission = permissionRepository.findById(req.getId())
                 .orElseThrow(() -> new PermissionInvalidException("Không tìm thấy permission!"));
 
-        if (this.permissionRepository.existsByName(req.getName())){
-            throw new PermissionInvalidException("Tên quyền hạn đã tồn tại!");
-        }
-
         if (this.permissionRepository.existsByNameAndPathAndMethodAndEntityAndIdNot(
                 req.getName(),
                 req.getPath(),
-                req.getMethod(),
+                MethodPermission.valueOf(req.getMethod()),
                 req.getEntity(),
                 req.getId()
         )) {
             throw new PermissionInvalidException("Permission đã tồn tại!");
         }
 
+        if (this.permissionRepository.existsByNameAndIdNot(req.getName(), req.getId())){
+            throw new PermissionInvalidException("Tên quyền hạn đã tồn tại!");
+        }
+
         permission.setPath(req.getPath());
         permission.setEntity(req.getEntity());
         permission.setName(req.getName());
-        permission.setMethod(req.getMethod());
+        permission.setMethod(MethodPermission.valueOf(req.getMethod()));
         permission.setDescription(req.getDescription());
 
         permissionRepository.save(permission);
