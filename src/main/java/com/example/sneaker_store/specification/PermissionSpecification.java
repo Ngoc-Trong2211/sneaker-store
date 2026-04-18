@@ -21,7 +21,8 @@ public class PermissionSpecification {
                         "%" + req.getEntity().toLowerCase() + "%"));
             }
             if (req.getMethod()!=null){
-                predicates.add(criteriaBuilder.equal(root.get("method"), req.getMethod()));
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("method")),
+                        "%" + req.getMethod().toLowerCase() + "%"));
             }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }));
