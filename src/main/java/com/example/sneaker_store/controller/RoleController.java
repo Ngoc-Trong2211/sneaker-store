@@ -48,7 +48,7 @@ public class RoleController {
             summary = "Update role active",
             description = "Bật / tắt role theo id"
     )
-    public ResponseEntity<String> patchRoleActive(@PathVariable Long id, @RequestParam Boolean active)
+    public ResponseEntity<String> patchRoleActive(@PathVariable Long id, @RequestParam String active)
             throws IdInvalidException {
         this.roleService.updateActiveRole(id, active);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Cập nhật thành công!");

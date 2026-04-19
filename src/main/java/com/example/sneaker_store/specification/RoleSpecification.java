@@ -15,7 +15,7 @@ public class RoleSpecification {
             if (hasText(req.getName())){
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + req.getName().toLowerCase() + "%"));
             }
-            predicates.add(criteriaBuilder.equal(root.get("active"), req.isActive()));
+            predicates.add(criteriaBuilder.equal(root.get("active"), Boolean.valueOf(req.getActive())));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }));
     }

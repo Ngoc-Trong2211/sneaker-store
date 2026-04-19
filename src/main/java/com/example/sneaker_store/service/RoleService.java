@@ -13,6 +13,6 @@ public interface RoleService {
     RoleEntity findById(Long id);
     CreateRoleResponse createRole(CreateRoleRequest req);
     UpdateRoleResponse updateRole(UpdateRoleRequest req);
-    void updateActiveRole(Long id, boolean active);
+    void updateActiveRole(Long id, String active);
     GetRoleResponse handleGetRole(Pageable pageable, RoleSpecificationRequest req);
 }

@@ -87,10 +87,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
 //    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
-    public void updateActiveRole(Long id, boolean active) {
+    public void updateActiveRole(Long id, String active) {
         RoleEntity role = this.findById(id);
         if (role == null) throw new IdInvalidException("Role không tồn tại!");
-        role.setActive(active);
+        role.setActive(Boolean.parseBoolean(active));
         this.roleRepository.save(role);
     }
 

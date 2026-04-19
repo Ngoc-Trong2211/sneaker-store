@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class RoleSpecificationRequest {
     private String name;
-    private boolean active;
+    private String active;
 }
