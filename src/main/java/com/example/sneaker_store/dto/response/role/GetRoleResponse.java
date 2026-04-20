@@ -38,6 +38,14 @@ public class GetRoleResponse {
         private String description;
         private List<Permission> permissions;
 
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+        private Instant createdAt;
+        private String createdBy;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+        private Instant updatedAt;
+        private String updatedBy;
+
         @Getter
         @Setter
         @AllArgsConstructor
@@ -46,14 +54,6 @@ public class GetRoleResponse {
             private String path;
             private MethodPermission method;
             private String entity;
-
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
-            private Instant createdAt;
-            private String createdBy;
-
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
-            private Instant updatedAt;
-            private String updatedBy;
         }
     }
 }

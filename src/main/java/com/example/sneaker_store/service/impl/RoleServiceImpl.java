@@ -109,6 +109,11 @@ public class RoleServiceImpl implements RoleService {
                     resRole.setId(role.getId());
                     resRole.setActive(role.isActive());
                     resRole.setName(role.getName());
+                    resRole.setDescription(role.getDescription());
+                    resRole.setCreatedAt(role.getCreatedAt());
+                    resRole.setUpdatedAt(role.getUpdatedAt());
+                    resRole.setUpdatedBy(role.getUpdatedBy());
+                    resRole.setCreatedBy(role.getCreatedBy());
 
                     List<GetRoleResponse.Role.Permission> permissions = role.getPermissions().stream().map(
                             permission -> this.modelMapper.map(permission, GetRoleResponse.Role.Permission.class)).toList();
