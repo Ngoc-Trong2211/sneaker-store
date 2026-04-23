@@ -1,10 +1,7 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.repository.ProductImageRepository;
-import com.example.sneaker_store.service.BrandService;
-import com.example.sneaker_store.service.CategoryService;
-import com.example.sneaker_store.service.ProductImageService;
-import com.example.sneaker_store.service.ProductService;
+import com.example.sneaker_store.service.*;
 import com.example.sneaker_store.specification.ProductSpecification;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
 import com.example.sneaker_store.util.exception.NameExistsException;
@@ -14,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -46,6 +44,8 @@ public class ProductServiceImpl implements ProductService {
     private final BrandService brandService;
     private final CategoryService categoryService;
     private final ProductImageRepository productImageRepository;
+    private final FileService fileService;
+    private final ProductImageService productImageService;
 
     @Override
     public CreateProductResponse createProduct(CreateProductRequest request) {
@@ -182,8 +182,16 @@ public class ProductServiceImpl implements ProductService {
             log.warn("Product with id '{}' not found", id);
             return new RuntimeException("Product not found");
         });
+        Optional<List<ProductImageEntity>> listImage = this.productImageRepository.findByProductId(id);
+        if (listImage.isPresent()){
+            for(ProductImageEntity prdImg : listImage.get()){
+                if (!prdImg.isMain()){
+                    this.fileService.deleteFile(prdImg.getPublicId());
+                    this.productImageService.deleteProductImage(prdImg.getId());
+                }
+            }
+        }
         product.setStatus(ProductStatus.DELETED);
-        product.getImages().clear();
         this.productRepository.save(product);
     }
 }
