@@ -10,6 +10,7 @@ import com.example.sneaker_store.dto.response.product.GetProductByIdResponse;
 import com.example.sneaker_store.dto.response.product.GetProductResponse;
 import com.example.sneaker_store.dto.response.product.UpdateProductResponse;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface ProductService {
     CreateProductResponse createProduct(CreateProductRequest request);

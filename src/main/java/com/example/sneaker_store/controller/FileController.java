@@ -24,14 +24,14 @@ public class FileController {
             @RequestPart("file") MultipartFile file,
             @RequestParam("folder") String folder
     ) {
-        return ResponseEntity.ok(fileService.uploadFile(file, folder));
+        return ResponseEntity.ok(this.fileService.uploadFile(file, folder));
     }
 
     @DeleteMapping
     @ApiMessage(message = "Xóa file thành công")
     @Operation(summary = "Delete file", description = "Xóa file trên cloud")
     public ResponseEntity<Void> deleteFile(@RequestParam String publicId) {
-        fileService.deleteFile(publicId);
+        this.fileService.deleteFile(publicId);
         return ResponseEntity.ok().build();
     }
 }

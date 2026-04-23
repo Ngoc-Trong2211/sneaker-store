@@ -2,9 +2,8 @@ package com.example.sneaker_store.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.sneaker_store.dto.request.product.CreateProductRequest;
 import com.example.sneaker_store.dto.request.product.SpecificationProductRequest;
@@ -23,12 +22,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,14 +31,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class ProductController {
     private final ProductService productService;
     
-    @PostMapping("/products")
+    @PostMapping(value = "/products")
     @Operation(summary = "Create a new product", description = "Creates a new product with the provided details")
     @ApiMessage(message = "Product created successfully")
-    public ResponseEntity<CreateProductResponse> createProduct(@RequestBody @Valid CreateProductRequest request) {
+    public ResponseEntity<CreateProductResponse> createProduct
+            (@RequestBody @Valid CreateProductRequest request) {
         log.info("Received request to create product");
         return ResponseEntity.status(HttpStatus.CREATED).body(this.productService.createProduct(request));
     }
-    
+
     @PutMapping("/products")
     @Operation(summary = "Update an existing product", description = "Updates an existing product with the provided details")
     @ApiMessage(message = "Product updated successfully")

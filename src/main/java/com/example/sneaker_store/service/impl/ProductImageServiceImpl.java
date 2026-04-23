@@ -1,21 +1,24 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.dto.response.UploadFileResponse;
 import com.example.sneaker_store.model.ProductImageEntity;
-import com.example.sneaker_store.dto.request.productImage.CreateProductImageRequest;
 import com.example.sneaker_store.dto.request.productImage.UpdateProductImageRequest;
 import com.example.sneaker_store.dto.response.productImage.CreateProductImageResponse;
 import com.example.sneaker_store.dto.response.productImage.GetProductImageResponse;
 import com.example.sneaker_store.dto.response.productImage.UpdateProductImageResponse;
 import com.example.sneaker_store.repository.ProductImageRepository;
+import com.example.sneaker_store.service.FileService;
 import com.example.sneaker_store.service.ProductImageService;
 import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j(topic = "PRODUCT-IMAGE-SERVICE")
@@ -23,15 +26,32 @@ import org.springframework.stereotype.Service;
 public class ProductImageServiceImpl implements ProductImageService {
     private final ProductImageRepository productImageRepository;
     private final ModelMapper modelMapper;
+    private final FileService fileService;
+
+    private List<UploadFileResponse> uploadFileResponses(MultipartFile[] files){
+        if (files == null || files.length == 0) {
+            throw new IllegalArgumentException("Danh sách file rỗng");
+        }
+        List<UploadFileResponse> res = new ArrayList<>();
+        for (MultipartFile file : files){
+            res.add(this.fileService.uploadFile(file, "product"));
+        }
+        return res;
+    }
 
     @Override
-    public CreateProductImageResponse createProductImage(CreateProductImageRequest req) {
-        ProductImageEntity img = new ProductImageEntity();
-        img.setImageURL(req.getImageURL());
-        img.setMain(req.isMain());
-
-        this.productImageRepository.save(img);
-        return this.modelMapper.map(img, CreateProductImageResponse.class);
+    public List<CreateProductImageResponse> createProductImage(MultipartFile[] files) {
+        List<CreateProductImageResponse> listRes = new ArrayList<>();
+        List<UploadFileResponse> uploadMultiFile = uploadFileResponses(files);
+        for (UploadFileResponse fileRes : uploadMultiFile){
+            ProductImageEntity img = new ProductImageEntity();
+            img.setImageURL(fileRes.getUrl());
+            img.setPublicId(fileRes.getPublicId());
+            img.setMain(false);
+            this.productImageRepository.save(img);
+            listRes.add(this.modelMapper.map(img, CreateProductImageResponse.class));
+        }
+        return listRes;
     }
 
     @Override

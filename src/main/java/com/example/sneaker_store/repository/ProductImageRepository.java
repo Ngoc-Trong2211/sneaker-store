@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductImageRepository extends JpaRepository<ProductImageEntity, Long> {
     Optional<List<ProductImageEntity>> findByProductId(String productId);
+    ProductImageEntity findByImageURL(String url);
 }

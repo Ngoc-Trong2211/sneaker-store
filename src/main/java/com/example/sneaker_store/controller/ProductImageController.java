@@ -12,8 +12,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,13 +26,13 @@ import org.springframework.web.bind.annotation.*;
 public class ProductImageController {
     private final ProductImageService productImageService;
 
-    @PostMapping("/product-images")
+    @PostMapping(value = "/product-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiMessage(message = "Tạo product image thành công")
     @Operation(summary = "Create product image", description = "Tạo mới product image")
-    public ResponseEntity<CreateProductImageResponse> create(@RequestBody @Valid CreateProductImageRequest req) {
+    public ResponseEntity<List<CreateProductImageResponse>> create(@RequestPart("files") MultipartFile[] files) {
         log.info("CREATE PRODUCT IMAGE");
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(this.productImageService.createProductImage(req));
+                .body(this.productImageService.createProductImage(files));
     }
 
     @PutMapping("/product-images")

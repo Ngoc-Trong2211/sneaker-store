@@ -25,6 +25,9 @@ public class ProductImageEntity {
     private Instant updatedAt;
     private String updatedBy;
 
+    @Column(name = "public_id")
+    private String publicId;
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     private ProductEntity product;
