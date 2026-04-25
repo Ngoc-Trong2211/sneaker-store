@@ -73,17 +73,17 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         log.info("Updating product variant with id: {}, size: {}, color: {}, stock: {}",
                 request.getId(), request.getSize(), request.getColor(), request.getStock());  
         ProductVariantEntity existingVariant = this.productVariantRepository.findById(request.getId()).orElse(null);
-        ProductEntity product = this.productRepository.findById(request.getProductId()).orElseThrow(() -> {
-            log.warn("Product with id '{}' not found", request.getProductId());
+        ProductEntity product = this.productRepository.findByName(request.getProductName()).orElseThrow(() -> {
+            log.warn("Product with id '{}' not found", request.getProductName());
             return new RuntimeException("Product not found");
         });
         if (existingVariant == null) {
             log.warn("Product variant with id: {} not found", request.getId());
             throw new RuntimeException("Product variant not found");
         } 
-        if (this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), request.getProductId()) != null) {
+        if (this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId()) != null) {
             log.warn("Product variant with size: {} and color: {} already exists", request.getSize(), request.getColor());
-            ProductVariantEntity productVariant = this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), request.getProductId());
+            ProductVariantEntity productVariant = this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId());
             existingVariant.setStock(productVariant.getStock() + request.getStock());
             this.productVariantRepository.save(productVariant);
             product.setQuantity(product.getQuantity() + existingVariant.getStock());

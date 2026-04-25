@@ -3,6 +3,7 @@ package com.example.sneaker_store.specification;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.sneaker_store.util.enumEntity.VariantStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.example.sneaker_store.model.ProductVariantEntity;
@@ -25,6 +26,10 @@ public class ProductVariantSpecification {
 
             if (hasText(request.getColor())) {
                 predicates.add(criteriaBuilder.equal(root.get("color"), request.getColor()));
+            }
+
+            if (hasText(request.getStatus())){
+                predicates.add(criteriaBuilder.equal(root.get("status"), VariantStatus.valueOf(request.getStatus())));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

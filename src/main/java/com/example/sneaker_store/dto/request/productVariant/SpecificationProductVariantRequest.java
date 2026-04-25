@@ -8,4 +8,5 @@ import lombok.Setter;
 public class SpecificationProductVariantRequest {
     private String sizeSh;
     private String color;
+    private String status;
 }

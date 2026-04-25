@@ -20,6 +20,6 @@ public class UpdateProductVariantRequest {
     @NotNull(message = "Stock cannot be null")
     private Integer stock;
 
-    @NotBlank(message = "Product ID is required")
-    private String productId;
+    @NotBlank(message = "Product Name is required")
+    private String productName;
 }
