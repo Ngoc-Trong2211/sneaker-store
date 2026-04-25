@@ -139,8 +139,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }  
 
     @Override
-    public void updateProductVariantStatus(String id, VariantStatus status) {
-        if (status == VariantStatus.DELETED) {
+    public void updateProductVariantStatus(String id, String status) {
+        if (VariantStatus.valueOf(status) == VariantStatus.DELETED) {
             this.deleteProductVariant(id);
             return;
         }
@@ -149,8 +149,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             log.warn("Product variant with id: {} not found", id);
             throw new RuntimeException("Product variant not found");
         }
-        if (status == VariantStatus.SOLD_OUT && existingVariant.getStock() > 0) throw new RuntimeException("Stock > 0");
-        existingVariant.setStatus(status);
+        if (VariantStatus.valueOf(status) == VariantStatus.SOLD_OUT && existingVariant.getStock() > 0) throw new RuntimeException("Stock > 0");
+        existingVariant.setStatus(VariantStatus.valueOf(status));
         this.productVariantRepository.save(existingVariant);
     }
 }

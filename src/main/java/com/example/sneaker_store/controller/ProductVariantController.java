@@ -76,7 +76,7 @@ public class ProductVariantController {
     @PatchMapping("/product-variants/{id}/status")
     @Operation(summary = "Update the status of a product variant", description = "Update the status of a product variant with the specified ID.")
     @ApiMessage(message = "Product variant status updated successfully")
-    public ResponseEntity<Void> updateProductVariantStatus(@PathVariable String id, @RequestParam VariantStatus status) {
+    public ResponseEntity<Void> updateProductVariantStatus(@PathVariable String id, @RequestParam String status) {
         this.productVariantService.updateProductVariantStatus(id, status);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
