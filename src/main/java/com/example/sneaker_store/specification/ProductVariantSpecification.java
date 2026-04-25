@@ -19,8 +19,8 @@ public class ProductVariantSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (hasText(request.getSize())) {
-                predicates.add(criteriaBuilder.equal(root.get("size"), request.getSize()));
+            if (hasText(request.getSizeSh())) {
+                predicates.add(criteriaBuilder.equal(root.get("size"), request.getSizeSh()));
             }
 
             if (hasText(request.getColor())) {

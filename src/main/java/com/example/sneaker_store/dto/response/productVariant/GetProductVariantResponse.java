@@ -1,7 +1,9 @@
 package com.example.sneaker_store.dto.response.productVariant;
 
+import java.time.Instant;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetProductVariantResponse {
+public class    GetProductVariantResponse {
     private DataPage page;
     private List<ProductVariant> productVariants;
 
@@ -35,5 +37,15 @@ public class GetProductVariantResponse {
         private int stock;
         private String sku;
         private String status;
+        private String brandName;
+        private String productName;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+        private Instant createdAt;
+        private String createdBy;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+        private Instant updatedAt;
+        private String updatedBy;
     }
 }

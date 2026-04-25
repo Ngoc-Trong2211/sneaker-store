@@ -3,6 +3,7 @@ package com.example.sneaker_store.repository;
 import com.example.sneaker_store.model.ProductEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -20,4 +21,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, String>,
 
     @Query("SELECT p FROM ProductEntity p WHERE p.discount.id = :discountId")
     List<ProductEntity> findByDiscountId(String discountId);
+
+    Optional<ProductEntity> findByName(String name);
 }

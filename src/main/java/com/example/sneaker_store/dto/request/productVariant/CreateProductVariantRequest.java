@@ -18,5 +18,5 @@ public class CreateProductVariantRequest {
     private Integer stock;
 
     @NotBlank(message = "Product ID is required")
-    private String productId;
+    private String productName;
 }

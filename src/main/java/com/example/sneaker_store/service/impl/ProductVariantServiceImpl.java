@@ -40,13 +40,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     public CreateProductVariantResponse createProductVariant(CreateProductVariantRequest request) {
         log.info("Creating product variant with size: {}, color: {}, stock: {}",
                 request.getSize(), request.getColor(), request.getStock());
-        ProductEntity product = this.productRepository.findById(request.getProductId()).orElseThrow(() -> {
-            log.warn("Product with id '{}' not found", request.getProductId());
+        ProductEntity product = this.productRepository.findByName(request.getProductName()).orElseThrow(() -> {
+            log.warn("Product with id '{}' not found", request.getProductName());
             return new RuntimeException("Product not found");
         });
-        if (this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), request.getProductId()) != null) {
+        if (this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId()) != null) {
             log.warn("Product variant with size: {} and color: {} already exists", request.getSize(), request.getColor());
-            ProductVariantEntity existingVariant = this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), request.getProductId());
+            ProductVariantEntity existingVariant = this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId());
             existingVariant.setStock(existingVariant.getStock() + request.getStock());
             this.productVariantRepository.save(existingVariant);
             product.setQuantity(product.getQuantity() + existingVariant.getStock());
@@ -110,7 +110,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         GetProductVariantResponse response = new GetProductVariantResponse();
         response.setPage(this.modelMapper.map(productVariantPage, GetProductVariantResponse.DataPage.class));
         response.setProductVariants(productVariantPage.getContent().stream().map(
-            productVariant -> this.modelMapper.map(productVariant, GetProductVariantResponse.ProductVariant.class)).toList());
+            productVariant -> {
+                GetProductVariantResponse.ProductVariant resVariant = this.modelMapper.map(
+                        productVariant, GetProductVariantResponse.ProductVariant.class);
+                resVariant.setProductName(productVariant.getProduct().getName());
+                resVariant.setBrandName(productVariant.getProduct().getBrand().getName());
+                return resVariant;
+            }).toList());
         return response;
     }
 

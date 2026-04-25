@@ -61,10 +61,7 @@ public class ProductVariantController {
     @Operation(summary = "Get product variants with pagination and filtering", description = "Get a paginated list of product variants filtered by size and color.")
     @ApiMessage(message = "Product variants retrieved successfully")
     public ResponseEntity<GetProductVariantResponse> getMethodName(Pageable pageable,
-            @RequestParam(required = false) String size, @RequestParam(required = false) String color) {
-        SpecificationProductVariantRequest request = new SpecificationProductVariantRequest();
-        request.setSize(size);
-        request.setColor(color);
+                                                                   SpecificationProductVariantRequest request) {
         return ResponseEntity.ok(this.productVariantService.getProductVariant(pageable, request));
     }
 

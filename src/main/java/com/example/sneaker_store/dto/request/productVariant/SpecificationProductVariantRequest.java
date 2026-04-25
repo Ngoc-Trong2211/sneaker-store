@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SpecificationProductVariantRequest {
-    private String size;
+    private String sizeSh;
     private String color;
 }
