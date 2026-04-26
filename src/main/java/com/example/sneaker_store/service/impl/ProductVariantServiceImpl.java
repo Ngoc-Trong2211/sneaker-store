@@ -44,6 +44,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             log.warn("Product with id '{}' not found", request.getProductName());
             return new RuntimeException("Product not found");
         });
+        if (request.getStock()<=0) throw new RuntimeException("Stock must be > 0");
         if (this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId()) != null) {
             log.warn("Product variant with size: {} and color: {} already exists", request.getSize(), request.getColor());
             ProductVariantEntity existingVariant = this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId());
@@ -77,6 +78,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             log.warn("Product with id '{}' not found", request.getProductName());
             return new RuntimeException("Product not found");
         });
+        if (request.getStock()<=0) throw new RuntimeException("Stock must be > 0");
         if (existingVariant == null) {
             log.warn("Product variant with id: {} not found", request.getId());
             throw new RuntimeException("Product variant not found");
@@ -84,9 +86,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         if (this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId()) != null) {
             log.warn("Product variant with size: {} and color: {} already exists", request.getSize(), request.getColor());
             ProductVariantEntity productVariant = this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId());
-            existingVariant.setStock(productVariant.getStock() + request.getStock());
+            int quantity = product.getQuantity() - existingVariant.getStock() + request.getStock();
+            System.out.println(quantity);
+            existingVariant.setStock(request.getStock());
             this.productVariantRepository.save(productVariant);
-            product.setQuantity(product.getQuantity() + existingVariant.getStock());
+            product.setQuantity(quantity);
             this.productRepository.save(product);
             return this.modelMapper.map(productVariant, UpdateProductVariantResponse.class);
         }

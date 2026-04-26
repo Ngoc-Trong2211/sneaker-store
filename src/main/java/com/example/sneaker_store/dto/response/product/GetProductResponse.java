@@ -1,7 +1,9 @@
 package com.example.sneaker_store.dto.response.product;
 
+import java.time.Instant;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,7 +36,17 @@ public class GetProductResponse {
         private String description;
         private double price;
         private String status;
+        private String quantity;
         private String categoryName;
         private String brandName;
+        private String image;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+        private Instant createdAt;
+        private String createdBy;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+        private Instant updatedAt;
+        private String updatedBy;
     }
 }
