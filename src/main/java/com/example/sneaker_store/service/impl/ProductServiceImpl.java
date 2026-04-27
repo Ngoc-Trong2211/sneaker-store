@@ -146,7 +146,7 @@ public class ProductServiceImpl implements ProductService {
         response.setProducts(productPage.map(product -> {
             GetProductResponse.Product prod = this.modelMapper.map(product, GetProductResponse.Product.class);
             prod.setBrandName(product.getBrand().getName());
-            prod.setCategoryName(product.getCategory().getName());
+            prod.setSlug(product.getCategory().getSlug());
             product.getImages().stream()
                     .filter(ProductImageEntity::isMain)
                     .findFirst()

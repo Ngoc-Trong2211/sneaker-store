@@ -8,4 +8,5 @@ import lombok.Setter;
 public class CreateProductImageResponse {
     private String imageURL;
     private boolean isMain;
+    private String publicId;
 }

@@ -34,6 +34,11 @@ public class ProductSpecification {
             if (request.getStatus() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("status"), request.getStatus()));
             }
+
+            if (request.getBrandId() != null) predicates.add(criteriaBuilder.equal(root.get("brand").get("id"), request.getBrandId()));
+            if (request.getCategoryId() != null)
+                predicates.add(criteriaBuilder.equal(root.get("category").get("id"), request.getCategoryId()));
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });   
     }
