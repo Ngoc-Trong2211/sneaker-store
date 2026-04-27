@@ -8,6 +8,8 @@ import com.example.sneaker_store.dto.response.category.GetCategoryResponse;
 import com.example.sneaker_store.dto.response.category.UpdateCategoryResponse;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface CategoryService {
     CreateCategoryResponse createCategory(CreateCategoryRequest req);
     UpdateCategoryResponse updateCategory(UpdateCategoryRequest req);
@@ -15,4 +17,5 @@ public interface CategoryService {
     void deleteCategory(Long id);
     CategoryEntity findById(Long id);
     CategoryEntity findByName(String name);
+    List<GetCategoryResponse.Category> getAll();
 }

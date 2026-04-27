@@ -104,6 +104,21 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public  List<GetCategoryResponse.Category>  getAll() {
+        List<CategoryEntity> categories = this.categoryRepository.findAll();
+
+        return categories.stream()
+                .map(item -> {
+                    GetCategoryResponse.Category resCate = this.modelMapper.map(item, GetCategoryResponse.Category.class);
+                    Optional<CategoryEntity> categoryParent = this.categoryRepository.findById(item.getParentId());
+                    if (categoryParent.isPresent()) resCate.setNameParent(categoryParent.get().getName());
+                    else resCate.setNameParent("");
+                    return resCate;
+                })
+                .toList();
+    }
+
+    @Override
     public void deleteCategory(Long id) {
         CategoryEntity category = this.findById(id);
         this.categoryRepository.deleteCategoryExistsParentId(id);

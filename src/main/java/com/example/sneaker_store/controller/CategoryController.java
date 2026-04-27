@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j(topic = "CATEGORY-CONTROLLER")
@@ -49,6 +51,14 @@ public class CategoryController {
                                                    @RequestParam(required = false) String name) {
         log.info("GET LIST CATEGORIES");
         return ResponseEntity.ok(this.categoryService.getCategory(pageable, name));
+    }
+
+    @GetMapping("/categories/all")
+    @ApiMessage(message = "Get category thành công")
+    @Operation(summary = "Get category", description = "Get category")
+    public ResponseEntity<List<GetCategoryResponse.Category>> getAll() {
+        log.info("GET LIST CATEGORIES");
+        return ResponseEntity.ok(this.categoryService.getAll());
     }
 
     @DeleteMapping("/categories/{id}")
