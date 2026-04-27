@@ -124,6 +124,14 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    public List<GetBrandResponse.Brand> getAll() {
+        List<BrandEntity> brands = this.brandRepository.findAll();
+
+        return brands.stream().map(item -> this.modelMapper.map(item, GetBrandResponse.Brand.class))
+                .toList();
+    }
+
+    @Override
     // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public void deleteBrand(Long id) {
         BrandEntity brand = this.findById(id);

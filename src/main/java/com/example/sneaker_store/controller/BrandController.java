@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,6 +53,14 @@ public class BrandController {
                                                 SpecificationBrandRequest request) {
         log.info("GET LIST BRAND");
         return ResponseEntity.ok(this.brandService.getBrand(pageable, request));
+    }
+
+    @GetMapping("/brands/all")
+    @ApiMessage(message = "Get brand thành công")
+    @Operation(summary = "Get brand", description = "Get brand")
+    public ResponseEntity<List<GetBrandResponse.Brand>> getAll() {
+        log.info("GET LIST BRANDS");
+        return ResponseEntity.ok(this.brandService.getAll());
     }
 
     @DeleteMapping("/brands/{id}")

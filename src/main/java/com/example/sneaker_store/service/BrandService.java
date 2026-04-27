@@ -10,6 +10,7 @@ import com.example.sneaker_store.dto.response.brand.UpdateBrandResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.net.URISyntaxException;
+import java.util.List;
 
 public interface BrandService {
     CreateBrandResponse createBrand(CreateBrandRequest req);
@@ -18,4 +19,5 @@ public interface BrandService {
     void deleteBrand(Long id) throws URISyntaxException;
     BrandEntity findById(Long id);
     BrandEntity findByName(String name);
+    List<GetBrandResponse.Brand> getAll();
 }
