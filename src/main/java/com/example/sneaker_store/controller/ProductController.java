@@ -59,7 +59,7 @@ public class ProductController {
     @GetMapping("/products/{id}")
     @Operation(summary = "Get product by ID", description = "Retrieves a product by its unique ID")
     @ApiMessage(message = "Product retrieved successfully")
-    public ResponseEntity<GetProductByIdResponse> getProductById(@PathVariable String id) {
+    public ResponseEntity<GetProductByIdResponse> getProductById(@PathVariable("id") String id) {
         log.info("Received request to get product with id '{}'", id);
         return ResponseEntity.ok(this.productService.getProductById(id));
     }

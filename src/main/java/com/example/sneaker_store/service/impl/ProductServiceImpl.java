@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -33,7 +31,6 @@ import com.example.sneaker_store.dto.response.product.GetProductByIdResponse;
 import com.example.sneaker_store.dto.response.product.GetProductResponse;
 import com.example.sneaker_store.dto.response.product.UpdateProductResponse;
 import com.example.sneaker_store.repository.ProductRepository;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j(topic = "PRODUCT-SERVICE")
@@ -93,46 +90,54 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public UpdateProductResponse updateProduct(UpdateProductRequest request) {
-        ProductEntity product = this.productRepository.findById(request.getId()).orElseThrow(() -> {
-            log.warn("Product with id '{}' not found", request.getId());
-            return new RuntimeException("Product not found");
-        });
+        ProductEntity product = productRepository.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
         if (productRepository.existsByNameAndIdNot(request.getName(), request.getId())) {
-            log.warn("Product with name '{}' already exists", request.getName());
             throw new NameExistsException("Product with the same name already exists");
         }
-        BrandEntity brand = this.brandService.findById(request.getBrandId());
-        CategoryEntity category = this.categoryService.findById(request.getCategoryId());
+        BrandEntity brand = brandService.findById(request.getBrandId());
+        CategoryEntity category = categoryService.findById(request.getCategoryId());
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setBrand(brand);
         product.setCategory(category);
-        this.productRepository.save(product);
 
-        if (request.getImages() != null && !request.getImages().isEmpty()) {
-            if (request.getImages().size() > 6) {
-                log.warn("Too many images provided for product '{}'", request.getName());
-                throw new IllegalArgumentException("Maximum 6 images allowed");
-            }
-
-            else{
-                for (int i=0; i<request.getImages().size(); i++){
-                    ProductImageEntity image = this.productImageRepository.findByImageURL(request.getImages().get(i));
-                    if (image == null) {
-                        throw new RuntimeException("Image not found with URL: " + request.getImages().get(i));
-                    }
-                    image.setMain(i == 0);
-                    image.setProduct(product);
-                    System.out.println("save");
-                    this.productImageRepository.save(image);
+        List<String> newImageUrls = request.getImages();
+        List<ProductImageEntity> currentImages = product.getImages();
+        List<ProductImageEntity> toRemove = currentImages.stream()
+                .filter(img -> !newImageUrls.contains(img.getImageURL()))
+                .toList();
+        for (ProductImageEntity img : toRemove) {
+            fileService.deleteFile(img.getPublicId());
+            currentImages.remove(img);
+            productImageRepository.delete(img);
+        }
+        for (int i = 0; i < newImageUrls.size(); i++) {
+            String url = newImageUrls.get(i);
+            boolean exists = currentImages.stream()
+                    .anyMatch(img -> img.getImageURL().equals(url));
+            if (!exists) {
+                ProductImageEntity image = productImageRepository.findByImageURL(url);
+                if (image == null) {
+                    throw new RuntimeException("Image not found with URL: " + url);
                 }
+                image.setProduct(product);
+                image.setMain(i == 0);
+                productImageRepository.save(image);
+                currentImages.add(image);
+            } else {
+                int finalI = i;
+                currentImages.stream()
+                        .filter(img -> img.getImageURL().equals(url))
+                        .forEach(img -> img.setMain(finalI == 0));
             }
         }
-
-        UpdateProductResponse res = this.modelMapper.map(product, UpdateProductResponse.class);
+        productRepository.save(product);
+        UpdateProductResponse res = modelMapper.map(product, UpdateProductResponse.class);
         res.setBrandName(product.getBrand().getName());
         res.setCategoryName(product.getCategory().getName());
+
         return res;
     }
 
@@ -146,7 +151,7 @@ public class ProductServiceImpl implements ProductService {
         response.setProducts(productPage.map(product -> {
             GetProductResponse.Product prod = this.modelMapper.map(product, GetProductResponse.Product.class);
             prod.setBrandName(product.getBrand().getName());
-            prod.setSlug(product.getCategory().getSlug());
+            prod.setSlugCategory(product.getCategory().getSlug());
             product.getImages().stream()
                     .filter(ProductImageEntity::isMain)
                     .findFirst()
@@ -157,14 +162,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public GetProductByIdResponse getProductById(String id) {
-        ProductEntity product = this.productRepository.findById(id).orElseThrow(() -> {
-            log.warn("Product with id '{}' not found", id);
+    public GetProductByIdResponse getProductById(String slug) {
+        ProductEntity product = this.productRepository.findBySlug(slug).orElseThrow(() -> {
+            log.warn("Product with slug '{}' not found", slug);
             return new RuntimeException("Product not found");
         });
         GetProductByIdResponse res = this.modelMapper.map(product, GetProductByIdResponse.class);
-        res.setBrandName(product.getBrand().getName());
-        res.setCategoryName(product.getCategory().getName());
+        res.setBrandId(product.getBrand().getId());
+        res.setCategoryId(product.getCategory().getId());
+        res.setImages(product.getImages().stream().map(ProductImageEntity::getImageURL).toList());
         return res;
     }
 

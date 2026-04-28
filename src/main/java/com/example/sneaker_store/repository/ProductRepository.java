@@ -23,4 +23,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, String>,
     List<ProductEntity> findByDiscountId(String discountId);
 
     Optional<ProductEntity> findByName(String name);
+
+    Optional<ProductEntity> findBySlug(String slug);
 }

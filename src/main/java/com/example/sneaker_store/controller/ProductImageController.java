@@ -38,10 +38,11 @@ public class ProductImageController {
     @PutMapping("/product-images")
     @ApiMessage(message = "Update product image thành công")
     @Operation(summary = "Update product image", description = "Update product image")
-    public ResponseEntity<UpdateProductImageResponse> update(@RequestBody @Valid UpdateProductImageRequest req) {
+    public ResponseEntity<List<String>> update(@RequestPart(value = "files", required = false) MultipartFile[] files,
+                                               @RequestParam(value = "oldFiles", required = false) List<String> oldFiles) {
         log.info("UPDATE PRODUCT IMAGE");
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(this.productImageService.updateProductImage(req));
+                .body(this.productImageService.updateProductImage(files, oldFiles));
     }
 
     @DeleteMapping("/product-images/{id}")

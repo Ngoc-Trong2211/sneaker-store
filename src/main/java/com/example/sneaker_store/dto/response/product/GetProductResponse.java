@@ -38,6 +38,7 @@ public class GetProductResponse {
         private String status;
         private String quantity;
         private String slug;
+        private String slugCategory;
         private String brandName;
         private String image;
 

@@ -55,13 +55,19 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
-    public UpdateProductImageResponse updateProductImage(UpdateProductImageRequest req) {
-        ProductImageEntity img = this.productImageRepository.findById(req.getId())
-                .orElseThrow(() -> new IdInvalidException("Khong ton tai!"));
-        img.setImageURL(req.getImageURL());
-        img.setMain(req.isMain());
-        this.productImageRepository.save(img);
-        return this.modelMapper.map(img, UpdateProductImageResponse.class);
+    public List<String> updateProductImage(MultipartFile[] files, List<String> oldFiles) {
+        List<String> listRes = new ArrayList<>(oldFiles);
+        if (files == null) return listRes;
+        List<UploadFileResponse> uploadMultiFile = uploadFileResponses(files);
+        for (UploadFileResponse fileRes : uploadMultiFile){
+            ProductImageEntity img = new ProductImageEntity();
+            img.setImageURL(fileRes.getUrl());
+            img.setPublicId(fileRes.getPublicId());
+            img.setMain(false);
+            this.productImageRepository.save(img);
+            listRes.add(img.getImageURL());
+        }
+        return listRes;
     }
 
     @Override

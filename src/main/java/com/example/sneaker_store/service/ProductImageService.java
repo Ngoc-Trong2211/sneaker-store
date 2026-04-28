@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface ProductImageService {
     List<CreateProductImageResponse> createProductImage(MultipartFile[] files);
-    UpdateProductImageResponse updateProductImage(UpdateProductImageRequest req);
+    List<String> updateProductImage(MultipartFile[] files, List<String> oldFiles);
     void deleteProductImage(Long id);
     GetProductImageResponse getProductImageById(String productId);
 }
