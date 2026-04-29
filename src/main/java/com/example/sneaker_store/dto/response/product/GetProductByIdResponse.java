@@ -19,6 +19,7 @@ public class GetProductByIdResponse {
     private double price;
     private String status;
     private String slug;
+    private int quantity;
     private Long brandId;
     private String brandName;
     private Long categoryId;

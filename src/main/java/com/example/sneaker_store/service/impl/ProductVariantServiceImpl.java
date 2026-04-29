@@ -50,7 +50,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             ProductVariantEntity existingVariant = this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId());
             existingVariant.setStock(existingVariant.getStock() + request.getStock());
             this.productVariantRepository.save(existingVariant);
-            product.setQuantity(product.getQuantity() + existingVariant.getStock());
+            product.setQuantity(product.getQuantity() + request.getStock());
             this.productRepository.save(product);
             return this.modelMapper.map(existingVariant, CreateProductVariantResponse.class);
         }
@@ -78,11 +78,17 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             log.warn("Product with id '{}' not found", request.getProductName());
             return new RuntimeException("Product not found");
         });
+
         if (request.getStock()<=0) throw new RuntimeException("Stock must be > 0");
         if (existingVariant == null) {
             log.warn("Product variant with id: {} not found", request.getId());
             throw new RuntimeException("Product variant not found");
-        } 
+        }
+        if (!product.getName().equals(existingVariant.getProduct().getName())){
+            ProductEntity prdOld = existingVariant.getProduct();
+            prdOld.setQuantity(0);
+            this.productRepository.save(prdOld);
+        }
         if (this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId()) != null) {
             log.warn("Product variant with size: {} and color: {} already exists", request.getSize(), request.getColor());
             ProductVariantEntity productVariant = this.productVariantRepository.findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId());
