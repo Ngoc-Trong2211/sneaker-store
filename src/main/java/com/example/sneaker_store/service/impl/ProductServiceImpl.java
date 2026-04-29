@@ -1,6 +1,8 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.model.*;
 import com.example.sneaker_store.repository.ProductImageRepository;
+import com.example.sneaker_store.repository.ProductVariantRepository;
 import com.example.sneaker_store.service.*;
 import com.example.sneaker_store.specification.ProductSpecification;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
@@ -20,10 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.example.sneaker_store.model.BrandEntity;
-import com.example.sneaker_store.model.CategoryEntity;
-import com.example.sneaker_store.model.ProductEntity;
-import com.example.sneaker_store.model.ProductImageEntity;
 import com.example.sneaker_store.dto.request.product.CreateProductRequest;
 import com.example.sneaker_store.dto.request.product.SpecificationProductRequest;
 import com.example.sneaker_store.dto.request.product.UpdateProductRequest;
@@ -42,8 +40,10 @@ public class ProductServiceImpl implements ProductService {
     private final BrandService brandService;
     private final CategoryService categoryService;
     private final ProductImageRepository productImageRepository;
+    private final ProductVariantRepository productVariantRepository;
     private final FileService fileService;
     private final ProductImageService productImageService;
+    private final ProductVariantService productVariantService;
 
     @Override
     public CreateProductResponse createProduct(CreateProductRequest request) {
@@ -209,6 +209,12 @@ public class ProductServiceImpl implements ProductService {
                     this.fileService.deleteFile(prdImg.getPublicId());
                     this.productImageService.deleteProductImage(prdImg.getId());
                 }
+            }
+        }
+        Optional<List<ProductVariantEntity>> listVariants= this.productVariantRepository.findByProductId(id);
+        if (listVariants.isPresent()){
+            for(ProductVariantEntity prdVariant : listVariants.get()){
+                this.productVariantService.deleteProductVariant(prdVariant.getId());
             }
         }
         product.setStatus(ProductStatus.DELETED);
