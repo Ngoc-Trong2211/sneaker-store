@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,13 +91,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public UpdateProductResponse updateProduct(UpdateProductRequest request) {
-        ProductEntity product = productRepository.findById(request.getId())
+        ProductEntity product = this.productRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        if (productRepository.existsByNameAndIdNot(request.getName(), request.getId())) {
+        if (this.productRepository.existsByNameAndIdNot(request.getName(), request.getId())) {
             throw new NameExistsException("Product with the same name already exists");
         }
-        BrandEntity brand = brandService.findById(request.getBrandId());
-        CategoryEntity category = categoryService.findById(request.getCategoryId());
+        BrandEntity brand = this.brandService.findById(request.getBrandId());
+        CategoryEntity category = this.categoryService.findById(request.getCategoryId());
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
@@ -109,22 +110,22 @@ public class ProductServiceImpl implements ProductService {
                 .filter(img -> !newImageUrls.contains(img.getImageURL()))
                 .toList();
         for (ProductImageEntity img : toRemove) {
-            fileService.deleteFile(img.getPublicId());
+            this.fileService.deleteFile(img.getPublicId());
             currentImages.remove(img);
-            productImageRepository.delete(img);
+            this.productImageRepository.delete(img);
         }
         for (int i = 0; i < newImageUrls.size(); i++) {
             String url = newImageUrls.get(i);
             boolean exists = currentImages.stream()
                     .anyMatch(img -> img.getImageURL().equals(url));
             if (!exists) {
-                ProductImageEntity image = productImageRepository.findByImageURL(url);
+                ProductImageEntity image = this.productImageRepository.findByImageURL(url);
                 if (image == null) {
                     throw new RuntimeException("Image not found with URL: " + url);
                 }
                 image.setProduct(product);
                 image.setMain(i == 0);
-                productImageRepository.save(image);
+                this.productImageRepository.save(image);
                 currentImages.add(image);
             } else {
                 int finalI = i;
@@ -133,8 +134,8 @@ public class ProductServiceImpl implements ProductService {
                         .forEach(img -> img.setMain(finalI == 0));
             }
         }
-        productRepository.save(product);
-        UpdateProductResponse res = modelMapper.map(product, UpdateProductResponse.class);
+        this.productRepository.save(product);
+        UpdateProductResponse res = this.modelMapper.map(product, UpdateProductResponse.class);
         res.setBrandName(product.getBrand().getName());
         res.setCategoryName(product.getCategory().getName());
 
@@ -170,7 +171,16 @@ public class ProductServiceImpl implements ProductService {
         GetProductByIdResponse res = this.modelMapper.map(product, GetProductByIdResponse.class);
         res.setBrandId(product.getBrand().getId());
         res.setCategoryId(product.getCategory().getId());
-        res.setImages(product.getImages().stream().map(ProductImageEntity::getImageURL).toList());
+        List<GetProductByIdResponse.ProductImage> listResImg = new ArrayList<>();
+        for (ProductImageEntity img : product.getImages()){
+            GetProductByIdResponse.ProductImage imgRes = new GetProductByIdResponse.ProductImage();
+            imgRes.setUrl(img.getImageURL());
+            imgRes.setMain(img.isMain());
+            listResImg.add(imgRes);
+        }
+        res.setImages(listResImg);
+        res.setBrandName(product.getBrand().getName());
+        res.setCategoryName(product.getCategory().getName());
         return res;
     }
 
