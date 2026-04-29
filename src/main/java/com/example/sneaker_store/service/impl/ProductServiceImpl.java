@@ -6,6 +6,7 @@ import com.example.sneaker_store.repository.ProductVariantRepository;
 import com.example.sneaker_store.service.*;
 import com.example.sneaker_store.specification.ProductSpecification;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
+import com.example.sneaker_store.util.enumEntity.VariantStatus;
 import com.example.sneaker_store.util.exception.NameExistsException;
 
 import jakarta.transaction.Transactional;
@@ -185,14 +186,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void updateStatusProduct(String id, ProductStatus status) {
+    public void updateStatusProduct(String id, String status) {
         ProductEntity product = this.productRepository.findById(id).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", id);
             return new RuntimeException("Product not found");
         });
-        if (status == ProductStatus.SOLD_OUT && product.getQuantity() > 0) throw new RuntimeException("Quantity > 0");
-        if (status == ProductStatus.ACTIVE && product.getQuantity() == 0) throw new RuntimeException("Quantity = 0");
-        product.setStatus(status);
+        if (ProductStatus.valueOf(status) == ProductStatus.SOLD_OUT && product.getQuantity() > 0) throw new RuntimeException("Quantity > 0");
+        if (ProductStatus.valueOf(status) == ProductStatus.ACTIVE && product.getQuantity() == 0) throw new RuntimeException("Quantity = 0");
+        product.setStatus(ProductStatus.valueOf(status));
+        if (ProductStatus.valueOf(status)==(ProductStatus.ACTIVE)){
+            Optional<List<ProductVariantEntity>> listVariants= this.productVariantRepository.findByProductId(id);
+            if (listVariants.isPresent()){
+                for(ProductVariantEntity prdVariant : listVariants.get()){
+                    prdVariant.setStatus(VariantStatus.ACTIVE);
+                }
+            }
+        }
         this.productRepository.save(product);
     }
 

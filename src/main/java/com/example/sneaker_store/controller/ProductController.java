@@ -67,7 +67,7 @@ public class ProductController {
     @PatchMapping("/products/{id}/status")
     @Operation(summary = "Update product status", description = "Updates the status of a product by its unique ID")
     @ApiMessage(message = "Product status updated successfully")    
-    public ResponseEntity<Void> updateStatusProduct(@PathVariable String id, @RequestParam ProductStatus status) {
+    public ResponseEntity<Void> updateStatusProduct(@PathVariable String id, @RequestParam String status) {
         log.info("Received request to update status of product with id '{}' to '{}'", id, status);
         this.productService.updateStatusProduct(id, status);
         return ResponseEntity.ok().build();

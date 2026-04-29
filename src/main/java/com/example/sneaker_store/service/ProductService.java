@@ -17,6 +17,6 @@ public interface ProductService {
     UpdateProductResponse updateProduct(UpdateProductRequest request);
     GetProductResponse getProducts(Pageable pageable, SpecificationProductRequest request);
     GetProductByIdResponse getProductById(String id);
-    void updateStatusProduct(String id, ProductStatus status);
+    void updateStatusProduct(String id, String status);
     void deleteProduct(String id);
 }
