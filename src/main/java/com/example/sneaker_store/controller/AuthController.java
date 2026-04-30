@@ -21,6 +21,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Slf4j(topic = "AUTH-CONTROLLER")
 @RequestMapping("/auth/v1")
+@CrossOrigin(
+        origins = "http://localhost:3000",
+        allowCredentials = "true"
+)
 public class AuthController {
     private final AuthService authService;
 
@@ -31,14 +35,16 @@ public class AuthController {
     @ApiMessage(message = "Login success")
     @Operation(summary = "Login user", description = "Login user in system")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest auth,
-                                               @CookieValue(name = "guestId", required = false) String guestId) {
+                                               @RequestHeader(value = "X-Guest-Id", required = false) String guestId) {
         log.info("Login");
         LoginResult loginResult = this.authService.loginUser(auth, guestId);
 
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh", loginResult.getRefreshToken())
                 .httpOnly(true)
-                .secure(true)
+//                .secure(true)
+                .secure(false)
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(refreshTokenTime)
                 .build();
@@ -59,7 +65,9 @@ public class AuthController {
                 .httpOnly(true)
                 .path("/")
                 .maxAge(refreshTokenTime)
-                .secure(true)
+//                .secure(true)
+                .secure(false)
+                .sameSite("Lax")
                 .build();
 
         return ResponseEntity.ok()
@@ -84,7 +92,9 @@ public class AuthController {
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh", null)
                 .httpOnly(true)
-                .secure(true)
+//                .secure(true)
+                .secure(false)
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(0)
                 .build();

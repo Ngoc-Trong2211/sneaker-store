@@ -130,38 +130,37 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResult loginUser(LoginRequest req, String guestId) {
-        UsernamePasswordAuthenticationToken authenticationToken = new
-                UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword());
-        Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
-
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword());
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserEntity user = userService.findByEmail(req.getEmail());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        if (!user.getStatus().toString().equals("ACTIVE")) {
+            throw new StatusInvalidException("Account is locked!");
+        }
+        if (guestId != null && !guestId.isBlank()) {
+            cartService.mergeCart(user.getId(), guestId);
+        }
+        LoginResponse.UserLogin userRes = new LoginResponse.UserLogin();
+        userRes.setId(user.getId());
+        userRes.setName(user.getName());
+        userRes.setEmail(user.getEmail());
+
+        String accessToken = createAccessToken(user);
+        String refreshToken = createRefreshToken(req.getEmail(), userRes);
+
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setUserLogin(userRes);
+        loginResponse.setAccessToken(accessToken);
+
+        userService.updateRefreshToken(refreshToken, user);
 
         LoginResult result = new LoginResult();
-        LoginResponse loginResponse = new LoginResponse();
-        LoginResponse.UserLogin userRes = new LoginResponse.UserLogin();
-
-        UserEntity user = this.userService.findByEmail(req.getEmail());
-        if (user!=null){
-            if (!user.getStatus().toString().equals("ACTIVE"))
-                throw new StatusInvalidException("User do not login because account locked, please contact!");
-            userRes.setId(user.getId());
-            userRes.setName(user.getName());
-            userRes.setEmail(user.getEmail());
-            loginResponse.setUserLogin(userRes);
-
-            String accessToken = this.createAccessToken(user);
-            loginResponse.setAccessToken(accessToken);
-
-            String refreshToken = this.createRefreshToken(req.getEmail(), userRes);
-            result.setRefreshToken(refreshToken);
-            result.setLoginResponse(loginResponse);
-
-            this.userService.updateRefreshToken(refreshToken, user);
-        }
-
-        if (guestId != null && !guestId.isBlank()) {
-            this.cartService.createCart(guestId);
-        }
+        result.setLoginResponse(loginResponse);
+        result.setRefreshToken(refreshToken);
 
         return result;
     }
