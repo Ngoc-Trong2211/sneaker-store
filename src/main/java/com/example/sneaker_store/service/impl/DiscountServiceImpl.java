@@ -57,22 +57,18 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setNameApply(request.getNameApply());
         this.discountRepository.save(discount);
 
-        List<ProductEntity> products;
-        switch (request.getApplyFor().toUpperCase()) {
-            case "CATEGORY":
+        List<ProductEntity> products = switch (request.getApplyFor().toUpperCase()) {
+            case "CATEGORY" -> {
                 CategoryEntity category = categoryService.findByName(request.getNameApply());
-                products = productRepository.findByCategoryId(category.getId());
-                break;
-            case "BRAND":
+                yield productRepository.findByCategoryId(category.getId());
+            }
+            case "BRAND" -> {
                 BrandEntity brand = brandService.findByName(request.getNameApply());
-                products = productRepository.findByBrandId(brand.getId());
-                break;
-            case "ALL":
-                products = productRepository.findAll();
-                break;
-            default:
-                throw new RuntimeException("Invalid applyFor value: " + request.getApplyFor());
-        }
+                yield productRepository.findByBrandId(brand.getId());
+            }
+            case "ALL" -> productRepository.findAll();
+            default -> throw new RuntimeException("Invalid applyFor value: " + request.getApplyFor());
+        };
         products.forEach(p -> p.setDiscount(discount));
         this.productRepository.saveAll(products);
         return this.modelMapper.map(discount, CreateDiscountResponse.class);
@@ -94,22 +90,18 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setNameApply(request.getNameApply());
         this.discountRepository.save(discount);
 
-        List<ProductEntity> products;
-        switch (request.getApplyFor().toUpperCase()) {
-            case "CATEGORY":
+        List<ProductEntity> products = switch (request.getApplyFor().toUpperCase()) {
+            case "CATEGORY" -> {
                 CategoryEntity category = categoryService.findByName(request.getNameApply());
-                products = productRepository.findByCategoryId(category.getId());
-                break;
-            case "BRAND":
+                yield productRepository.findByCategoryId(category.getId());
+            }
+            case "BRAND" -> {
                 BrandEntity brand = brandService.findByName(request.getNameApply());
-                products = productRepository.findByBrandId(brand.getId());
-                break;
-            case "ALL":
-                products = productRepository.findAll();
-                break;
-            default:
-                throw new RuntimeException("Invalid applyFor value: " + request.getApplyFor());
-        }
+                yield productRepository.findByBrandId(brand.getId());
+            }
+            case "ALL" -> productRepository.findAll();
+            default -> throw new RuntimeException("Invalid applyFor value: " + request.getApplyFor());
+        };
         products.forEach(p -> p.setDiscount(discount));
         this.productRepository.saveAll(products);
         return this.modelMapper.map(discount, UpdateDiscountResponse.class);
