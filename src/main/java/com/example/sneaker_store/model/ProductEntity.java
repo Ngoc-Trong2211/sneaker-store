@@ -37,6 +37,8 @@ public class ProductEntity {
     private String id;
 
     private String name;
+
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
     private double price;
     private String slug;
