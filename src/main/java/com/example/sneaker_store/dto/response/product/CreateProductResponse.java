@@ -10,7 +10,7 @@ public class CreateProductResponse {
 
     private String name;
     private String description;
-    private double price;
+    private String price;
     private String slug;
     private String brandName;
     private String status;

@@ -9,7 +9,7 @@ public class UpdateProductResponse {
     private String id;
     private String name;
     private String description;
-    private double price;
+    private String price;
     private String slug;
     private String status;
     private String categoryName;

@@ -13,8 +13,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -45,6 +47,11 @@ public class ProductServiceImpl implements ProductService {
     private final FileService fileService;
     private final ProductImageService productImageService;
     private final ProductVariantService productVariantService;
+
+    private String formatPriceToResponse(Double price) {
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+        return formatter.format(price);
+    }
 
     @Override
     public CreateProductResponse createProduct(CreateProductRequest request) {
@@ -84,6 +91,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         CreateProductResponse res = this.modelMapper.map(product, CreateProductResponse.class);
+        res.setPrice(formatPriceToResponse(request.getPrice()));
         res.setBrandName(product.getBrand().getName());
         res.setCategoryName(product.getCategory().getName());
         return res;
@@ -137,6 +145,7 @@ public class ProductServiceImpl implements ProductService {
         }
         this.productRepository.save(product);
         UpdateProductResponse res = this.modelMapper.map(product, UpdateProductResponse.class);
+        res.setPrice(formatPriceToResponse(request.getPrice()));
         res.setBrandName(product.getBrand().getName());
         res.setCategoryName(product.getCategory().getName());
 
@@ -152,6 +161,7 @@ public class ProductServiceImpl implements ProductService {
         response.setPage(this.modelMapper.map(response, GetProductResponse.DataPage.class));
         response.setProducts(productPage.map(product -> {
             GetProductResponse.Product prod = this.modelMapper.map(product, GetProductResponse.Product.class);
+            prod.setPrice(formatPriceToResponse(product.getPrice()));
             prod.setBrandName(product.getBrand().getName());
             prod.setSlugCategory(product.getCategory().getSlug());
             product.getImages().stream()
@@ -170,6 +180,7 @@ public class ProductServiceImpl implements ProductService {
             return new RuntimeException("Product not found");
         });
         GetProductByIdResponse res = this.modelMapper.map(product, GetProductByIdResponse.class);
+        res.setPrice(formatPriceToResponse(product.getPrice()));
         res.setBrandId(product.getBrand().getId());
         res.setCategoryId(product.getCategory().getId());
         List<GetProductByIdResponse.ProductImage> listResImg = new ArrayList<>();
