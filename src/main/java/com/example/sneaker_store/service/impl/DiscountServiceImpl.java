@@ -78,10 +78,17 @@ public class DiscountServiceImpl implements DiscountService {
     public UpdateDiscountResponse updateDiscount(UpdateDiscountRequest request) {
         DiscountEntity discount = this.discountRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + request.getId()));
-        if (this.discountRepository.existsByNameApply(request.getNameApply()) 
-            && !discount.getNameApply().equals(request.getNameApply())) {
-            throw new RuntimeException("Discount with nameApply already exists: " + request.getNameApply());
+        if (this.discountRepository.existsByNameApply(request.getNameApply())
+                && !discount.getNameApply().equals(request.getNameApply())) {
+            throw new RuntimeException(
+                    "Discount with nameApply already exists: " + request.getNameApply());
         }
+        if (!discount.getNameApply().equals(request.getNameApply()) || !discount.getApplyFor().equals(request.getApplyFor())){
+            List<ProductEntity> oldProducts = productRepository.findByDiscountId(discount.getId());
+            oldProducts.forEach(p -> p.setDiscount(null));
+            productRepository.saveAll(oldProducts);
+        }
+
         discount.setPercent(request.getPercent());
         discount.setDescription(request.getDescription());
         discount.setStartTime(request.getStartTime());
