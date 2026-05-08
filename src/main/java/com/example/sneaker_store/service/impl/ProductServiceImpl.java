@@ -54,6 +54,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public CreateProductResponse createProduct(CreateProductRequest request) {
         if (productRepository.existsByName(request.getName())) {
             log.warn("Product with name '{}' already exists", request.getName());
@@ -217,26 +218,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(String id) {
         ProductEntity product = this.productRepository.findById(id).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", id);
             return new RuntimeException("Product not found");
         });
-        Optional<List<ProductImageEntity>> listImage = this.productImageRepository.findByProductId(id);
-        if (listImage.isPresent()){
-            for(ProductImageEntity prdImg : listImage.get()){
-                if (!prdImg.isMain()){
-                    this.fileService.deleteFile(prdImg.getPublicId());
-                    this.productImageService.deleteProductImage(prdImg.getId());
-                }
+        if (product.getStatus() == ProductStatus.DELETED) throw new RuntimeException("Product already deleted");
+        List<ProductImageEntity> images = this.productImageRepository.findByProductId(id).orElse(List.of());
+        for (ProductImageEntity image : images) {
+            if (!image.isMain()) {
+                this.fileService.deleteFile(image.getPublicId());
+                this.productImageService.deleteProductImage(image.getId());
             }
         }
-        Optional<List<ProductVariantEntity>> listVariants= this.productVariantRepository.findByProductId(id);
-        if (listVariants.isPresent()){
-            for(ProductVariantEntity prdVariant : listVariants.get()){
-                this.productVariantService.deleteProductVariant(prdVariant.getId());
-            }
-        }
+        this.productVariantRepository.deleteSoftProductVariant(product.getId());
         product.setStatus(ProductStatus.DELETED);
         this.productRepository.save(product);
     }
