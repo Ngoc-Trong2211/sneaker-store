@@ -7,7 +7,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface ProductRepository extends JpaRepository<ProductEntity, String>, JpaSpecificationExecutor<ProductEntity> {
     boolean existsByName(String name);
@@ -25,4 +27,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, String>,
     Optional<ProductEntity> findByName(String name);
 
     Optional<ProductEntity> findBySlug(String slug);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE ProductEntity p SET p.discount = null WHERE p.discount.id = :discountId")
+    void clearDiscountFromProducts(String discountId);
 }

@@ -31,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j(topic = "DISCOUNT-SERVICE")
@@ -42,11 +43,29 @@ public class DiscountServiceImpl implements DiscountService {
     private final BrandService brandService;
     private final ProductRepository productRepository;
 
+    private List<ProductEntity> getProductByApply(String applyFor, String nameApply) {
+        return switch (applyFor.toUpperCase()) {
+            case "CATEGORY" -> {
+                CategoryEntity category = categoryService.findByName(nameApply);
+                if (category == null) throw new RuntimeException("Category not found with name: " + nameApply);
+                yield productRepository.findByCategoryId(category.getId());
+            }
+            case "BRAND" -> {
+                BrandEntity brand = brandService.findByName(nameApply);
+                if (brand == null) throw new RuntimeException("Brand not found with name: " + nameApply);
+                yield productRepository.findByBrandId(brand.getId());
+            }
+            case "ALL" -> productRepository.findAll();
+            default -> throw new RuntimeException("Invalid applyFor value: " + applyFor);
+        };
+    }
+
     @Override
+    @Transactional
     public CreateDiscountResponse createDiscount(CreateDiscountRequest request) {
-        if (this.discountRepository.existsByNameApply(request.getNameApply())) {
+        if (this.discountRepository.existsOverlap(
+                request.getApplyFor(), request.getNameApply(), request.getEndTime(), request.getStartTime()))
             throw new RuntimeException("Discount with nameApply already exists: " + request.getNameApply());
-        }
         DiscountEntity discount = new DiscountEntity();
         discount.setPercent(request.getPercent()); 
         discount.setDescription(request.getDescription());
@@ -57,38 +76,23 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setNameApply(request.getNameApply());
         this.discountRepository.save(discount);
 
-        List<ProductEntity> products = switch (request.getApplyFor().toUpperCase()) {
-            case "CATEGORY" -> {
-                CategoryEntity category = categoryService.findByName(request.getNameApply());
-                yield productRepository.findByCategoryId(category.getId());
-            }
-            case "BRAND" -> {
-                BrandEntity brand = brandService.findByName(request.getNameApply());
-                yield productRepository.findByBrandId(brand.getId());
-            }
-            case "ALL" -> productRepository.findAll();
-            default -> throw new RuntimeException("Invalid applyFor value: " + request.getApplyFor());
-        };
+        List<ProductEntity> products = getProductByApply(request.getApplyFor(), request.getNameApply());
         products.forEach(p -> p.setDiscount(discount));
         this.productRepository.saveAll(products);
         return this.modelMapper.map(discount, CreateDiscountResponse.class);
     }
 
     @Override
+    @Transactional
     public UpdateDiscountResponse updateDiscount(UpdateDiscountRequest request) {
         DiscountEntity discount = this.discountRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + request.getId()));
-        if (this.discountRepository.existsByNameApply(request.getNameApply())
-                && !discount.getNameApply().equals(request.getNameApply())) {
+        if (this.discountRepository.existsOverlap(
+                request.getApplyFor(), request.getNameApply(), request.getEndTime(), request.getStartTime())
+            && !discount.getId().equals(request.getId())){
             throw new RuntimeException(
                     "Discount with nameApply already exists: " + request.getNameApply());
         }
-        if (!discount.getNameApply().equals(request.getNameApply()) || !discount.getApplyFor().equals(request.getApplyFor())){
-            List<ProductEntity> oldProducts = productRepository.findByDiscountId(discount.getId());
-            oldProducts.forEach(p -> p.setDiscount(null));
-            productRepository.saveAll(oldProducts);
-        }
-
         discount.setPercent(request.getPercent());
         discount.setDescription(request.getDescription());
         discount.setStartTime(request.getStartTime());
@@ -97,19 +101,11 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setNameApply(request.getNameApply());
         this.discountRepository.save(discount);
 
-        List<ProductEntity> products = switch (request.getApplyFor().toUpperCase()) {
-            case "CATEGORY" -> {
-                CategoryEntity category = categoryService.findByName(request.getNameApply());
-                yield productRepository.findByCategoryId(category.getId());
-            }
-            case "BRAND" -> {
-                BrandEntity brand = brandService.findByName(request.getNameApply());
-                yield productRepository.findByBrandId(brand.getId());
-            }
-            case "ALL" -> productRepository.findAll();
-            default -> throw new RuntimeException("Invalid applyFor value: " + request.getApplyFor());
-        };
+        List<ProductEntity> oldProducts = productRepository.findByDiscountId(discount.getId());
+        oldProducts.forEach(p -> p.setDiscount(null));
+        List<ProductEntity> products = getProductByApply(request.getApplyFor(), request.getNameApply());
         products.forEach(p -> p.setDiscount(discount));
+        this.productRepository.saveAll(oldProducts);
         this.productRepository.saveAll(products);
         return this.modelMapper.map(discount, UpdateDiscountResponse.class);
     }
@@ -149,12 +145,11 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
+    @Transactional
     public void deleteDiscount(String id) {
         DiscountEntity discount = this.discountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
-        List<ProductEntity> products = this.productRepository.findByDiscountId(discount.getId());
-        products.forEach(p -> p.setDiscount(null));
-        this.productRepository.saveAll(products);
+        this.productRepository.clearDiscountFromProducts(discount.getId());
         this.discountRepository.delete(discount);
     }
 }
