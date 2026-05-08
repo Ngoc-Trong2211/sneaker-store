@@ -21,5 +21,5 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>,
     @Query(value = "DELETE FROM tbl_category WHERE parent_id = :id", nativeQuery = true)
     void deleteCategoryExistsParentId(@Param("id") Long id);
 
-    Optional<CategoryEntity> findByName(String name);
+    Optional<CategoryEntity> findBySlug(String slug);
 }

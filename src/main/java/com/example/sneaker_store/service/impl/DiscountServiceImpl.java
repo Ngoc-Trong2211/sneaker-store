@@ -46,16 +46,16 @@ public class DiscountServiceImpl implements DiscountService {
     private List<ProductEntity> getProductByApply(String applyFor, String nameApply) {
         return switch (applyFor.toUpperCase()) {
             case "CATEGORY" -> {
-                CategoryEntity category = categoryService.findByName(nameApply);
+                CategoryEntity category = this.categoryService.findBySlug(nameApply);
                 if (category == null) throw new RuntimeException("Category not found with name: " + nameApply);
-                yield productRepository.findByCategoryId(category.getId());
+                yield this.productRepository.findByCategoryId(category.getId());
             }
             case "BRAND" -> {
-                BrandEntity brand = brandService.findByName(nameApply);
+                BrandEntity brand = this.brandService.findByName(nameApply);
                 if (brand == null) throw new RuntimeException("Brand not found with name: " + nameApply);
-                yield productRepository.findByBrandId(brand.getId());
+                yield this.productRepository.findByBrandId(brand.getId());
             }
-            case "ALL" -> productRepository.findAll();
+            case "ALL" -> this.productRepository.findAll();
             default -> throw new RuntimeException("Invalid applyFor value: " + applyFor);
         };
     }

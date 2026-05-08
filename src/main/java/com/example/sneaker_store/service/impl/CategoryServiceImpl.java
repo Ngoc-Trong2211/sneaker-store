@@ -36,9 +36,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryEntity findByName(String name) {
-        return this.categoryRepository.findByName(name)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
+    public CategoryEntity findBySlug(String slug) {
+        return this.categoryRepository.findBySlug(slug)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
     }
 
     @Override

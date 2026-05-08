@@ -16,6 +16,6 @@ public interface CategoryService {
     GetCategoryResponse getCategory(Pageable pageable, String name);
     void deleteCategory(Long id);
     CategoryEntity findById(Long id);
-    CategoryEntity findByName(String name);
     List<GetCategoryResponse.Category> getAll();
+    CategoryEntity findBySlug(String slug);
 }
