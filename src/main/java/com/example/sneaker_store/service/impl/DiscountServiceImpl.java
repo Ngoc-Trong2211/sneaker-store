@@ -114,6 +114,7 @@ public class DiscountServiceImpl implements DiscountService {
     public void updateExpiredDiscounts() {
         log.info("Running scheduled task to update expired discounts");
         this.discountRepository.updateExpiredDiscounts(Instant.now());
+        this.productRepository.autoClearDiscountFromProducts();
     }
 
     @Override
