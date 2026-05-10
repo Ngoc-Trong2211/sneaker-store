@@ -59,6 +59,7 @@ public class AuthController {
     @Operation(summary = "Refresh Token", description = "Refresh Token to continue use website")
     public ResponseEntity<LoginResponse> refreshToken(@CookieValue(value = "refresh", defaultValue = "default") String refreshToken){
         LoginResult res = this.authService.refreshToken(refreshToken);
+        log.info("refresh");
 
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh", res.getRefreshToken())
