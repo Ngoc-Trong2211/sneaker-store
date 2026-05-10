@@ -110,7 +110,7 @@ public class ProductServiceImpl implements ProductService {
         CategoryEntity category = this.categoryService.findById(request.getCategoryId());
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
+        product.setPrice(Double.parseDouble(request.getPrice().replace(",", "")));
         product.setBrand(brand);
         product.setCategory(category);
 
@@ -146,7 +146,7 @@ public class ProductServiceImpl implements ProductService {
         }
         this.productRepository.save(product);
         UpdateProductResponse res = this.modelMapper.map(product, UpdateProductResponse.class);
-        res.setPrice(formatPriceToResponse(request.getPrice()));
+        res.setPrice(formatPriceToResponse(Double.parseDouble(request.getPrice().replace(",", ""))));
         res.setBrandName(product.getBrand().getName());
         res.setCategoryName(product.getCategory().getName());
 
@@ -184,6 +184,7 @@ public class ProductServiceImpl implements ProductService {
         res.setPrice(formatPriceToResponse(product.getPrice()));
         res.setBrandId(product.getBrand().getId());
         res.setCategoryId(product.getCategory().getId());
+        res.setCategorySlug(product.getCategory().getSlug());
         List<GetProductByIdResponse.ProductImage> listResImg = new ArrayList<>();
         for (ProductImageEntity img : product.getImages()){
             GetProductByIdResponse.ProductImage imgRes = new GetProductByIdResponse.ProductImage();
