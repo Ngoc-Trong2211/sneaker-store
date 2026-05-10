@@ -43,6 +43,7 @@ public class ProductEntity {
     private double price;
     private String slug;
     private int quantity;
+    private String title;
 
     @Enumerated(EnumType.STRING)
     private ProductStatus status;

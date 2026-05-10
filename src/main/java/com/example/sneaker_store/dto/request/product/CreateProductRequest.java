@@ -26,6 +26,9 @@ public class CreateProductRequest {
     @NotNull(message = "Category ID is required")
     private Long categoryId;
 
+    @NotBlank(message = "Title description is required")
+    private String title;
+
     @Size(max = 6, message = "Maximum 6 images allowed")
     private List<String> images;
 }

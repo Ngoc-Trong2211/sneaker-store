@@ -65,6 +65,7 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity product = new ProductEntity();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
+        product.setTitle(request.getTitle());
         product.setPrice(request.getPrice());
         product.setStatus(ProductStatus.ACTIVE);
         product.setBrand(brand);
@@ -110,6 +111,7 @@ public class ProductServiceImpl implements ProductService {
         CategoryEntity category = this.categoryService.findById(request.getCategoryId());
         product.setName(request.getName());
         product.setDescription(request.getDescription());
+        product.setTitle(request.getTitle());
         product.setPrice(Double.parseDouble(request.getPrice().replace(",", "")));
         product.setBrand(brand);
         product.setCategory(category);

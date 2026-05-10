@@ -23,6 +23,9 @@ public class UpdateProductRequest {
     @NotNull(message = "Product price is required")
     private String price;
 
+    @NotBlank(message = "Title description is required")
+    private String title;
+
     @NotNull(message = "Brand ID is required")
     private Long brandId;
 

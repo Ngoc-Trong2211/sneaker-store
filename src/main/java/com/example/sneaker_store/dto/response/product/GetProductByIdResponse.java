@@ -25,6 +25,7 @@ public class GetProductByIdResponse {
     private Long categoryId;
     private String categoryName;
     private String categorySlug;
+    private String title;
     private List<ProductImage> images;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
