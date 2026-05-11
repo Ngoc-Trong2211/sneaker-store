@@ -1,6 +1,7 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.dto.request.category.CreateCategoryRequest;
+import com.example.sneaker_store.dto.request.category.SpecificationCategoryRequest;
 import com.example.sneaker_store.dto.request.category.UpdateCategoryRequest;
 import com.example.sneaker_store.dto.response.category.CreateCategoryResponse;
 import com.example.sneaker_store.dto.response.category.GetCategoryResponse;
@@ -48,7 +49,7 @@ public class CategoryController {
     @ApiMessage(message = "Get category thành công")
     @Operation(summary = "Get category", description = "Get category")
     public ResponseEntity<GetCategoryResponse> get(@ParameterObject Pageable pageable,
-                                                   @RequestParam(required = false) String name) {
+                                                   SpecificationCategoryRequest name) {
         log.info("GET LIST CATEGORIES");
         return ResponseEntity.ok(this.categoryService.getCategory(pageable, name));
     }

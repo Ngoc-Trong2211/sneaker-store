@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>, JpaSpecificationExecutor<CategoryEntity> {
-    boolean existsByNameAndIdNot(String name, Long id);
+    boolean existsByNameAndSlugAndIdNot(String name, String slug, Long id);
 
     boolean existsByNameAndParentId(String name, Long parentId);
 

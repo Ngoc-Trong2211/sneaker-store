@@ -1,6 +1,7 @@
 package com.example.sneaker_store.model;
 
 import com.example.sneaker_store.service.impl.AuthServiceImpl;
+import com.example.sneaker_store.util.enumEntity.CategoryType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
@@ -24,6 +25,9 @@ public class CategoryEntity {
 
     @Column(nullable = false, unique = true)
     private String slug;
+
+    @Enumerated(EnumType.STRING)
+    private CategoryType type;
 
     private Long parentId;
 

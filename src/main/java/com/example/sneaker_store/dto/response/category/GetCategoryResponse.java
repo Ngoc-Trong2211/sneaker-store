@@ -32,6 +32,7 @@ public class GetCategoryResponse {
         private Long id;
         private String name;
         private String slug;
+        private String type;
         private String nameParent;
         private Long parentId;
     }

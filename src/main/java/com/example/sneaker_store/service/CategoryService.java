@@ -1,5 +1,6 @@
 package com.example.sneaker_store.service;
 
+import com.example.sneaker_store.dto.request.category.SpecificationCategoryRequest;
 import com.example.sneaker_store.model.CategoryEntity;
 import com.example.sneaker_store.dto.request.category.CreateCategoryRequest;
 import com.example.sneaker_store.dto.request.category.UpdateCategoryRequest;
@@ -13,7 +14,7 @@ import java.util.List;
 public interface CategoryService {
     CreateCategoryResponse createCategory(CreateCategoryRequest req);
     UpdateCategoryResponse updateCategory(UpdateCategoryRequest req);
-    GetCategoryResponse getCategory(Pageable pageable, String name);
+    GetCategoryResponse getCategory(Pageable pageable, SpecificationCategoryRequest name);
     void deleteCategory(Long id);
     CategoryEntity findById(Long id);
     List<GetCategoryResponse.Category> getAll();

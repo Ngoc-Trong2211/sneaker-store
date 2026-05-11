@@ -14,5 +14,7 @@ public class UpdateCategoryRequest {
     @NotBlank(message = "Name không được để trống")
     private String name;
 
+    private String type;
+
     private Long parentId;
 }
