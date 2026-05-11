@@ -79,7 +79,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     public GetProductImageResponse getProductImageById(String productId) {
-        List<ProductImageEntity> imgList = this.productImageRepository.findByProductId(productId)
+        List<ProductImageEntity> imgList = this.productImageRepository.findByVariantId(productId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy image"));
         GetProductImageResponse response = new GetProductImageResponse();
         response.setImages(imgList.stream().map(img -> this.modelMapper.map(img, GetProductImageResponse.ProductImage.class)).toList());

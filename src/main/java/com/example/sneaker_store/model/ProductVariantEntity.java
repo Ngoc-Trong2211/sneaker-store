@@ -48,6 +48,10 @@ public class ProductVariantEntity {
     @JoinColumn(name = "product_id")
     private ProductEntity product;
 
+    @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ProductImageEntity> images;
+
     @PrePersist
     public void create(){
         this.createdAt = Instant.now();

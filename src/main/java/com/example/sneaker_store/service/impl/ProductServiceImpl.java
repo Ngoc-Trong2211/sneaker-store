@@ -42,11 +42,7 @@ public class ProductServiceImpl implements ProductService {
     private final ModelMapper modelMapper;
     private final BrandService brandService;
     private final CategoryService categoryService;
-    private final ProductImageRepository productImageRepository;
     private final ProductVariantRepository productVariantRepository;
-    private final FileService fileService;
-    private final ProductImageService productImageService;
-    private final ProductVariantService productVariantService;
 
     private String formatPriceToResponse(Double price) {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
@@ -72,26 +68,6 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(category);
         this.productRepository.save(product);
 
-        if (request.getImages() != null && !request.getImages().isEmpty()) {
-            if (request.getImages().size() > 6) {
-                log.warn("Too many images provided for product '{}'", request.getName());
-                throw new IllegalArgumentException("Maximum 6 images allowed");
-            }
-
-            else{
-                for (int i=0; i<request.getImages().size(); i++){
-                    ProductImageEntity image = this.productImageRepository.findByImageURL(request.getImages().get(i));
-                    if (image == null) {
-                        throw new RuntimeException("Image not found with URL: " + request.getImages().get(i));
-                    }
-                    image.setMain(i == 0);
-                    image.setProduct(product);
-                    System.out.println("save");
-                    this.productImageRepository.save(image);
-                }
-            }
-        }
-
         CreateProductResponse res = this.modelMapper.map(product, CreateProductResponse.class);
         res.setPrice(formatPriceToResponse(request.getPrice()));
         res.setBrandName(product.getBrand().getName());
@@ -115,37 +91,6 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(Double.parseDouble(request.getPrice().replace(",", "")));
         product.setBrand(brand);
         product.setCategory(category);
-
-        List<String> newImageUrls = request.getImages();
-        List<ProductImageEntity> currentImages = product.getImages();
-        List<ProductImageEntity> toRemove = currentImages.stream()
-                .filter(img -> !newImageUrls.contains(img.getImageURL()))
-                .toList();
-        for (ProductImageEntity img : toRemove) {
-            this.fileService.deleteFile(img.getPublicId());
-            currentImages.remove(img);
-            this.productImageRepository.delete(img);
-        }
-        for (int i = 0; i < newImageUrls.size(); i++) {
-            String url = newImageUrls.get(i);
-            boolean exists = currentImages.stream()
-                    .anyMatch(img -> img.getImageURL().equals(url));
-            if (!exists) {
-                ProductImageEntity image = this.productImageRepository.findByImageURL(url);
-                if (image == null) {
-                    throw new RuntimeException("Image not found with URL: " + url);
-                }
-                image.setProduct(product);
-                image.setMain(i == 0);
-                this.productImageRepository.save(image);
-                currentImages.add(image);
-            } else {
-                int finalI = i;
-                currentImages.stream()
-                        .filter(img -> img.getImageURL().equals(url))
-                        .forEach(img -> img.setMain(finalI == 0));
-            }
-        }
         this.productRepository.save(product);
         UpdateProductResponse res = this.modelMapper.map(product, UpdateProductResponse.class);
         res.setPrice(formatPriceToResponse(Double.parseDouble(request.getPrice().replace(",", ""))));
@@ -167,10 +112,6 @@ public class ProductServiceImpl implements ProductService {
             prod.setPrice(formatPriceToResponse(product.getPrice()));
             prod.setBrandName(product.getBrand().getName());
             prod.setSlugCategory(product.getCategory().getSlug());
-            product.getImages().stream()
-                    .filter(ProductImageEntity::isMain)
-                    .findFirst()
-                    .ifPresent(image -> prod.setImage(image.getImageURL()));
             return prod;
         }).getContent());
         return response;
@@ -187,14 +128,6 @@ public class ProductServiceImpl implements ProductService {
         res.setBrandId(product.getBrand().getId());
         res.setCategoryId(product.getCategory().getId());
         res.setCategorySlug(product.getCategory().getSlug());
-        List<GetProductByIdResponse.ProductImage> listResImg = new ArrayList<>();
-        for (ProductImageEntity img : product.getImages()){
-            GetProductByIdResponse.ProductImage imgRes = new GetProductByIdResponse.ProductImage();
-            imgRes.setUrl(img.getImageURL());
-            imgRes.setMain(img.isMain());
-            listResImg.add(imgRes);
-        }
-        res.setImages(listResImg);
         res.setBrandName(product.getBrand().getName());
         res.setCategoryName(product.getCategory().getName());
         return res;
@@ -228,13 +161,6 @@ public class ProductServiceImpl implements ProductService {
             return new RuntimeException("Product not found");
         });
         if (product.getStatus() == ProductStatus.DELETED) throw new RuntimeException("Product already deleted");
-        List<ProductImageEntity> images = this.productImageRepository.findByProductId(id).orElse(List.of());
-        for (ProductImageEntity image : images) {
-            if (!image.isMain()) {
-                this.fileService.deleteFile(image.getPublicId());
-                this.productImageService.deleteProductImage(image.getId());
-            }
-        }
         this.productVariantRepository.deleteSoftProductVariant(product.getId());
         product.setStatus(ProductStatus.DELETED);
         this.productRepository.save(product);

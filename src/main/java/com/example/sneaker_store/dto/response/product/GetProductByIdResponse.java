@@ -26,18 +26,8 @@ public class GetProductByIdResponse {
     private String categoryName;
     private String categorySlug;
     private String title;
-    private List<ProductImage> images;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
     private String createdBy;
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ProductImage{
-        private String url;
-        private boolean isMain;
-    }
 }

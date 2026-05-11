@@ -1,5 +1,6 @@
 package com.example.sneaker_store.controller;
 
+import com.example.sneaker_store.dto.response.productVariant.GetVariantByIdResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -55,6 +56,13 @@ public class ProductVariantController {
                 request.getId(), request.getSize(), request.getColor(), request.getStock());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(this.productVariantService.updateProductVariant(request));
+    }
+
+    @GetMapping("product-variants/{id}")
+    @Operation(summary = "Get product variants with pagination and filtering", description = "Get a paginated list of product variants filtered by size and color.")
+    @ApiMessage(message = "Product variants retrieved successfully")
+    public ResponseEntity<GetVariantByIdResponse> getById(@PathVariable("id") String id) {
+        return ResponseEntity.ok(this.productVariantService.getVariantById(id));
     }
 
     @GetMapping("product-variants")

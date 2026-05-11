@@ -29,8 +29,8 @@ public class ProductImageEntity {
     private String publicId;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private ProductEntity product;
+    @JoinColumn(name = "variant_id")
+    private ProductVariantEntity variant;
 
     @PrePersist
     public void create(){

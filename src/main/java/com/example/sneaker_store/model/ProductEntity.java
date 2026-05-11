@@ -69,10 +69,6 @@ public class ProductEntity {
     @JsonIgnore
     private List<ProductVariantEntity> variants;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<ProductImageEntity> images;
-
     @PrePersist
     public void create(){
         this.createdAt = Instant.now();

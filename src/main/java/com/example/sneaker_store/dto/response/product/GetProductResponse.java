@@ -40,7 +40,6 @@ public class GetProductResponse {
         private String slug;
         private String slugCategory;
         private String brandName;
-        private String image;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
         private Instant createdAt;

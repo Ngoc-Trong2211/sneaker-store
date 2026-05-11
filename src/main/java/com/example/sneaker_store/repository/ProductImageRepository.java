@@ -8,6 +8,6 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductImageRepository extends JpaRepository<ProductImageEntity, Long> {
-    Optional<List<ProductImageEntity>> findByProductId(String productId);
+    Optional<List<ProductImageEntity>> findByVariantId(String productId);
     ProductImageEntity findByImageURL(String url);
 }

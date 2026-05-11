@@ -28,7 +28,4 @@ public class CreateProductRequest {
 
     @NotBlank(message = "Title description is required")
     private String title;
-
-    @Size(max = 6, message = "Maximum 6 images allowed")
-    private List<String> images;
 }

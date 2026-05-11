@@ -31,7 +31,4 @@ public class UpdateProductRequest {
 
     @NotNull(message = "Category ID is required")
     private Long categoryId;
-
-    @Size(max = 6, message = "Maximum 6 images allowed")
-    private List<String> images;
 }
