@@ -213,6 +213,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             productVariant -> {
                 GetProductVariantResponse.ProductVariant resVariant = this.modelMapper.map(
                         productVariant, GetProductVariantResponse.ProductVariant.class);
+                for (ProductImageEntity img : productVariant.getImages()){
+                    if (img.isMain()){
+                        resVariant.setImage(img.getImageURL());
+                        break;
+                    }
+                }
                 resVariant.setProductName(productVariant.getProduct().getName());
                 resVariant.setBrandName(productVariant.getProduct().getBrand().getName());
                 return resVariant;
