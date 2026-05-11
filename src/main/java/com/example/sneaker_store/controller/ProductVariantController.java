@@ -1,15 +1,12 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.dto.response.productVariant.GetVariantByIdResponse;
+import com.example.sneaker_store.dto.response.productVariant.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sneaker_store.dto.request.productVariant.CreateProductVariantRequest;
 import com.example.sneaker_store.dto.request.productVariant.SpecificationProductVariantRequest;
 import com.example.sneaker_store.dto.request.productVariant.UpdateProductVariantRequest;
-import com.example.sneaker_store.dto.response.productVariant.CreateProductVariantResponse;
-import com.example.sneaker_store.dto.response.productVariant.GetProductVariantResponse;
-import com.example.sneaker_store.dto.response.productVariant.UpdateProductVariantResponse;
 import com.example.sneaker_store.service.ProductVariantService;
 import com.example.sneaker_store.util.ApiMessage;
 import com.example.sneaker_store.util.enumEntity.VariantStatus;
@@ -63,6 +60,13 @@ public class ProductVariantController {
     @ApiMessage(message = "Product variants retrieved successfully")
     public ResponseEntity<GetVariantByIdResponse> getById(@PathVariable("id") String id) {
         return ResponseEntity.ok(this.productVariantService.getVariantById(id));
+    }
+
+    @GetMapping("product-variants/detail/{sku}")
+    @Operation(summary = "Get product variants with pagination and filtering", description = "Get a paginated list of product variants filtered by size and color.")
+    @ApiMessage(message = "Product variants retrieved successfully")
+    public ResponseEntity<GetVariantBySkuResponse> getBySku(@PathVariable("sku") String sku) {
+        return ResponseEntity.ok(this.productVariantService.getVariantBySku(sku));
     }
 
     @GetMapping("product-variants")

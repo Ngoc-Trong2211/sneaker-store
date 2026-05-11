@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface ProductVariantRepository extends JpaRepository<ProductVariantEntity, String>, JpaSpecificationExecutor<ProductVariantEntity> {
     ProductVariantEntity findByColorAndSizeAndProductId(String color, String size, String productId);
     Optional<List<ProductVariantEntity>> findByProductId(String productId);
+    Optional<ProductVariantEntity> findBySku(String sku);
 
     @Modifying
     @Transactional

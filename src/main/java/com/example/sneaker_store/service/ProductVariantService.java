@@ -1,14 +1,11 @@
 package com.example.sneaker_store.service;
 
-import com.example.sneaker_store.dto.response.productVariant.GetVariantByIdResponse;
+import com.example.sneaker_store.dto.response.productVariant.*;
 import org.springframework.data.domain.Pageable;
 
 import com.example.sneaker_store.dto.request.productVariant.CreateProductVariantRequest;
 import com.example.sneaker_store.dto.request.productVariant.SpecificationProductVariantRequest;
 import com.example.sneaker_store.dto.request.productVariant.UpdateProductVariantRequest;
-import com.example.sneaker_store.dto.response.productVariant.CreateProductVariantResponse;
-import com.example.sneaker_store.dto.response.productVariant.GetProductVariantResponse;
-import com.example.sneaker_store.dto.response.productVariant.UpdateProductVariantResponse;
 
 public interface ProductVariantService {
     CreateProductVariantResponse createProductVariant(CreateProductVariantRequest request);
@@ -17,4 +14,5 @@ public interface ProductVariantService {
     void deleteProductVariant(String id);
     void updateProductVariantStatus(String id, String status);
     GetVariantByIdResponse getVariantById(String id);
+    GetVariantBySkuResponse getVariantBySku(String sku);
 }

@@ -1,6 +1,6 @@
 package com.example.sneaker_store.service.impl;
 
-import com.example.sneaker_store.dto.response.productVariant.GetVariantByIdResponse;
+import com.example.sneaker_store.dto.response.productVariant.*;
 import com.example.sneaker_store.model.ProductImageEntity;
 import com.example.sneaker_store.repository.ProductImageRepository;
 import com.example.sneaker_store.service.FileService;
@@ -18,9 +18,6 @@ import com.example.sneaker_store.model.ProductVariantEntity;
 import com.example.sneaker_store.dto.request.productVariant.CreateProductVariantRequest;
 import com.example.sneaker_store.dto.request.productVariant.SpecificationProductVariantRequest;
 import com.example.sneaker_store.dto.request.productVariant.UpdateProductVariantRequest;
-import com.example.sneaker_store.dto.response.productVariant.CreateProductVariantResponse;
-import com.example.sneaker_store.dto.response.productVariant.GetProductVariantResponse;
-import com.example.sneaker_store.dto.response.productVariant.UpdateProductVariantResponse;
 import com.example.sneaker_store.repository.ProductRepository;
 import com.example.sneaker_store.repository.ProductVariantRepository;
 
@@ -33,8 +30,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Slf4j(topic = "PRODUCT-VARIANT-SERVICE")
@@ -46,6 +45,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     private final ProductImageRepository productImageRepository;
     private final FileService fileService;
     private final ProductImageService productImageService;
+
+    private String formatPriceToResponse(Double price) {
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+        return formatter.format(price);
+    }
 
     @Override
     @Transactional
@@ -200,6 +204,37 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             listResImg.add(imgRes);
         }
         res.setImages(listResImg);
+        return res;
+    }
+
+    @Override
+    public GetVariantBySkuResponse getVariantBySku(String sku) {
+        ProductVariantEntity variant = this.productVariantRepository.findBySku(sku)
+                .orElseThrow(() -> new RuntimeException("Variant not found"));
+        GetVariantBySkuResponse res = this.modelMapper.map(variant, GetVariantBySkuResponse.class);
+        GetVariantBySkuResponse.Product resPrd = new GetVariantBySkuResponse.Product();
+        List<GetVariantBySkuResponse.ProductImage> listResImg = new ArrayList<>();
+        for (ProductImageEntity img : variant.getImages()){
+            GetVariantBySkuResponse.ProductImage imgRes = new GetVariantBySkuResponse.ProductImage();
+            imgRes.setUrl(img.getImageURL());
+            imgRes.setMain(img.isMain());
+            listResImg.add(imgRes);
+        }
+        res.setImages(listResImg);
+        ProductEntity product = variant.getProduct();
+
+        resPrd.setId(product.getId());
+        resPrd.setName(product.getName());
+        resPrd.setDescription(product.getDescription());
+        resPrd.setPrice(formatPriceToResponse(product.getPrice()));
+        resPrd.setStatus(product.getStatus().name());
+        resPrd.setQuantity(String.valueOf(product.getQuantity()));
+        resPrd.setSlug(product.getSlug());
+        resPrd.setSlugCategory(product.getCategory().getSlug());
+        resPrd.setBrandName(product.getBrand().getName());
+        resPrd.setTitle(product.getTitle());
+        res.setProduct(resPrd);
+
         return res;
     }
 
