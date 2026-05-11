@@ -40,6 +40,29 @@ public class GetProductResponse {
         private String slug;
         private String slugCategory;
         private String brandName;
+        private List<Variant> variants;
+
+        @Getter
+        @Setter
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class Variant{
+            private String id;
+            private String size;
+            private String color;
+            private int stock;
+            private String sku;
+            private List<ProductImage> images;
+
+            @Getter
+            @Setter
+            @AllArgsConstructor
+            @NoArgsConstructor
+            public static class ProductImage{
+                private String url;
+                private boolean isMain;
+            }
+        }
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
         private Instant createdAt;

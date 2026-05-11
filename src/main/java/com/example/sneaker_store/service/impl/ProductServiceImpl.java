@@ -109,6 +109,28 @@ public class ProductServiceImpl implements ProductService {
         response.setPage(this.modelMapper.map(response, GetProductResponse.DataPage.class));
         response.setProducts(productPage.map(product -> {
             GetProductResponse.Product prod = this.modelMapper.map(product, GetProductResponse.Product.class);
+            List<GetProductResponse.Product.Variant> variants = product.getVariants() == null ?
+                    new ArrayList<>() :
+                    product.getVariants().stream().map(v -> {
+                        GetProductResponse.Product.Variant rv = new GetProductResponse.Product.Variant();
+                        rv.setId(v.getId());
+                        rv.setColor(v.getColor());
+                        rv.setSize(v.getSize());
+                        rv.setSku(v.getSku());
+                        rv.setStock(v.getStock());
+                        List<GetProductResponse.Product.Variant.ProductImage> images =
+                                v.getImages() == null ? new ArrayList<>() :
+                                        v.getImages().stream().map(img -> {
+                                            GetProductResponse.Product.Variant.ProductImage ri =
+                                                    new GetProductResponse.Product.Variant.ProductImage();
+                                            ri.setMain(img.isMain());
+                                            ri.setUrl(img.getImageURL());
+                                            return ri;
+                                        }).toList();
+                        rv.setImages(images);
+                        return rv;
+                    }).toList();
+            prod.setVariants(variants);
             prod.setPrice(formatPriceToResponse(product.getPrice()));
             prod.setBrandName(product.getBrand().getName());
             prod.setSlugCategory(product.getCategory().getSlug());
