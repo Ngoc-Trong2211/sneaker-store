@@ -119,17 +119,41 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public GetProductByIdResponse getProductById(String slug) {
-        ProductEntity product = this.productRepository.findBySlug(slug).orElseThrow(() -> {
-            log.warn("Product with slug '{}' not found", slug);
-            return new RuntimeException("Product not found");
-        });
-        GetProductByIdResponse res = this.modelMapper.map(product, GetProductByIdResponse.class);
+        ProductEntity product = productRepository.findBySlug(slug)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        GetProductByIdResponse res = modelMapper.map(product, GetProductByIdResponse.class);
         res.setPrice(formatPriceToResponse(product.getPrice()));
-        res.setBrandId(product.getBrand().getId());
-        res.setCategoryId(product.getCategory().getId());
-        res.setCategorySlug(product.getCategory().getSlug());
-        res.setBrandName(product.getBrand().getName());
-        res.setCategoryName(product.getCategory().getName());
+        if (product.getBrand() != null) {
+            res.setBrandId(product.getBrand().getId());
+            res.setBrandName(product.getBrand().getName());
+        }
+        if (product.getCategory() != null) {
+            res.setCategoryId(product.getCategory().getId());
+            res.setCategoryName(product.getCategory().getName());
+            res.setCategorySlug(product.getCategory().getSlug());
+        }
+        List<GetProductByIdResponse.Variant> variants = product.getVariants() == null ?
+            new ArrayList<>() :
+            product.getVariants().stream().map(v -> {
+                GetProductByIdResponse.Variant rv = new GetProductByIdResponse.Variant();
+                rv.setId(v.getId());
+                rv.setColor(v.getColor());
+                rv.setSize(v.getSize());
+                rv.setSku(v.getSku());
+                rv.setStock(v.getStock());
+                List<GetProductByIdResponse.Variant.ProductImage> images =
+                        v.getImages() == null ? new ArrayList<>() :
+                                v.getImages().stream().map(img -> {
+                                    GetProductByIdResponse.Variant.ProductImage ri =
+                                            new GetProductByIdResponse.Variant.ProductImage();
+                                    ri.setMain(img.isMain());
+                                    ri.setUrl(img.getImageURL());
+                                    return ri;
+                                }).toList();
+                rv.setImages(images);
+                return rv;
+            }).toList();
+        res.setVariants(variants);
         return res;
     }
 
