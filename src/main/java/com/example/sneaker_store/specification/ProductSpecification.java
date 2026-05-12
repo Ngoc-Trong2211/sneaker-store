@@ -36,8 +36,16 @@ public class ProductSpecification {
             }
 
             if (request.getBrandId() != null) predicates.add(criteriaBuilder.equal(root.get("brand").get("id"), request.getBrandId()));
-            if (request.getCategoryId() != null)
-                predicates.add(criteriaBuilder.equal(root.get("category").get("id"), request.getCategoryId()));
+            if (request.getCategoryId() != null){
+                Predicate equalId = criteriaBuilder.equal(root.get("category").get("id"), request.getCategoryId());
+                Predicate equalParentId = criteriaBuilder.equal(root.get("category").get("parentId"), request.getCategoryId());
+                predicates.add(criteriaBuilder.or(equalId, equalParentId));
+            }
+
+            if (request.getSlugCategory() != null){
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("category").get("slug")),
+                        "%" + request.getSlugCategory().toLowerCase() + "%"));
+            }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });   

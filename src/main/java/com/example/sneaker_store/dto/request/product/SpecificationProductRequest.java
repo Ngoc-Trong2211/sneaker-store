@@ -12,4 +12,5 @@ public class SpecificationProductRequest {
     private String status;
     private Long brandId;
     private Long categoryId;
+    private String slugCategory;
 }
