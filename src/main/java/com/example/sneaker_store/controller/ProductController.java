@@ -2,6 +2,7 @@ package com.example.sneaker_store.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +52,7 @@ public class ProductController {
     @GetMapping("/products")
     @Operation(summary = "Get products with pagination and filtering", description = "Retrieves a paginated list of products based on the provided filters")
     @ApiMessage(message = "Products retrieved successfully")
-    public ResponseEntity<GetProductResponse> getMethodName(Pageable pageable, SpecificationProductRequest request) {
+    public ResponseEntity<GetProductResponse> getMethodName(@ParameterObject Pageable pageable, SpecificationProductRequest request) {
         log.info("Received request to get products with filters");
         return ResponseEntity.ok(this.productService.getProducts(pageable, request));
     }
