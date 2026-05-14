@@ -3,6 +3,8 @@ package com.example.sneaker_store.dto.request.product;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class SpecificationProductRequest {
@@ -13,4 +15,6 @@ public class SpecificationProductRequest {
     private Long brandId;
     private Long categoryId;
     private String slugCategory;
+    private List<String> brands;
+    private List<String> sizes;
 }
