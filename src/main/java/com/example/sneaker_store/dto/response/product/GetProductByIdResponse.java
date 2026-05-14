@@ -35,9 +35,8 @@ public class GetProductByIdResponse {
     @NoArgsConstructor
     public static class Variant{
         private String id;
-        private String size;
         private String color;
-        private int stock;
+        private String status;
         private String sku;
         private List<ProductImage> images;
         private List<ProductSize> sizes;
@@ -47,6 +46,7 @@ public class GetProductByIdResponse {
         @AllArgsConstructor
         @NoArgsConstructor
         public static class ProductSize{
+            private Long id;
             private String size;
             private int quantity;
         }

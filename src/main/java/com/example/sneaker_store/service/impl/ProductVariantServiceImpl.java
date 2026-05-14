@@ -134,7 +134,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 .orElseThrow(() -> new RuntimeException("Variant not found"));
         ProductEntity product = productRepository.findByName(request.getProductName())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        if (product.getStatus() != ProductStatus.ACTIVE)
+        if (product.getStatus() == ProductStatus.DELETED)
             throw new RuntimeException("San pham khong hoat dong");
         ProductVariantEntity duplicate = productVariantRepository
                 .findByColorAndProductId(request.getColor(), product.getId());
@@ -247,6 +247,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         } else {
             variant.setStatus(VariantStatus.SOLD_OUT);
         }
+
+        if (product.getQuantity() > 0) {
+            product.setStatus(ProductStatus.ACTIVE);
+        } else {
+            product.setStatus(ProductStatus.SOLD_OUT);
+        }
+
 
         this.productVariantRepository.save(variant);
         this.productRepository.save(product);

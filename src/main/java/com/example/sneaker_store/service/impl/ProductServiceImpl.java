@@ -174,13 +174,14 @@ public class ProductServiceImpl implements ProductService {
                         v.getSizes().stream().map(size -> {
                             GetProductByIdResponse.Variant.ProductSize rs=
                                     new GetProductByIdResponse.Variant.ProductSize();
+                            rs.setId(size.getId());
                             rs.setSize(size.getSize());
                             rs.setQuantity(size.getQuantity());
                             return rs;
                         }).toList();
                 rv.setSizes(sizes);
                 rv.setSku(v.getSku());
-                rv.setStock(v.getStock());
+                rv.setStatus(String.valueOf(v.getStatus()));
                 List<GetProductByIdResponse.Variant.ProductImage> images =
                         v.getImages() == null ? new ArrayList<>() :
                                 v.getImages().stream().map(img -> {
