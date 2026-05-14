@@ -40,6 +40,16 @@ public class GetProductByIdResponse {
         private int stock;
         private String sku;
         private List<ProductImage> images;
+        private List<ProductSize> sizes;
+
+        @Getter
+        @Setter
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class ProductSize{
+            private String size;
+            private int quantity;
+        }
 
         @Getter
         @Setter

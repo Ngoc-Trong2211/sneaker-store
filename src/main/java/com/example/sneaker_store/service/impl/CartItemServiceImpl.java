@@ -42,7 +42,7 @@ public class CartItemServiceImpl implements CartItemService {
 
             CreateCartItemResponse cartItemResponse = new CreateCartItemResponse();
             cartItemResponse.setId(cartItem.getId());
-            cartItemResponse.setSize(cartItem.getProductVariant().getSize());
+            cartItemResponse.setSize(req.getSize());
             cartItemResponse.setQuantity(cartItem.getQuantity());
             cartItemResponse.setColor(cartItem.getProductVariant().getColor());
             cartItemResponse.setNameProduct(cartItem.getProductVariant().getProduct().getName());
@@ -58,7 +58,7 @@ public class CartItemServiceImpl implements CartItemService {
 
         CreateCartItemResponse cartItemResponse = new CreateCartItemResponse();
         cartItemResponse.setId(cartItem.getId());
-        cartItemResponse.setSize(cartItem.getProductVariant().getSize());
+        cartItemResponse.setSize(req.getSize());
         cartItemResponse.setQuantity(cartItem.getQuantity());
         cartItemResponse.setColor(cartItem.getProductVariant().getColor());
         cartItemResponse.setNameProduct(cartItem.getProductVariant().getProduct().getName());

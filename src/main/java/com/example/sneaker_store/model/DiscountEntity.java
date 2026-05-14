@@ -30,8 +30,8 @@ public class DiscountEntity {
     @Id
     @UuidGenerator
     @Column(columnDefinition = "CHAR(36)", updatable = false, nullable = false)
-    
     private String id;
+
     private int percent;
     private String description;
     private Instant startTime;

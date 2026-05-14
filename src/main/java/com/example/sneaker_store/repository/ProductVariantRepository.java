@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductVariantRepository extends JpaRepository<ProductVariantEntity, String>, JpaSpecificationExecutor<ProductVariantEntity> {
-    ProductVariantEntity findByColorAndSizeAndProductId(String color, String size, String productId);
+    ProductVariantEntity findByColorAndProductId(String color, String productId);
     Optional<List<ProductVariantEntity>> findByProductId(String productId);
     Optional<ProductVariantEntity> findBySku(String sku);
 

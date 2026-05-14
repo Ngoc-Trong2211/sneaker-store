@@ -23,7 +23,6 @@ public class ProductVariantEntity {
     @Column(columnDefinition = "CHAR(36)", nullable = false, updatable = false)
     private String id;
 
-    private String size;
     private String color;
     private int stock;
     private String sku;
@@ -51,6 +50,10 @@ public class ProductVariantEntity {
     @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ProductImageEntity> images;
+
+    @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ProductSizeEntity> sizes;
 
     @PrePersist
     public void create(){

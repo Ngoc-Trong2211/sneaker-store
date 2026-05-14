@@ -2,13 +2,17 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.dto.response.productVariant.*;
 import com.example.sneaker_store.model.ProductImageEntity;
+import com.example.sneaker_store.model.ProductSizeEntity;
 import com.example.sneaker_store.repository.ProductImageRepository;
+import com.example.sneaker_store.repository.ProductSizeRepository;
 import com.example.sneaker_store.service.FileService;
 import com.example.sneaker_store.service.ProductImageService;
+import com.example.sneaker_store.service.ProductSizeService;
 import com.example.sneaker_store.service.ProductVariantService;
 import com.example.sneaker_store.specification.ProductVariantSpecification;
 import com.example.sneaker_store.util.SkuGenerator;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
+import com.example.sneaker_store.util.enumEntity.SizeStatus;
 import com.example.sneaker_store.util.enumEntity.VariantStatus;
 
 import jakarta.transaction.Transactional;
@@ -31,9 +35,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j(topic = "PRODUCT-VARIANT-SERVICE")
@@ -45,6 +48,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     private final ProductImageRepository productImageRepository;
     private final FileService fileService;
     private final ProductImageService productImageService;
+    private final ProductSizeRepository productSizeRepository;
+    private final ProductSizeService productSizeService;
 
     private String formatPriceToResponse(Double price) {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
@@ -54,42 +59,49 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Override
     @Transactional
     public CreateProductVariantResponse createProductVariant(CreateProductVariantRequest request) {
-        log.info("Creating product variant with size: {}, color: {}, stock: {}",
-                request.getSize(), request.getColor(), request.getStock());
         ProductEntity product = this.productRepository.findByName(request.getProductName()).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", request.getProductName());
             return new RuntimeException("Product not found");
         });
         if (product.getStatus() != ProductStatus.ACTIVE) throw new RuntimeException("San pham khong hoat dong");
-        if (request.getStock() <= 0) throw new RuntimeException("Stock must be > 0");
-        ProductVariantEntity existingVariant =
-                productVariantRepository.findByColorAndSizeAndProductId(
+        ProductVariantEntity existedVariant =
+                productVariantRepository.findByColorAndProductId(
                         request.getColor(),
-                        request.getSize(),
                         product.getId()
                 );
-        if (existingVariant != null) {
-            existingVariant.setStock(existingVariant.getStock() + request.getStock());
-            productVariantRepository.save(existingVariant);
-            product.setQuantity(product.getQuantity() + request.getStock());
-            productRepository.save(product);
-            return modelMapper.map(existingVariant, CreateProductVariantResponse.class);
+        if (existedVariant != null) {
+            throw new RuntimeException("Color already exists");
         }
 
         ProductVariantEntity variant = new ProductVariantEntity();
-        variant.setSize(request.getSize());
         variant.setColor(request.getColor());
-        variant.setStock(request.getStock());
         variant.setProduct(product);
         variant.setSku(
                 SkuGenerator.generate(
                         product.getBrand().getName(),
                         product.getName(),
                         request.getColor(),
-                        request.getSize()
+                        "SIZE"
                 ) + "-" + System.currentTimeMillis()
         );
         variant = productVariantRepository.save(variant);
+
+        int totalStock = 0;
+        for (CreateProductVariantRequest.SizeRequest req : request.getSizes()){
+            if (req.getQuantity() <= 0) {
+                throw new RuntimeException("Quantity must be > 0");
+            }
+            ProductSizeEntity sizeEntity = new ProductSizeEntity();
+
+            sizeEntity.setSize(req.getSize());
+            sizeEntity.setQuantity(req.getQuantity());
+            sizeEntity.setVariant(variant);
+            sizeEntity.setStatus(SizeStatus.ACTIVE);
+            totalStock += req.getQuantity();
+            this.productSizeRepository.save(sizeEntity);
+        }
+        variant.setStock(totalStock);
+
         if (request.getImages() != null && !request.getImages().isEmpty()) {
             if (request.getImages().size() > 6) {
                 log.warn("Too many images provided for product");
@@ -109,9 +121,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 }
             }
         }
-        productVariantRepository.save(variant);
-        product.setQuantity(product.getQuantity() + variant.getStock());
-        productRepository.save(product);
+        this.productVariantRepository.save(variant);
+        product.setQuantity(product.getQuantity() + totalStock);
+        this.productRepository.save(product);
         return modelMapper.map(variant, CreateProductVariantResponse.class);
     }
 
@@ -124,35 +136,70 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         if (product.getStatus() != ProductStatus.ACTIVE)
             throw new RuntimeException("San pham khong hoat dong");
-        if (request.getStock() <= 0)
-            throw new RuntimeException("Stock must be > 0");
         ProductVariantEntity duplicate = productVariantRepository
-                .findByColorAndSizeAndProductId(request.getColor(), request.getSize(), product.getId());
-
+                .findByColorAndProductId(request.getColor(), product.getId());
         if (duplicate != null && !duplicate.getId().equals(variant.getId())) {
             throw new RuntimeException("Variant already exists");
         }
-        int diff = request.getStock() - variant.getStock();
-        if (!variant.getProduct().getId().equals(product.getId())) {
-            ProductEntity oldProduct = variant.getProduct();
-            oldProduct.setQuantity(oldProduct.getQuantity() - variant.getStock());
-            productRepository.save(oldProduct);
-
-            product.setQuantity(product.getQuantity() + request.getStock());
-        } else {
-            product.setQuantity(product.getQuantity() + diff);
-        }
-        variant.setSize(request.getSize());
         variant.setColor(request.getColor());
-        variant.setStock(request.getStock());
         variant.setProduct(product);
         variant.setSku(SkuGenerator.generate(
                 product.getBrand().getName(),
                 product.getName(),
                 request.getColor(),
-                request.getSize()
-        ));
+                "SIZE"
+        ) + "-" + System.currentTimeMillis());
         variant = productVariantRepository.save(variant);
+
+        List<UpdateProductVariantRequest.SizeRequest> newSizes = request.getSizes();
+        if (newSizes.isEmpty()){
+            int removedQty = variant.getSizes().stream()
+                    .mapToInt(ProductSizeEntity::getQuantity)
+                    .sum();
+            product.setQuantity(product.getQuantity() - removedQty);
+            variant.setStock(0);
+            variant.getSizes().clear();
+        }
+        else{
+            List<ProductSizeEntity> currentSizes = variant.getSizes();
+            Map<Long, ProductSizeEntity> currentSizeMap = currentSizes.stream()
+                    .collect(Collectors.toMap(ProductSizeEntity::getId, s -> s));
+            List<Long> newSizeIds = newSizes.stream()
+                    .map(UpdateProductVariantRequest.SizeRequest::getId)
+                    .filter(Objects::nonNull)
+                    .toList();
+            List<ProductSizeEntity> removeSizes = currentSizes.stream()
+                    .filter(size -> !newSizeIds.contains(size.getId()))
+                    .toList();
+
+            for (ProductSizeEntity s : removeSizes) {
+                product.setQuantity(product.getQuantity() - s.getQuantity());
+                variant.setStock(variant.getStock() - s.getQuantity());
+                variant.getSizes().remove(s);
+            }
+
+            for (UpdateProductVariantRequest.SizeRequest reqSize : newSizes) {
+                if (reqSize.getId() != null && currentSizeMap.containsKey(reqSize.getId())) {
+                    ProductSizeEntity currentSize = currentSizeMap.get(reqSize.getId());
+                    this.productSizeService.updateSize(
+                            variant.getId(), currentSize.getId(), reqSize.getSize(), reqSize.getQuantity());
+                }
+                else {
+                    boolean exists = currentSizes.stream()
+                            .anyMatch(s -> s.getSize().equals(reqSize.getSize()));
+                    if (exists) throw new RuntimeException("Size " + reqSize.getSize() + " already exists");
+                    ProductSizeEntity newSize = new ProductSizeEntity();
+                    newSize.setSize(reqSize.getSize());
+                    newSize.setQuantity(reqSize.getQuantity());
+                    newSize.setVariant(variant);
+                    newSize.setStatus(SizeStatus.ACTIVE);
+                    product.setQuantity(product.getQuantity() + reqSize.getQuantity());
+                    variant.setStock(variant.getStock() + reqSize.getQuantity());
+                    variant.getSizes().add(newSize);
+                }
+            }
+        }
+
         List<String> newImageUrls = request.getImages();
         List<ProductImageEntity> currentImages = variant.getImages();
         List<ProductImageEntity> toRemove = currentImages.stream()
@@ -183,6 +230,24 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                         .forEach(img -> img.setMain(finalI == 0));
             }
         }
+
+        int totalVariantStock = variant.getSizes().stream()
+                .filter(s -> s.getStatus() == SizeStatus.ACTIVE)
+                .mapToInt(ProductSizeEntity::getQuantity)
+                .sum();
+        variant.setStock(totalVariantStock);
+
+        int totalProductStock = product.getVariants().stream()
+                .mapToInt(ProductVariantEntity::getStock)
+                .sum();
+        product.setQuantity(totalProductStock);
+
+        if (variant.getStock() > 0) {
+            variant.setStatus(VariantStatus.ACTIVE);
+        } else {
+            variant.setStatus(VariantStatus.SOLD_OUT);
+        }
+
         this.productVariantRepository.save(variant);
         this.productRepository.save(product);
 
@@ -196,6 +261,17 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         GetVariantByIdResponse res = this.modelMapper.map(variant, GetVariantByIdResponse.class);
         res.setProductName(variant.getProduct().getName());
         res.setBrandName(variant.getProduct().getBrand().getName());
+        List<GetVariantByIdResponse.ProductSize> sizes = variant.getSizes() == null
+                ? new ArrayList<>() :
+                variant.getSizes().stream().map(size -> {
+                    GetVariantByIdResponse.ProductSize rs=
+                            new GetVariantByIdResponse.ProductSize();
+                    rs.setId(size.getId());
+                    rs.setSize(size.getSize());
+                    rs.setQuantity(size.getQuantity());
+                    return rs;
+                }).toList();
+        res.setSizes(sizes);
         List<GetVariantByIdResponse.ProductImage> listResImg = new ArrayList<>();
         for (ProductImageEntity img : variant.getImages()){
             GetVariantByIdResponse.ProductImage imgRes = new GetVariantByIdResponse.ProductImage();
@@ -281,6 +357,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 this.fileService.deleteFile(image.getPublicId());
                 this.productImageService.deleteProductImage(image.getId());
             }
+        }
+        List<ProductSizeEntity> sizes = this.productSizeRepository.findByVariantId(id).orElse(List.of());
+        for (ProductSizeEntity size : sizes) {
+            size.setStatus(SizeStatus.DELETED);
+            this.productSizeRepository.save(size);
         }
         existingVariant.setStatus(VariantStatus.DELETED);
         this.productVariantRepository.save(existingVariant);

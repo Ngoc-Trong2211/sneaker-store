@@ -115,7 +115,16 @@ public class ProductServiceImpl implements ProductService {
                         GetProductResponse.Product.Variant rv = new GetProductResponse.Product.Variant();
                         rv.setId(v.getId());
                         rv.setColor(v.getColor());
-                        rv.setSize(v.getSize());
+                        List<GetProductResponse.Product.Variant.ProductSize> sizes = v.getSizes() == null
+                                ? new ArrayList<>() :
+                                v.getSizes().stream().map(size -> {
+                                    GetProductResponse.Product.Variant.ProductSize rs=
+                                            new GetProductResponse.Product.Variant.ProductSize();
+                                    rs.setSize(size.getSize());
+                                    rs.setQuantity(size.getQuantity());
+                                    return rs;
+                                }).toList();
+                        rv.setSizes(sizes);
                         rv.setSku(v.getSku());
                         rv.setStock(v.getStock());
                         List<GetProductResponse.Product.Variant.ProductImage> images =
@@ -160,7 +169,16 @@ public class ProductServiceImpl implements ProductService {
                 GetProductByIdResponse.Variant rv = new GetProductByIdResponse.Variant();
                 rv.setId(v.getId());
                 rv.setColor(v.getColor());
-                rv.setSize(v.getSize());
+                List<GetProductByIdResponse.Variant.ProductSize> sizes = v.getSizes() == null
+                        ? new ArrayList<>() :
+                        v.getSizes().stream().map(size -> {
+                            GetProductByIdResponse.Variant.ProductSize rs=
+                                    new GetProductByIdResponse.Variant.ProductSize();
+                            rs.setSize(size.getSize());
+                            rs.setQuantity(size.getQuantity());
+                            return rs;
+                        }).toList();
+                rv.setSizes(sizes);
                 rv.setSku(v.getSku());
                 rv.setStock(v.getStock());
                 List<GetProductByIdResponse.Variant.ProductImage> images =

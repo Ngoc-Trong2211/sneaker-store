@@ -1,5 +1,6 @@
 package com.example.sneaker_store.dto.response.productVariant;
 
+import com.example.sneaker_store.dto.response.product.GetProductResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,6 @@ import java.util.List;
 @Setter
 public class GetVariantByIdResponse {
     private String id;
-    private String size;
     private String color;
     private int stock;
     private String sku;
@@ -19,6 +19,17 @@ public class GetVariantByIdResponse {
     private String brandName;
     private String productName;
     private List<ProductImage> images;
+    private List<ProductSize> sizes;
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ProductSize{
+        private Long id;
+        private String size;
+        private int quantity;
+    }
 
     @Getter
     @Setter
