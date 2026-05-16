@@ -1,12 +1,16 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.dto.response.cartItem.GetCartResponse;
 import com.example.sneaker_store.model.CartEntity;
 import com.example.sneaker_store.model.CartItemEntity;
+import com.example.sneaker_store.model.ProductImageEntity;
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.repository.CartItemRepository;
 import com.example.sneaker_store.repository.CartRepository;
 import com.example.sneaker_store.service.UserService;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.NonNull;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.example.sneaker_store.service.CartService;
@@ -14,6 +18,7 @@ import com.example.sneaker_store.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +31,7 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final UserService userService;
     private final CartItemRepository cartItemRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public CartEntity createCart(String guestId) {
@@ -89,5 +95,59 @@ public class CartServiceImpl implements CartService {
         }
         this.cartItemRepository.deleteAllByCartId(guestCart.getId());
         this.cartRepository.deleteById(guestCart.getId());
+    }
+
+
+    @Override
+    @Transactional
+    public GetCartResponse getCart(String guestId) {
+        String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
+        if (email != null && !email.equals("anonymousUser")) {
+            UserEntity user = this.userService.findByEmail(email);
+            CartEntity cart = this.cartRepository.findByUserId(user.getId()).orElse(null);
+            GetCartResponse res = this.modelMapper.map(cart, GetCartResponse.class);
+            assert cart != null;
+            List<GetCartResponse.CartItem> listRes = new ArrayList<>();
+            for (CartItemEntity item : cart.getCartItems()){
+                GetCartResponse.CartItem itemRes = getCartItem(item);
+                listRes.add(itemRes);
+            }
+            res.setCartItems(listRes);
+            return res;
+        }
+        if (guestId == null || guestId.isBlank()) {
+            throw new RuntimeException("guestId is required for guest");
+        }
+        else {
+            CartEntity cart = this.cartRepository.findByUserId(guestId).orElse(null);
+            GetCartResponse res = this.modelMapper.map(cart, GetCartResponse.class);
+            assert cart != null;
+            List<GetCartResponse.CartItem> listRes = new ArrayList<>();
+            for (CartItemEntity item : cart.getCartItems()){
+                GetCartResponse.CartItem itemRes = getCartItem(item);
+                listRes.add(itemRes);
+            }
+            res.setCartItems(listRes);
+            return res;
+        }
+    }
+
+    private static GetCartResponse.@NonNull CartItem getCartItem(CartItemEntity item) {
+        GetCartResponse.CartItem itemRes = new GetCartResponse.CartItem();
+        itemRes.setId(item.getId());
+        itemRes.setQuantity(item.getQuantity());
+        itemRes.setNameProduct(item.getProductVariant().getProduct().getName());
+        itemRes.setColor(item.getProductVariant().getColor());
+        itemRes.setSize(item.getSize());
+        itemRes.setSku(item.getProductVariant().getSku());
+        for (ProductImageEntity img : item.getProductVariant().getImages()){
+            if (img.isMain()){
+                itemRes.setUrl(img.getImageURL());
+                break;
+            }
+        }
+        itemRes.setSlugCategory(item.getProductVariant().getProduct().getCategory().getSlug());
+        itemRes.setBrandName(item.getProductVariant().getProduct().getBrand().getName());
+        return itemRes;
     }
 }

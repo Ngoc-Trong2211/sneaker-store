@@ -2,7 +2,9 @@ package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.dto.request.cartItem.CreateCartItemRequest;
 import com.example.sneaker_store.dto.response.cartItem.CreateCartItemResponse;
+import com.example.sneaker_store.dto.response.cartItem.GetCartResponse;
 import com.example.sneaker_store.service.CartItemService;
+import com.example.sneaker_store.service.CartService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,29 +26,17 @@ import java.util.UUID;
 @RequestMapping("/cart-item/v1")
 public class CartItemController {
     private final CartItemService cartItemService;
+    private final CartService cartService;
 
     @PostMapping("/cart-items")
     @Operation(summary = "Add cart item", description = "Add cart item")
     @ApiMessage(message = "Add cart item successfully")
     public ResponseEntity<CreateCartItemResponse> createCartItem(
             @RequestBody @Valid CreateCartItemRequest request,
-            @CookieValue(value = "guestId", required = false) String guestId,
-            HttpServletResponse response) {
+            @CookieValue(value = "guest_id", required = false) String guestId) {
         log.info("Received request to add cart item");
-        if (guestId == null || guestId.isBlank()) {
-            guestId = UUID.randomUUID().toString();
-            ResponseCookie cookie = ResponseCookie
-                    .from("guestId", guestId)
-                    .httpOnly(true)
-                    .secure(true)
-                    .path("/")
-                    .maxAge(60 * 60 * 24 * 30)
-                    .sameSite("Lax")
-                    .build();
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        }
-        request.setGuestId(guestId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.cartItemService.addToCart(request));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(this.cartItemService.addToCart(request, guestId));
     }
 
     @PatchMapping("/cart-items/{id}")
@@ -55,5 +45,13 @@ public class CartItemController {
     public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {
         this.cartItemService.deleteCartItem(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/cart-items")
+    @Operation(summary = "Get cart items", description = "Get cart items")
+    @ApiMessage(message = "Get cart items successfully")
+    public ResponseEntity<GetCartResponse> getCartItem(
+            @CookieValue(value = "guestId", required = false) String guestId) {
+        return ResponseEntity.ok(this.cartService.getCart(guestId));
     }
 }

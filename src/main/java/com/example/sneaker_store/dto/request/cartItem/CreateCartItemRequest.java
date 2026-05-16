@@ -8,13 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateCartItemRequest {
-    @NotNull(message = "Quantity is required")
-    private Integer quantity;
-
     @NotBlank(message = "Product variant id is required")
     private String variantId;
 
     private String size;
-
-    private String guestId;
 }

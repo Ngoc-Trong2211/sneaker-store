@@ -16,6 +16,7 @@ public class CartItemEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int quantity;
+    private String size;
 
     private Instant createdAt;
     private String createdBy;
