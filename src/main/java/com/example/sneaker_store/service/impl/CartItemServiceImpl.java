@@ -34,7 +34,7 @@ public class CartItemServiceImpl implements CartItemService {
         CartEntity cart = this.cartService.createCart(guestId);
 
         Optional<CartItemEntity> existsCartItem = this.cartItemRepository
-                .findByCartIdAndProductVariantId(cart.getId(), req.getVariantId());
+                .findByCartIdAndProductVariantIdAndSize(cart.getId(), req.getVariantId(), req.getSize());
 
         if (existsCartItem.isPresent()){
             CartItemEntity cartItem = existsCartItem.get();
