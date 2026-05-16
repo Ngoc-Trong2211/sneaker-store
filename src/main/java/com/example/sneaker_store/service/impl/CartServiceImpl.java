@@ -18,10 +18,8 @@ import com.example.sneaker_store.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.NumberFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -140,6 +138,7 @@ public class CartServiceImpl implements CartService {
         itemRes.setColor(item.getProductVariant().getColor());
         itemRes.setSize(item.getSize());
         itemRes.setSku(item.getProductVariant().getSku());
+        itemRes.setPrice(item.getProductVariant().getProduct().getPrice());
         for (ProductImageEntity img : item.getProductVariant().getImages()){
             if (img.isMain()){
                 itemRes.setUrl(img.getImageURL());

@@ -24,6 +24,7 @@ public class GetCartResponse {
         private String size;
         private String color;
         private int quantity;
+        private Double price;
         private String slugCategory;
         private String brandName;
         private String sku;
