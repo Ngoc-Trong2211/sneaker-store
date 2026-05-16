@@ -7,18 +7,13 @@ import com.example.sneaker_store.service.CartItemService;
 import com.example.sneaker_store.service.CartService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.UUID;
 
 @RestController
 @Slf4j(topic = "CART-ITEM-CONTROLLER")
@@ -39,7 +34,7 @@ public class CartItemController {
                 .body(this.cartItemService.addToCart(request, guestId));
     }
 
-    @PatchMapping("/cart-items/{id}")
+    @DeleteMapping("/cart-items/{id}")
     @Operation(summary = "Delete a cart item", description = "Delete a cart item with the specified ID.")
     @ApiMessage(message = "Cart item deleted successfully")
     public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {
