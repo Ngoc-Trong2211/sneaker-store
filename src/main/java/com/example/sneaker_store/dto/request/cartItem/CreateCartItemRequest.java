@@ -11,5 +11,5 @@ public class CreateCartItemRequest {
     @NotBlank(message = "Product variant id is required")
     private String variantId;
 
-    private String size;
+    private Long idSize;
 }

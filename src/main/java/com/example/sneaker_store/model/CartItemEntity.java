@@ -17,6 +17,7 @@ public class CartItemEntity {
     private Long id;
     private int quantity;
     private String size;
+    private Long idSize;
 
     private Instant createdAt;
     private String createdBy;

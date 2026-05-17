@@ -46,7 +46,7 @@ public class CartItemController {
     @Operation(summary = "Get cart items", description = "Get cart items")
     @ApiMessage(message = "Get cart items successfully")
     public ResponseEntity<GetCartResponse> getCartItem(
-            @CookieValue(value = "guestId", required = false) String guestId) {
+            @CookieValue(value = "guest_id", required = false) String guestId) {
         return ResponseEntity.ok(this.cartService.getCart(guestId));
     }
 }

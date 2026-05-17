@@ -100,10 +100,11 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public GetCartResponse getCart(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
+        GetCartResponse res = new GetCartResponse();
         if (email != null && !email.equals("anonymousUser")) {
             UserEntity user = this.userService.findByEmail(email);
             CartEntity cart = this.cartRepository.findByUserId(user.getId()).orElse(null);
-            GetCartResponse res = this.modelMapper.map(cart, GetCartResponse.class);
+            res = this.modelMapper.map(cart, GetCartResponse.class);
             assert cart != null;
             List<GetCartResponse.CartItem> listRes = new ArrayList<>();
             for (CartItemEntity item : cart.getCartItems()){
@@ -117,9 +118,9 @@ public class CartServiceImpl implements CartService {
             throw new RuntimeException("guestId is required for guest");
         }
         else {
-            CartEntity cart = this.cartRepository.findByUserId(guestId).orElse(null);
-            GetCartResponse res = this.modelMapper.map(cart, GetCartResponse.class);
-            assert cart != null;
+            CartEntity cart = this.cartRepository.findByGuestId(guestId).orElse(null);
+            if (cart==null) return res;
+            res = this.modelMapper.map(cart, GetCartResponse.class);
             List<GetCartResponse.CartItem> listRes = new ArrayList<>();
             for (CartItemEntity item : cart.getCartItems()){
                 GetCartResponse.CartItem itemRes = getCartItem(item);

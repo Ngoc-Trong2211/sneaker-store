@@ -1,12 +1,15 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.dto.request.cartItem.UpdateQuantityRequest;
 import com.example.sneaker_store.dto.response.cartItem.GetCartResponse;
 import com.example.sneaker_store.model.CartEntity;
 import com.example.sneaker_store.model.CartItemEntity;
+import com.example.sneaker_store.model.ProductSizeEntity;
 import com.example.sneaker_store.model.ProductVariantEntity;
 import com.example.sneaker_store.dto.request.cartItem.CreateCartItemRequest;
 import com.example.sneaker_store.dto.response.cartItem.CreateCartItemResponse;
 import com.example.sneaker_store.repository.CartItemRepository;
+import com.example.sneaker_store.repository.ProductSizeRepository;
 import com.example.sneaker_store.repository.ProductVariantRepository;
 import com.example.sneaker_store.service.CartItemService;
 import com.example.sneaker_store.service.CartService;
@@ -23,6 +26,7 @@ public class CartItemServiceImpl implements CartItemService {
     private final CartItemRepository cartItemRepository;
     private final ProductVariantRepository productVariantRepository;
     private final CartService cartService;
+    private final ProductSizeRepository productSizeRepository;
 
     @Override
     public CreateCartItemResponse addToCart(CreateCartItemRequest req, String guestId) {
@@ -33,18 +37,23 @@ public class CartItemServiceImpl implements CartItemService {
         if (existingVariant.getStock() < 1) throw new RuntimeException("San pham khong du");
         CartEntity cart = this.cartService.createCart(guestId);
 
+        ProductSizeEntity size = this.productSizeRepository.findById(req.getIdSize())
+                .orElseThrow(() -> new RuntimeException("size item not found"));
+
         Optional<CartItemEntity> existsCartItem = this.cartItemRepository
-                .findByCartIdAndProductVariantIdAndSize(cart.getId(), req.getVariantId(), req.getSize());
+                .findByCartIdAndProductVariantIdAndIdSize(cart.getId(), req.getVariantId(), req.getIdSize());
 
         if (existsCartItem.isPresent()){
             CartItemEntity cartItem = existsCartItem.get();
-            cartItem.setSize(req.getSize());
+            cartItem.setIdSize(req.getIdSize());
+            cartItem.setSize(size.getSize());
             cartItem.setQuantity(cartItem.getQuantity() + 1);
             this.cartItemRepository.save(cartItem);
 
             CreateCartItemResponse cartItemResponse = new CreateCartItemResponse();
             cartItemResponse.setId(cartItem.getId());
-            cartItemResponse.setSize(req.getSize());
+            cartItem.setIdSize(req.getIdSize());
+            cartItemResponse.setSize(size.getSize());
             cartItemResponse.setNameProduct(cartItem.getProductVariant().getProduct().getName());
 
             return cartItemResponse;
@@ -52,14 +61,15 @@ public class CartItemServiceImpl implements CartItemService {
 
         CartItemEntity cartItem = new CartItemEntity();
         cartItem.setCart(cart);
-        cartItem.setSize(req.getSize());
+        cartItem.setIdSize(req.getIdSize());
+        cartItem.setSize(size.getSize());
         cartItem.setQuantity(1);
         cartItem.setProductVariant(existingVariant);
         this.cartItemRepository.save(cartItem);
 
         CreateCartItemResponse cartItemResponse = new CreateCartItemResponse();
         cartItemResponse.setId(cartItem.getId());
-        cartItemResponse.setSize(req.getSize());
+        cartItemResponse.setSize(size.getSize());
         cartItemResponse.setNameProduct(cartItem.getProductVariant().getProduct().getName());
 
         return cartItemResponse;
@@ -70,5 +80,20 @@ public class CartItemServiceImpl implements CartItemService {
         CartItemEntity cartItem = this.cartItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
         this.cartItemRepository.deleteById(cartItem.getId());
+    }
+
+    @Override
+    public int updateQuantity(UpdateQuantityRequest req) {
+        CartItemEntity cartItem = this.cartItemRepository.findById(req.getId())
+                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+        if (req.getAction()!=null && req.getAction().equalsIgnoreCase("increase")){
+            ProductVariantEntity variant = cartItem.getProductVariant();
+
+            cartItem.setQuantity(cartItem.getQuantity() + req.getQuantity());
+        }
+        if (req.getAction()!=null && req.getAction().equalsIgnoreCase("decrease")){
+            cartItem.setQuantity(cartItem.getQuantity() - req.getQuantity());
+        }
+        return 0;
     }
 }
