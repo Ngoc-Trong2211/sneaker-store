@@ -86,14 +86,20 @@ public class CartItemServiceImpl implements CartItemService {
     public int updateQuantity(UpdateQuantityRequest req) {
         CartItemEntity cartItem = this.cartItemRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
-        if (req.getAction()!=null && req.getAction().equalsIgnoreCase("increase")){
-            ProductVariantEntity variant = cartItem.getProductVariant();
+        ProductSizeEntity size = this.productSizeRepository.findById(req.getIdSize())
+                .orElseThrow(() -> new RuntimeException("size item not found"));
+        int newQuantityCart = 0;
 
-            cartItem.setQuantity(cartItem.getQuantity() + req.getQuantity());
+        if (req.getAction() != null && req.getAction().equalsIgnoreCase("increase")) {
+            newQuantityCart = cartItem.getQuantity() + 1;
+            if (newQuantityCart > size.getQuantity()) throw new RuntimeException("Quantity not enough");
+            cartItem.setQuantity(newQuantityCart);
         }
-        if (req.getAction()!=null && req.getAction().equalsIgnoreCase("decrease")){
-            cartItem.setQuantity(cartItem.getQuantity() - req.getQuantity());
+        if (req.getAction() != null && req.getAction().equalsIgnoreCase("decrease")) {
+            newQuantityCart = cartItem.getQuantity() - 1;
+            cartItem.setQuantity(newQuantityCart);
         }
-        return 0;
+        this.cartItemRepository.save(cartItem);
+        return newQuantityCart;
     }
 }

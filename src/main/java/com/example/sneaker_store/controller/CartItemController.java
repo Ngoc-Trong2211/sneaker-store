@@ -1,6 +1,7 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.dto.request.cartItem.CreateCartItemRequest;
+import com.example.sneaker_store.dto.request.cartItem.UpdateQuantityRequest;
 import com.example.sneaker_store.dto.response.cartItem.CreateCartItemResponse;
 import com.example.sneaker_store.dto.response.cartItem.GetCartResponse;
 import com.example.sneaker_store.service.CartItemService;
@@ -48,5 +49,12 @@ public class CartItemController {
     public ResponseEntity<GetCartResponse> getCartItem(
             @CookieValue(value = "guest_id", required = false) String guestId) {
         return ResponseEntity.ok(this.cartService.getCart(guestId));
+    }
+
+    @PutMapping("/cart-items")
+    @Operation(summary = "Update quantity cart items", description = "Update quantity cart items")
+    @ApiMessage(message = "Update quantity cart items successfully")
+    public ResponseEntity<Integer> updateQuantity(@RequestBody @Valid UpdateQuantityRequest req){
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.cartItemService.updateQuantity(req));
     }
 }

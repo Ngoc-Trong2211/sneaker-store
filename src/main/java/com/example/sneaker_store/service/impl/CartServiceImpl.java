@@ -140,6 +140,7 @@ public class CartServiceImpl implements CartService {
         itemRes.setSize(item.getSize());
         itemRes.setSku(item.getProductVariant().getSku());
         itemRes.setPrice(item.getProductVariant().getProduct().getPrice());
+        itemRes.setIdSize(item.getIdSize());
         for (ProductImageEntity img : item.getProductVariant().getImages()){
             if (img.isMain()){
                 itemRes.setUrl(img.getImageURL());

@@ -29,5 +29,6 @@ public class GetCartResponse {
         private String brandName;
         private String sku;
         private String url;
+        private Long idSize;
     }
 }
