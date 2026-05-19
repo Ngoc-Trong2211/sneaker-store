@@ -1,5 +1,6 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.model.RoleEntity;
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.dto.request.auth.LoginRequest;
 import com.example.sneaker_store.dto.request.auth.RegisterRequest;
@@ -8,6 +9,7 @@ import com.example.sneaker_store.dto.response.auth.LoginResult;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.AuthService;
 import com.example.sneaker_store.service.CartService;
+import com.example.sneaker_store.service.RoleService;
 import com.example.sneaker_store.service.UserService;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
 import com.example.sneaker_store.util.exception.RefreshTokenInvalidException;
@@ -50,6 +52,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CartService cartService;
+    private final RoleService roleService;
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
@@ -202,6 +205,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void registerUser(RegisterRequest req) {
+        RoleEntity role = roleService.findById(1L);
         if (!validate(req.getEmail())){
             throw new EmailInvalidException("Invalid email format!");
         }
@@ -216,6 +220,7 @@ public class AuthServiceImpl implements AuthService {
             user.setPassword(this.passwordEncoder.encode(req.getNewPassword()));
             user.setEmail(req.getEmail());
             user.setStatus(UserStatus.ACTIVE);
+            if (role!=null) user.setRole(role);
             this.userRepository.save(user);
         }
     }
@@ -272,5 +277,30 @@ public class AuthServiceImpl implements AuthService {
             return userLogin;
         }
         else throw new EmailInvalidException("Email is invalid!");
+    }
+
+    @Override
+    public String loginWithGoogle(String email, String name) {
+        RoleEntity role = roleService.findById(1L);
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    UserEntity newUser = new UserEntity();
+                    newUser.setEmail(email);
+                    newUser.setName(name);
+                    newUser.setStatus(UserStatus.ACTIVE);
+                    if (role!=null) newUser.setRole(role);
+                    return userRepository.save(newUser);
+                });
+        if (!user.getStatus().equals(UserStatus.ACTIVE)) {
+            throw new StatusInvalidException("Account is locked!");
+        }
+        String accessToken = createAccessToken(user);
+        LoginResponse.UserLogin userLogin = new LoginResponse.UserLogin();
+        userLogin.setId(user.getId());
+        userLogin.setEmail(user.getEmail());
+        userLogin.setName(user.getName());
+        String refreshToken = createRefreshToken(email, userLogin);
+        userService.updateRefreshToken(refreshToken, user);
+        return accessToken;
     }
 }

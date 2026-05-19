@@ -35,10 +35,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             AuthenticationEntryPointConfig authenticationEntryPointConfig,
-            JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception{
+            JwtAuthenticationConverter jwtAuthenticationConverter,
+            OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) throws Exception{
         String[] whiteList = {
                 "/",
-                "/api/v1/auth/**",
+                "/auth/v1/auth/**",
                 "/register",
                 "/swagger-ui.html",
                 "/swagger-ui/**",
@@ -49,7 +50,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(whiteList).permitAll()
-                        .anyRequest().permitAll())
+                        .anyRequest().authenticated())
                 .exceptionHandling(exception ->
                         exception
                                 .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
@@ -58,6 +59,9 @@ public class SecurityConfig {
                         oauth
                                 .authenticationEntryPoint(authenticationEntryPointConfig)
                                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
+                .oauth2Login(oauth -> oauth
+                        .successHandler(oAuth2LoginSuccessHandler)
+                )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(manage ->
                         manage.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

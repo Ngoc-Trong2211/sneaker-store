@@ -21,6 +21,7 @@ public class OrderItemEntity {
     private int quantity;
     private double price;
     private String productName;
+    private String size;
 
     private Instant createdAt;
     private String createdBy;
