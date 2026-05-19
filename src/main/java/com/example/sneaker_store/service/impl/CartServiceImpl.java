@@ -104,8 +104,8 @@ public class CartServiceImpl implements CartService {
         if (email != null && !email.equals("anonymousUser")) {
             UserEntity user = this.userService.findByEmail(email);
             CartEntity cart = this.cartRepository.findByUserId(user.getId()).orElse(null);
+            if (cart==null) return res;
             res = this.modelMapper.map(cart, GetCartResponse.class);
-            assert cart != null;
             List<GetCartResponse.CartItem> listRes = new ArrayList<>();
             for (CartItemEntity item : cart.getCartItems()){
                 GetCartResponse.CartItem itemRes = getCartItem(item);

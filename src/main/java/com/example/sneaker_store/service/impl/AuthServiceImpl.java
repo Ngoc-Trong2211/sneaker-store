@@ -280,7 +280,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String loginWithGoogle(String email, String name) {
+    public LoginResult loginWithGoogle(String email, String name) {
         RoleEntity role = roleService.findById(1L);
         UserEntity user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
@@ -288,19 +288,28 @@ public class AuthServiceImpl implements AuthService {
                     newUser.setEmail(email);
                     newUser.setName(name);
                     newUser.setStatus(UserStatus.ACTIVE);
-                    if (role!=null) newUser.setRole(role);
+                    if (role != null) newUser.setRole(role);
                     return userRepository.save(newUser);
                 });
         if (!user.getStatus().equals(UserStatus.ACTIVE)) {
             throw new StatusInvalidException("Account is locked!");
         }
         String accessToken = createAccessToken(user);
+
         LoginResponse.UserLogin userLogin = new LoginResponse.UserLogin();
         userLogin.setId(user.getId());
         userLogin.setEmail(user.getEmail());
         userLogin.setName(user.getName());
         String refreshToken = createRefreshToken(email, userLogin);
         userService.updateRefreshToken(refreshToken, user);
-        return accessToken;
+
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setAccessToken(accessToken);
+        loginResponse.setUserLogin(userLogin);
+
+        LoginResult result = new LoginResult();
+        result.setRefreshToken(refreshToken);
+        result.setLoginResponse(loginResponse);
+        return result;
     }
 }
