@@ -79,10 +79,22 @@ public class AuthController {
     @PostMapping("/auth/register")
     @ApiMessage(message = "Register success")
     @Operation(summary = "Register", description = "Register")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterRequest auth) {
+    public ResponseEntity<LoginResponse> registerUser(@Valid @RequestBody RegisterRequest auth,
+                                                      @RequestHeader(value = "X-Guest-Id", required = false) String guestId) {
         log.info("Đăng ký tạo mới người dùng");
-        this.authService.registerUser(auth);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Đăng ký thành công!");
+        LoginResult result = this.authService.registerUser(auth, guestId);
+        ResponseCookie responseCookie = ResponseCookie
+                .from("refresh", result.getRefreshToken())
+                .httpOnly(true)
+//                .secure(true)
+                .secure(false)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(refreshTokenTime)
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(result.getLoginResponse());
     }
 
     @PostMapping("/auth/logout")

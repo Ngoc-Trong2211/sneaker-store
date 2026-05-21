@@ -204,7 +204,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void registerUser(RegisterRequest req) {
+    public LoginResult registerUser(RegisterRequest req, String guestId) {
         RoleEntity role = roleService.findById(1L);
         if (!validate(req.getEmail())){
             throw new EmailInvalidException("Invalid email format!");
@@ -219,9 +219,29 @@ public class AuthServiceImpl implements AuthService {
             UserEntity user = new UserEntity();
             user.setPassword(this.passwordEncoder.encode(req.getNewPassword()));
             user.setEmail(req.getEmail());
+            user.setName(req.getName());
             user.setStatus(UserStatus.ACTIVE);
             if (role!=null) user.setRole(role);
-            this.userRepository.save(user);
+            user = this.userRepository.save(user);
+            cartService.mergeCart(user.getId(), guestId);
+
+            LoginResponse.UserLogin userLogin = new LoginResponse.UserLogin();
+            userLogin.setId(user.getId());
+            userLogin.setEmail(user.getEmail());
+            userLogin.setName(user.getName());
+
+            String accessToken = createAccessToken(user);
+            String refreshToken = createRefreshToken(user.getEmail(), userLogin);
+
+            userService.updateRefreshToken(refreshToken, user);
+            LoginResponse loginResponse = new LoginResponse();
+            loginResponse.setAccessToken(accessToken);
+            loginResponse.setUserLogin(userLogin);
+            LoginResult result = new LoginResult();
+            result.setLoginResponse(loginResponse);
+            result.setRefreshToken(refreshToken);
+
+            return result;
         }
     }
 

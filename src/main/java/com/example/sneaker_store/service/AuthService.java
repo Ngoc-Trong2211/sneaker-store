@@ -8,7 +8,7 @@ import com.example.sneaker_store.dto.response.auth.LoginResult;
 public interface AuthService {
     LoginResult loginUser(LoginRequest req, String guestId);
     LoginResult refreshToken(String refresh);
-    void registerUser(RegisterRequest req);
+    LoginResult  registerUser(RegisterRequest req, String guestId);
     void logoutUser(String refresh);
     LoginResponse.UserLogin getAccount();
     LoginResult loginWithGoogle(String email, String name);
