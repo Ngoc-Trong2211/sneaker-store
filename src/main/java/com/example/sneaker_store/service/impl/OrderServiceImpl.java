@@ -24,8 +24,6 @@ public class OrderServiceImpl implements OrderService {
     private final ModelMapper modelMapper;
     private final UserService userService;
     private final OrderItemService orderItemService;
-    private final AddressRepository addressRepository;
-    private final OrderItemRepository orderItemRepository;
 
     @Override
     @Transactional
@@ -36,10 +34,9 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.PENDING);
         if (email != null && !email.equals("anonymousUser")){
             UserEntity user = this.userService.findByEmail(email);
-            AddressEntity address = this.addressRepository.findByUserIdAndIsDefault(user.getId(), true);
-            order.setPhone(user.getPhone());
-            order.setReceiverName(user.getName());
-            order.setAddress(address.getAddressLine() + ", " + address.getWard() + ", " + address.getCity());
+            order.setPhone(request.getPhone());
+            order.setReceiverName(request.getReceiverName());
+            order.setAddress(request.getAddress());
             order.setUserId(user.getId());
         }
         else{
@@ -48,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAddress(request.getAddress());
             order.setGuestId(guestId);
         }
-        this.orderRepository.save(order);
+        order = this.orderRepository.save(order);
         order.setTotalAmount(this.orderItemService.addToOrder(guestId, order));
         this.orderRepository.save(order);
         return this.modelMapper.map(order, CreateOrderResponse.class);

@@ -24,7 +24,7 @@ public class OrderController {
     @ApiMessage(message = "Order created successfully")
     public ResponseEntity<CreateOrderResponse> createOrder(
             @RequestBody @Valid CreateOrderRequest request,
-            @CookieValue(name = "guestId", required = false) String guestId) {
+            @CookieValue(value = "guest_id", required = false) String guestId) {
         log.info("Received request to create order");
         return ResponseEntity.status(HttpStatus.CREATED).body(this.orderService.createOrder(request, guestId));
     }
