@@ -2,6 +2,7 @@ package com.example.sneaker_store.dto.response.address;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,8 @@ public class GetAddressResponse {
         private String ward;
         private String addressLine;
         private String city;
+
+        @JsonProperty("isDefault")
         private boolean isDefault;
     }
 }
