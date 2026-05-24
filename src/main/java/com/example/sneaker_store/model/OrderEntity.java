@@ -32,6 +32,7 @@ public class OrderEntity {
     private String address;
     private String phone;
     private String receiverName;
+    private String code;
 
     private Instant createdAt;
     private String createdBy;

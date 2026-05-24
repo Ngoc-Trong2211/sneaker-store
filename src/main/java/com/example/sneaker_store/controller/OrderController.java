@@ -1,13 +1,17 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.dto.request.order.CreateOrderRequest;
+import com.example.sneaker_store.dto.request.order.SpecificationOrderRequest;
 import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
+import com.example.sneaker_store.dto.response.order.GetOrderResponse;
 import com.example.sneaker_store.service.OrderService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,5 +31,14 @@ public class OrderController {
             @CookieValue(value = "guest_id", required = false) String guestId) {
         log.info("Received request to create order");
         return ResponseEntity.status(HttpStatus.CREATED).body(this.orderService.createOrder(request, guestId));
+    }
+
+    @GetMapping("/orders")
+    @Operation(summary = "Get orders with pagination and filtering",
+            description = "Retrieve a paginated list of orders based on filtering criteria")
+    @ApiMessage(message = "orders retrieved successfully")
+    public ResponseEntity<GetOrderResponse> getOrder(@ParameterObject Pageable pageable, SpecificationOrderRequest request) {
+        log.info("Received request to get discounts with filters");
+        return ResponseEntity.ok(this.orderService.getOrder(pageable, request));
     }
 }
