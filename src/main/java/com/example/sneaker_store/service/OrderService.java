@@ -9,4 +9,5 @@ import org.springframework.data.domain.Pageable;
 public interface OrderService {
     CreateOrderResponse createOrder(CreateOrderRequest request, String guestId);
     GetOrderResponse getOrder(Pageable pageable, SpecificationOrderRequest spec);
+    void updateStatus(String id, String status);
 }

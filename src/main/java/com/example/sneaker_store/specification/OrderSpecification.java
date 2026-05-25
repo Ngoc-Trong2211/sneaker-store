@@ -22,7 +22,7 @@ public class OrderSpecification {
             List<Predicate> predicates = new ArrayList<>();
             if (hasText(req.getKeySearch())){
                 Predicate keyCode = criteriaBuilder.like(criteriaBuilder.upper(root.get("code")), "%" + req.getKeySearch().toUpperCase() + "%");
-                Predicate keyName = criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + req.getKeySearch().toUpperCase() + "%");
+                Predicate keyName = criteriaBuilder.like(criteriaBuilder.upper(root.get("receiverName")), "%" + req.getKeySearch().toUpperCase() + "%");
                 predicates.add(criteriaBuilder.or(keyCode, keyName));
             }
             if (hasText(req.getStatus())){

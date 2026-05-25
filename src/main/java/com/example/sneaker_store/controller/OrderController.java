@@ -41,4 +41,12 @@ public class OrderController {
         log.info("Received request to get discounts with filters");
         return ResponseEntity.ok(this.orderService.getOrder(pageable, request));
     }
+
+    @PutMapping("/orders/{id}")
+    @Operation(summary = "Update order", description = "Update order")
+    @ApiMessage(message = "Order updated successfully")
+    public ResponseEntity<Void> updateOrder(@PathVariable("id") String id, @RequestParam String status) {
+        this.orderService.updateStatus(id, status);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
 }

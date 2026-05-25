@@ -105,4 +105,12 @@ public class OrderServiceImpl implements OrderService {
         res.setOrders(orderRes);
         return res;
     }
+
+    @Override
+    public void updateStatus(String id, String status) {
+        OrderEntity order = this.orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("order not found"));
+        order.setStatus(OrderStatus.valueOf(status));
+        this.orderRepository.save(order);
+    }
 }
