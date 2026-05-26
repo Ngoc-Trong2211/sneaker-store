@@ -1,6 +1,7 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.dto.request.order.SpecificationOrderRequest;
+import com.example.sneaker_store.dto.response.cartItem.GetCartResponse;
 import com.example.sneaker_store.dto.response.order.GetOrderResponse;
 import com.example.sneaker_store.model.*;
 import com.example.sneaker_store.dto.request.order.CreateOrderRequest;
@@ -17,11 +18,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -112,5 +122,67 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new RuntimeException("order not found"));
         order.setStatus(OrderStatus.valueOf(status));
         this.orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public GetOrderResponse getOrderByUser(Pageable pageable, String dateFrom, String dateTo, String status) {
+        GetOrderResponse response = new GetOrderResponse();
+        String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
+        if (email == null || "anonymousUser".equals(email)) {
+            response.setOrders(Collections.emptyList());
+            return response;
+        }
+        UserEntity user = this.userService.findByEmail(email);
+        if (user == null) {
+            response.setOrders(Collections.emptyList());
+            return response;
+        }
+        OrderStatus statusEnum = null;
+        if (status != null && !status.isBlank()) {
+            statusEnum = OrderStatus.valueOf(status);
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Instant from = null;
+        Instant to = null;
+
+        if (dateFrom != null && !dateFrom.isBlank()) {
+            from = LocalDate.parse(dateFrom, formatter).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        }
+        if (dateTo != null && !dateTo.isBlank()) {
+            to = LocalDate.parse(dateTo, formatter).atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant();
+        }
+        Pageable sortPageable = PageRequest.of(pageable.getPageNumber(),
+                pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<OrderEntity> page = this.orderRepository.searchOrderByUser(user.getId(), from, to, statusEnum, sortPageable);
+        List<GetOrderResponse.Order> orders = page.getContent().stream().map(order -> {
+                    GetOrderResponse.Order res = this.modelMapper.map(order, GetOrderResponse.Order.class);
+                    res.setOrderItems(order.getOrderItems().stream()
+                                    .map(item -> {
+                                        GetOrderResponse.Order.OrderItem ori = new GetOrderResponse.Order.OrderItem();
+                                        ori.setProductName(item.getProductName());
+                                        ori.setSize(item.getSize());
+                                        ori.setPrice(item.getPrice());
+                                        ori.setQuantity(item.getQuantity());
+                                        String imageUrl = null;
+                                        if (item.getProductVariant() != null && item.getProductVariant().getImages() != null) {
+                                            imageUrl = item.getProductVariant()
+                                                    .getImages()
+                                                    .stream()
+                                                    .filter(ProductImageEntity::isMain)
+                                                    .findFirst()
+                                                    .map(ProductImageEntity::getImageURL)
+                                                    .orElse(null);
+                                        }
+                                        ori.setUrl(imageUrl);
+                                        return ori;
+                                    }).toList()
+                    );
+                    return res;
+                }).toList();
+        response.setOrders(orders);
+        response.setDataPage(new GetOrderResponse.DataPage(
+                        page.getNumber(), page.getSize(), page.getNumberOfElements(), page.getTotalPages()));
+        return response;
     }
 }

@@ -2,6 +2,7 @@ package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.dto.request.order.CreateOrderRequest;
 import com.example.sneaker_store.dto.request.order.SpecificationOrderRequest;
+import com.example.sneaker_store.dto.response.cartItem.GetCartResponse;
 import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
 import com.example.sneaker_store.dto.response.order.GetOrderResponse;
 import com.example.sneaker_store.service.OrderService;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j(topic = "ORDER-CONTROLLER")
@@ -48,5 +51,14 @@ public class OrderController {
     public ResponseEntity<Void> updateOrder(@PathVariable("id") String id, @RequestParam String status) {
         this.orderService.updateStatus(id, status);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
+    @GetMapping("/orders/user")
+    @Operation(summary = "Get orders", description = "Get orders")
+    @ApiMessage(message = "Get orders")
+    public ResponseEntity<GetOrderResponse> getOrder( @ParameterObject Pageable pageable,
+            @RequestParam(required = false) String dateFrom, @RequestParam(required = false) String dateTo,
+                                                      @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(this.orderService.getOrderByUser(pageable, dateFrom, dateTo, status));
     }
 }
