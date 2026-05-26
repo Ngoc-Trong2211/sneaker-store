@@ -53,6 +53,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers(HttpMethod.GET, "/brand/v1/brands/all").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/category/v1/categories/all").permitAll()
                         .requestMatchers(HttpMethod.GET, "/product/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/order/v1/orders").permitAll()
                         .requestMatchers(whiteList).permitAll()
