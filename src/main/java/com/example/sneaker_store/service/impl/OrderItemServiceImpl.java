@@ -8,6 +8,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -74,12 +76,19 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     private CartEntity getCart(String guestId) {
-        String email = AuthServiceImpl.getCurrentUserLogin().isPresent()
-                ? AuthServiceImpl.getCurrentUserLogin().get() : null;
+        String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         if (email != null && !email.equals("anonymousUser")) {
             UserEntity user = this.userService.findByEmail(email);
-            return cartRepository.findByUserId(user.getId()).orElseThrow(() -> new RuntimeException("Cart not found"));
+            if (user == null) {
+                throw new RuntimeException("User not found with email: " + email);
+            }
+            return cartRepository.findByUserId(user.getId()).orElseThrow(() ->
+                            new RuntimeException("Cart not found for user: " + email));
         }
-        else return cartRepository.findByGuestId(guestId).orElseThrow(() -> new RuntimeException("Cart not found"));
+        if (guestId == null || guestId.isBlank()) {
+            throw new RuntimeException("Guest id is required");
+        }
+        return cartRepository.findByGuestId(guestId).orElseThrow(() ->
+                        new RuntimeException("Cart not found for guest: " + guestId));
     }
 }

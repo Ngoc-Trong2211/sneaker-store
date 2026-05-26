@@ -79,7 +79,6 @@ public class CartServiceImpl implements CartService {
                 ));
         for (CartItemEntity guestItem : guestItems) {
             String variantId = guestItem.getProductVariant().getId();
-
             if (userItemMap.containsKey(variantId)) {
                 CartItemEntity userItem = userItemMap.get(variantId);
                 userItem.setQuantity(userItem.getQuantity() + guestItem.getQuantity());
@@ -88,6 +87,8 @@ public class CartServiceImpl implements CartService {
                 newItem.setCart(userCart);
                 newItem.setProductVariant(guestItem.getProductVariant());
                 newItem.setQuantity(guestItem.getQuantity());
+                newItem.setSize(guestItem.getSize());
+                newItem.setIdSize(guestItem.getIdSize());
                 this.cartItemRepository.save(newItem);
             }
         }

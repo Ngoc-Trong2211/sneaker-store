@@ -11,5 +11,5 @@ public interface AuthService {
     LoginResult  registerUser(RegisterRequest req, String guestId);
     void logoutUser(String refresh);
     LoginResponse.UserLogin getAccount();
-    LoginResult loginWithGoogle(String email, String name);
+    LoginResult loginWithGoogle(String email, String name, String guestId);
 }

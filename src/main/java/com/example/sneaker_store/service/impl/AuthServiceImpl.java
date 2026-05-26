@@ -300,7 +300,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResult loginWithGoogle(String email, String name) {
+    public LoginResult loginWithGoogle(String email, String name, String guestId) {
         RoleEntity role = roleService.findById(1L);
         UserEntity user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
@@ -313,6 +313,9 @@ public class AuthServiceImpl implements AuthService {
                 });
         if (!user.getStatus().equals(UserStatus.ACTIVE)) {
             throw new StatusInvalidException("Account is locked!");
+        }
+        if (guestId != null && !guestId.isBlank()) {
+            cartService.mergeCart(user.getId(), guestId);
         }
         String accessToken = createAccessToken(user);
 

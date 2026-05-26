@@ -27,6 +27,7 @@ public class OrderItemEntity {
     private String createdBy;
     private Instant updatedAt;
     private String updatedBy;
+    private String productId;
 
     @ManyToOne
     @JoinColumn(name = "product_variant_id")

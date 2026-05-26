@@ -49,8 +49,15 @@ public class AuthController {
                 .maxAge(refreshTokenTime)
                 .build();
 
+        ResponseCookie removeGuestCookie = ResponseCookie
+                .from("guest_id", "")
+                .path("/")
+                .maxAge(0)
+                .build();
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, removeGuestCookie.toString())
                 .body(loginResult.getLoginResponse());
     }
 
