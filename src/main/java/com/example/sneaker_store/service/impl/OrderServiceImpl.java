@@ -1,13 +1,10 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.dto.request.order.SpecificationOrderRequest;
-import com.example.sneaker_store.dto.response.cartItem.GetCartResponse;
 import com.example.sneaker_store.dto.response.order.GetOrderResponse;
 import com.example.sneaker_store.model.*;
 import com.example.sneaker_store.dto.request.order.CreateOrderRequest;
 import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
-import com.example.sneaker_store.repository.AddressRepository;
-import com.example.sneaker_store.repository.OrderItemRepository;
 import com.example.sneaker_store.repository.OrderRepository;
 import com.example.sneaker_store.service.OrderItemService;
 import com.example.sneaker_store.service.OrderService;
@@ -30,7 +27,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -117,10 +113,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateStatus(String id, String status) {
+    public void updateStatus(String id, String status, String lyDoHuy) {
         OrderEntity order = this.orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("order not found"));
         order.setStatus(OrderStatus.valueOf(status));
+        if (OrderStatus.CANCELLED.equals(OrderStatus.valueOf(status))) {
+            order.setLyDoHuy(lyDoHuy);
+            order.setNguoiHuy(AuthServiceImpl.getCurrentUserLogin().orElse("anonymous"));
+        }
         this.orderRepository.save(order);
     }
 
@@ -184,5 +184,17 @@ public class OrderServiceImpl implements OrderService {
         response.setDataPage(new GetOrderResponse.DataPage(
                         page.getNumber(), page.getSize(), page.getNumberOfElements(), page.getTotalPages()));
         return response;
+    }
+
+    @Override
+    public void cancelOrder(String code, String lyDoHuy) {
+        OrderEntity order = this.orderRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("order not found"));
+        if (order.getStatus().equals(OrderStatus.PENDING)){
+            order.setStatus(OrderStatus.CANCELLED);
+            order.setLyDoHuy(lyDoHuy);
+            order.setNguoiHuy(AuthServiceImpl.getCurrentUserLogin().orElse("anonymous"));
+        }
+        this.orderRepository.save(order);
     }
 }

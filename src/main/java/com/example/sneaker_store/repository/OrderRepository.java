@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<OrderEntity, String>, JpaSpecificationExecutor<OrderEntity> {
     @Query("SELECT o FROM OrderEntity o WHERE o.userId = :userId AND (:from IS NULL OR o.createdAt >= :from) AND (:to IS NULL OR o.createdAt <= :to) AND (:status IS NULL OR o.status = :status)")
@@ -18,4 +19,5 @@ public interface OrderRepository extends JpaRepository<OrderEntity, String>, Jpa
                                         @Param("to") Instant to,
                                         @Param("status") OrderStatus status,
                                         Pageable pageable);
+    Optional<OrderEntity> findByCode(String code);
 }

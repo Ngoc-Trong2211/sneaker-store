@@ -17,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @Slf4j(topic = "ORDER-CONTROLLER")
 @RequiredArgsConstructor
@@ -48,8 +46,9 @@ public class OrderController {
     @PutMapping("/orders/{id}")
     @Operation(summary = "Update order", description = "Update order")
     @ApiMessage(message = "Order updated successfully")
-    public ResponseEntity<Void> updateOrder(@PathVariable("id") String id, @RequestParam String status) {
-        this.orderService.updateStatus(id, status);
+    public ResponseEntity<Void> updateOrder(@PathVariable("id") String id, @RequestParam String status,
+                                            @RequestParam(required = false) String lyDoHuy) {
+        this.orderService.updateStatus(id, status, lyDoHuy);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
@@ -60,5 +59,14 @@ public class OrderController {
             @RequestParam(required = false) String dateFrom, @RequestParam(required = false) String dateTo,
                                                       @RequestParam(required = false) String status) {
         return ResponseEntity.ok(this.orderService.getOrderByUser(pageable, dateFrom, dateTo, status));
+    }
+
+    @PutMapping("/orders/cancel")
+    @Operation(summary = "Cancel order", description = "Cancel order")
+    @ApiMessage(message = "Order Cancelled successfully")
+    public ResponseEntity<Void> cancelOrder(@RequestParam String code,
+                                            @RequestParam String lyDoHuy) {
+        this.orderService.cancelOrder(code, lyDoHuy);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 }

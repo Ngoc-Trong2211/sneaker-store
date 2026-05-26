@@ -34,6 +34,10 @@ public class OrderEntity {
     private String receiverName;
     private String code;
 
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String lyDoHuy;
+    private String nguoiHuy;
+
     private Instant createdAt;
     private String createdBy;
     private Instant updatedAt;

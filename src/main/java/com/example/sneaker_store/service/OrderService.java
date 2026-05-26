@@ -11,6 +11,7 @@ import java.util.List;
 public interface OrderService {
     CreateOrderResponse createOrder(CreateOrderRequest request, String guestId);
     GetOrderResponse getOrder(Pageable pageable, SpecificationOrderRequest spec);
-    void updateStatus(String id, String status);
+    void updateStatus(String id, String status, String lyDoHuy);
     GetOrderResponse getOrderByUser(Pageable pageable, String dateFrom, String dateTo, String status);
+    void cancelOrder (String code, String lyDoHuy);
 }
