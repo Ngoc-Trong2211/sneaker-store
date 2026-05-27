@@ -159,7 +159,9 @@ public class UserServiceImpl implements UserService {
     @Override
 //    @PreAuthorize("isFullyAuthenticated()")
     public void handleChangePassword(ChangePasswordRequest req) {
-        Optional<UserEntity> user = this.userRepository.findByEmail(req.getEmail());
+        String email = AuthServiceImpl.getCurrentUserLogin()
+                .orElseThrow(() -> new RuntimeException("user not found"));;
+        Optional<UserEntity> user = this.userRepository.findByEmail(email);
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (user.isPresent()){
             UserEntity currentUser = user.get();
@@ -191,7 +193,10 @@ public class UserServiceImpl implements UserService {
     public GetUserByIdResponse getUserById(String id) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
-            return this.modelMapper.map(user.get(), GetUserByIdResponse.class);
+            GetUserByIdResponse res = this.modelMapper.map(user.get(), GetUserByIdResponse.class);
+            RoleEntity role = roleService.findById(user.get().getRole().getId());
+            res.setRole(role.getName());
+            return res;
         }
         else{
             throw new IdInvalidException("Id is invalid!");

@@ -10,4 +10,5 @@ public class GetUserByIdResponse {
     private String email;
     private String status;
     private String phone;
+    private String role;
 }

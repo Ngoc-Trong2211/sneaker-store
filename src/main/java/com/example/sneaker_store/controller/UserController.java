@@ -76,7 +76,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Delete success");
     }
 
-    @PatchMapping("/users/change-password")
+    @PostMapping("/users/change-password")
     @Operation(summary = "Change password", description = "Đổi mật khẩu người dùng trong hệ thống")
     @ApiMessage(message = "Change password")
     public ResponseEntity<String> changePassword(@RequestBody @Valid ChangePasswordRequest req) {
