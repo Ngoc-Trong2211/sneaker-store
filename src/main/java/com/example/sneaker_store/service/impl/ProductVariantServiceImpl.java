@@ -254,7 +254,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             product.setStatus(ProductStatus.SOLD_OUT);
         }
 
-
         this.productVariantRepository.save(variant);
         this.productRepository.save(product);
 

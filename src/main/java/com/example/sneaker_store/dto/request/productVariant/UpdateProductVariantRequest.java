@@ -37,7 +37,6 @@ public class UpdateProductVariantRequest {
         private String size;
 
         @NotNull(message = "Quantity is required")
-        @Min(value = 1, message = "Quantity must be > 0")
         private Integer quantity;
     }
 }

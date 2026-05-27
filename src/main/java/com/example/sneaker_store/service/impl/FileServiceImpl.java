@@ -49,12 +49,11 @@ public class FileServiceImpl implements FileService {
         String transformation = getTransformation(folder);
         try {
             Map uploadResult = cloudinary.uploader().upload(
-                file.getBytes(),
-                ObjectUtils.asMap(
-                    "folder", folder,
-                    "transformation", transformation,
-                        "unique_filename", true
-                )
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", folder,
+                            "unique_filename", true
+                    )
             );
 
             String imageUrl = uploadResult.get("url").toString();

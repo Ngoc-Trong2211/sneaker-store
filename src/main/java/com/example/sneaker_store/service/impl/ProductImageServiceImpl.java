@@ -56,16 +56,20 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     public List<String> updateProductImage(MultipartFile[] files, List<String> oldFiles) {
-        List<String> listRes = new ArrayList<>(oldFiles);
-        if (files == null) return listRes;
+        List<String> listRes = new ArrayList<>(
+                oldFiles != null ? oldFiles : new ArrayList<>()
+        );
+        if (files == null || files.length == 0) {
+            return listRes;
+        }
         List<UploadFileResponse> uploadMultiFile = uploadFileResponses(files);
-        for (UploadFileResponse fileRes : uploadMultiFile){
+        for (UploadFileResponse fileRes : uploadMultiFile) {
             ProductImageEntity img = new ProductImageEntity();
             img.setImageURL(fileRes.getUrl());
             img.setPublicId(fileRes.getPublicId());
             img.setMain(false);
             this.productImageRepository.save(img);
-            listRes.add(img.getImageURL());
+            listRes.add(fileRes.getUrl());
         }
         return listRes;
     }
@@ -74,6 +78,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     public void deleteProductImage(Long id) {
         ProductImageEntity img = this.productImageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy image"));
+        fileService.deleteFile(img.getPublicId());
         this.productImageRepository.delete(img);
     }
 
