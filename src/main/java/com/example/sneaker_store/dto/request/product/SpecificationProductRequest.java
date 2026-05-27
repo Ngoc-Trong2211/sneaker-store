@@ -17,4 +17,5 @@ public class SpecificationProductRequest {
     private String slugCategory;
     private List<String> brands;
     private List<String> sizes;
+    private String nameCategory;
 }

@@ -22,10 +22,15 @@ public class ProductSpecification {
         return ((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if (hasText(request.getNameCategory())){
+                predicates.add(criteriaBuilder.equal(criteriaBuilder.upper(root.get("category").get("name")),
+                        request.getNameCategory().toUpperCase()));
+            }
+
             if (hasText(request.getName())) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + request.getName().toLowerCase() + "%"));
             }
-            
+
             if (request.getMinPrice() != null && request.getMaxPrice() != null) {
                 predicates.add(criteriaBuilder.between(root.get("price"), request.getMinPrice(), request.getMaxPrice()));
             } else if (request.getMinPrice() != null) {
@@ -77,6 +82,6 @@ public class ProductSpecification {
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        });   
+        });
     }
 }
