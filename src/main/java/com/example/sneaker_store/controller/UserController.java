@@ -1,9 +1,6 @@
 package com.example.sneaker_store.controller;
 
-import com.example.sneaker_store.dto.request.User.ChangePasswordRequest;
-import com.example.sneaker_store.dto.request.User.CreateUserRequest;
-import com.example.sneaker_store.dto.request.User.SpecificationUserRequest;
-import com.example.sneaker_store.dto.request.User.UpdateUserRequest;
+import com.example.sneaker_store.dto.request.User.*;
 import com.example.sneaker_store.dto.response.user.CreateUserResponse;
 import com.example.sneaker_store.dto.response.user.GetUserByIdResponse;
 import com.example.sneaker_store.dto.response.user.GetUserResponse;
@@ -56,6 +53,14 @@ public class UserController {
     public ResponseEntity<UpdateUserResponse> updateUser(@Valid @RequestBody UpdateUserRequest req){
         log.info("Update user");
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateUser(req));
+    }
+
+    @PutMapping("/users/info")
+    @Operation(summary = "Update user", description = "Cập nhật người dùng đã chọn trong hệ thống")
+    @ApiMessage(message = "Update user")
+    public ResponseEntity<UpdateUserResponse> updateUser(@Valid @RequestBody UpdateInfoUserRequest req){
+        log.info("Update user");
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.userService.updateUserInfo(req));
     }
 
     @PatchMapping("/users/{id}/status")

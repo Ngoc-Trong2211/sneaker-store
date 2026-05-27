@@ -1,5 +1,6 @@
 package com.example.sneaker_store.controller;
 
+import com.example.sneaker_store.dto.request.auth.GetAccountResponse;
 import com.example.sneaker_store.dto.request.auth.LoginRequest;
 import com.example.sneaker_store.dto.request.auth.RegisterRequest;
 import com.example.sneaker_store.dto.response.auth.LoginResponse;
@@ -126,7 +127,8 @@ public class AuthController {
 
     @GetMapping("/auth/account")
     @ApiMessage(message = "Get account")
-    public ResponseEntity<LoginResponse.UserLogin> getAccount(){
+    public ResponseEntity<GetAccountResponse> getAccount(){
+        log.info("get account");
         return ResponseEntity.ok().body(this.authService.getAccount());
     }
 }

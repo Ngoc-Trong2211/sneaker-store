@@ -1,10 +1,7 @@
 package com.example.sneaker_store.service;
 
+import com.example.sneaker_store.dto.request.User.*;
 import com.example.sneaker_store.model.UserEntity;
-import com.example.sneaker_store.dto.request.User.ChangePasswordRequest;
-import com.example.sneaker_store.dto.request.User.CreateUserRequest;
-import com.example.sneaker_store.dto.request.User.SpecificationUserRequest;
-import com.example.sneaker_store.dto.request.User.UpdateUserRequest;
 import com.example.sneaker_store.dto.response.user.CreateUserResponse;
 import com.example.sneaker_store.dto.response.user.GetUserByIdResponse;
 import com.example.sneaker_store.dto.response.user.GetUserResponse;
@@ -15,6 +12,7 @@ public interface UserService {
     CreateUserResponse createUser(CreateUserRequest req) throws Exception;
     GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req);
     UpdateUserResponse updateUser(UpdateUserRequest req);
+    UpdateUserResponse updateUserInfo(UpdateInfoUserRequest req);
     GetUserResponse.User updateStatus(String id, String status);
     void disableUser(String id);
     void handleChangePassword(ChangePasswordRequest req);

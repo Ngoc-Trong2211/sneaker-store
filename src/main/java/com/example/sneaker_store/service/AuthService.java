@@ -1,5 +1,6 @@
 package com.example.sneaker_store.service;
 
+import com.example.sneaker_store.dto.request.auth.GetAccountResponse;
 import com.example.sneaker_store.dto.request.auth.LoginRequest;
 import com.example.sneaker_store.dto.request.auth.RegisterRequest;
 import com.example.sneaker_store.dto.response.auth.LoginResponse;
@@ -10,6 +11,6 @@ public interface AuthService {
     LoginResult refreshToken(String refresh);
     LoginResult  registerUser(RegisterRequest req, String guestId);
     void logoutUser(String refresh);
-    LoginResponse.UserLogin getAccount();
+    GetAccountResponse getAccount();
     LoginResult loginWithGoogle(String email, String name, String guestId);
 }

@@ -1,11 +1,8 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.dto.request.User.*;
 import com.example.sneaker_store.model.RoleEntity;
 import com.example.sneaker_store.model.UserEntity;
-import com.example.sneaker_store.dto.request.User.ChangePasswordRequest;
-import com.example.sneaker_store.dto.request.User.CreateUserRequest;
-import com.example.sneaker_store.dto.request.User.SpecificationUserRequest;
-import com.example.sneaker_store.dto.request.User.UpdateUserRequest;
 import com.example.sneaker_store.dto.response.user.CreateUserResponse;
 import com.example.sneaker_store.dto.response.user.GetUserByIdResponse;
 import com.example.sneaker_store.dto.response.user.GetUserResponse;
@@ -119,6 +116,24 @@ public class UserServiceImpl implements UserService {
             RoleEntity role = this.roleService.findById(req.getRoleId());
             if (role==null || !role.isActive()) throw new IdInvalidException("Role không tồn tại!");
             currentUser.setRole(role);
+            this.userRepository.save(currentUser);
+            return this.modelMapper.map(currentUser, UpdateUserResponse.class);
+        }
+        else{
+            throw new IdInvalidException("Id is invalid!");
+        }
+    }
+
+    @Override
+    public UpdateUserResponse updateUserInfo(UpdateInfoUserRequest req) {
+        Optional<UserEntity> user = this.userRepository.findById(req.getId());
+        if (this.userRepository.existsByPhoneAndIdNot(req.getPhone(), req.getId())){
+            throw new PhoneExistsAlreadyException("Phone is already!");
+        }
+        if (user.isPresent()){
+            UserEntity currentUser = user.get();
+            currentUser.setName(req.getName());
+            currentUser.setPhone(req.getPhone());
             this.userRepository.save(currentUser);
             return this.modelMapper.map(currentUser, UpdateUserResponse.class);
         }

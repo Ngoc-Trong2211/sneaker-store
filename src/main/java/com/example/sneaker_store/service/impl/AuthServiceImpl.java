@@ -1,5 +1,6 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.dto.request.auth.GetAccountResponse;
 import com.example.sneaker_store.model.RoleEntity;
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.dto.request.auth.LoginRequest;
@@ -286,14 +287,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResponse.UserLogin getAccount() {
+    public GetAccountResponse getAccount() {
         String emailLogin = getCurrentUserLogin().isPresent() ? getCurrentUserLogin().get() : "";
         UserEntity user = this.userService.findByEmail(emailLogin);
         if (user != null){
-            LoginResponse.UserLogin userLogin = new LoginResponse.UserLogin();
-            userLogin.setId(user.getId());
+            GetAccountResponse userLogin = new GetAccountResponse();
             userLogin.setEmail(user.getEmail());
             userLogin.setName(user.getName());
+            userLogin.setPhone(user.getPhone());
+            userLogin.setEmail(emailLogin);
+            RoleEntity role = roleService.findById(user.getRole().getId());
+            userLogin.setRole(role.getName());
+            userLogin.setStatus(user.getStatus().toString());
             return userLogin;
         }
         else throw new EmailInvalidException("Email is invalid!");
