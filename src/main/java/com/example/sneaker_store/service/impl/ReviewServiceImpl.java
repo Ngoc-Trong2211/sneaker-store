@@ -19,17 +19,21 @@ import static com.example.sneaker_store.service.impl.AuthServiceImpl.getCurrentU
 @Service
 @Slf4j(topic = "REVIEW-SERVICE")
 @RequiredArgsConstructor
-public class CreateReviewServiceImpl implements ReviewService {
+public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserService userService;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
 
+    private void updateProductRating(ProductEntity product) {
+        Double avgRating = reviewRepository.getAverageRatingByProductId(product.getId());
+        product.setRating(avgRating);
+        productRepository.save(product);
+    }
+
     @Override
     public void createReview(CreateReviewRequest req) {
-        String email = getCurrentUserLogin().isPresent() ? getCurrentUserLogin().get() : "";
-        if (email.isEmpty())
-            throw new RefreshTokenInvalidException("Email do not match!");
+        String email = getCurrentUserLogin().orElseThrow(() -> new RefreshTokenInvalidException("Email do not match!"));
         UserEntity user = this.userService.findByEmail(email);
         ProductEntity product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -42,10 +46,11 @@ public class CreateReviewServiceImpl implements ReviewService {
 
         review.setUserId(user.getId());
         review.setProductId(product.getId());
-        review.setRating(req.getRating());
+        review.setStar(req.getStar());
         review.setComment(req.getComment());
         review.setPhone(user.getPhone());
         reviewRepository.save(review);
+        updateProductRating(product);
     }
 
     @Override
@@ -56,16 +61,17 @@ public class CreateReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         if (order.getStatus() != OrderStatus.COMPLETED) throw new RuntimeException("Đơn hàng chưa hoàn thành");
 
-        boolean reviewed = orderRepository.existsByOrderCodeAndProductId(req.getCodeOrder(), req.getProductId());
+        boolean reviewed = reviewRepository.existsByOrderCodeAndProductId(req.getCodeOrder(), req.getProductId());
         if (reviewed) throw new RuntimeException("Đơn hàng đã được đánh giá");
 
         ReviewEntity review = new ReviewEntity();
 
         review.setProductId(product.getId());
-        review.setRating(req.getRating());
+        review.setStar(req.getStar());
         review.setComment(req.getComment());
         review.setPhone(order.getPhone());
         review.setOrderCode(order.getCode());
         reviewRepository.save(review);
+        updateProductRating(product);
     }
 }

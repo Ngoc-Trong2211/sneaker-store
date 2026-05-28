@@ -13,6 +13,6 @@ public class CreateReviewGuestRequest {
 
     @Min(1)
     @Max(5)
-    private Integer rating;
+    private Integer star;
     private String comment;
 }

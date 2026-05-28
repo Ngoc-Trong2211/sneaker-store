@@ -33,19 +33,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, String>, Jpa
     boolean existsCompletedOrder(@Param("userId") String userId, @Param("productId") String productId);
 
     @Query("""
-        SELECT COUNT(oi) > 0
-        FROM OrderItem oi
-        JOIN oi.order o
-        JOIN oi.productVariant pv
-        WHERE o.code = :codeOrder
-        AND pv.product.id = :productId
-    """)
-    boolean existsByOrderCodeAndProductId(
-            @Param("codeOrder") String codeOrder,
-            @Param("productId") String productId
-    );
-
-    @Query("""
     SELECT DISTINCT o
     FROM OrderEntity o
     JOIN o.orderItems oi
