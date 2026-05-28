@@ -20,6 +20,8 @@ public class ReviewEntity {
 
     private String productId;
     private String userId;
+    private String phone;
+    private String orderCode;
 
     @Column(columnDefinition = "MEDIUMTEXT")
     private String comment;
@@ -36,6 +38,6 @@ public class ReviewEntity {
     public void create(){
         this.createdAt = Instant.now();
         this.createdBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
-                AuthServiceImpl.getCurrentUserLogin().get() : null;
+                AuthServiceImpl.getCurrentUserLogin().get() : "Khách vãng lai";
     }
 }

@@ -1,5 +1,6 @@
 package com.example.sneaker_store.controller;
 
+import com.example.sneaker_store.dto.request.review.CreateReviewGuestRequest;
 import com.example.sneaker_store.dto.request.review.CreateReviewRequest;
 import com.example.sneaker_store.service.ReviewService;
 import com.example.sneaker_store.util.ApiMessage;
@@ -26,6 +27,14 @@ public class ReviewController {
     @ApiMessage(message = "Review created successfully")
     public ResponseEntity<Void> createReview(@RequestBody @Valid CreateReviewRequest request) {
         reviewService.createReview(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/reviews/guest")
+    @Operation(summary = "Create review guest", description = "Create a review guest for a purchased product")
+    @ApiMessage(message = "Review guest created successfully")
+    public ResponseEntity<Void> createReviewGuest(@RequestBody @Valid CreateReviewGuestRequest request) {
+        reviewService.createReviewGuest(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
