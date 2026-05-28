@@ -20,4 +20,15 @@ public interface OrderRepository extends JpaRepository<OrderEntity, String>, Jpa
                                         @Param("status") OrderStatus status,
                                         Pageable pageable);
     Optional<OrderEntity> findByCode(String code);
+
+    @Query("""
+    SELECT COUNT(o) > 0
+    FROM Order o
+    JOIN o.orderItems oi
+    JOIN oi.productVariant pv
+    WHERE o.user.id = :userId
+    AND pv.product.id = :productId
+    AND o.status = com.example.sneaker_store.util.enumEntity.OrderStatus.COMPLETED
+""")
+    boolean existsCompletedOrder(@Param("userId") String userId, @Param("productId") String productId);
 }
