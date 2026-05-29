@@ -48,11 +48,15 @@ public class GetOrderResponse {
         @AllArgsConstructor
         @NoArgsConstructor
         public static class OrderItem{
+            private String id;
+            private String productId;
             private String productName;
             private Integer quantity;
             private String size;
             private Double price;
             private String url;
+            private Boolean reviewStatus;
+            private Boolean canReview;
         }
     }
 }

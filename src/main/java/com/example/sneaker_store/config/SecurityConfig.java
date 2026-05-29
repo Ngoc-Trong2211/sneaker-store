@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/category/v1/categories/all").permitAll()
                         .requestMatchers(HttpMethod.GET, "/product/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/order/v1/orders").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/review/v1/reviews").permitAll()
                         .requestMatchers(whiteList).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception ->

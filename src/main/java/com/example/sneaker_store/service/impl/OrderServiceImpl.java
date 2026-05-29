@@ -5,7 +5,9 @@ import com.example.sneaker_store.dto.response.order.GetOrderResponse;
 import com.example.sneaker_store.model.*;
 import com.example.sneaker_store.dto.request.order.CreateOrderRequest;
 import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
+import com.example.sneaker_store.repository.OrderItemRepository;
 import com.example.sneaker_store.repository.OrderRepository;
+import com.example.sneaker_store.repository.ReviewEligibilityRepository;
 import com.example.sneaker_store.service.OrderItemService;
 import com.example.sneaker_store.service.OrderService;
 import com.example.sneaker_store.service.UserService;
@@ -38,6 +40,8 @@ public class OrderServiceImpl implements OrderService {
     private final ModelMapper modelMapper;
     private final UserService userService;
     private final OrderItemService orderItemService;
+    private final OrderItemRepository orderItemRepository;
+    private final ReviewEligibilityRepository reviewEligibilityRepository;
 
     @Override
     @Transactional
@@ -96,16 +100,7 @@ public class OrderServiceImpl implements OrderService {
         List<GetOrderResponse.Order> orderRes = page.getContent().stream().map(order ->{
             GetOrderResponse.Order or = this.modelMapper.map(order, GetOrderResponse.Order.class);
             or.setOrderItems(order.getOrderItems().stream()
-                    .map(item -> {
-                        GetOrderResponse.Order.OrderItem ori = new GetOrderResponse.Order.OrderItem();
-                        ori.setProductName(item.getProductName());
-                        ori.setSize(item.getSize());
-                        ori.setPrice(item.getPrice());
-                        ori.setQuantity(item.getQuantity());
-                        ori.setUrl(item.getProductVariant().getImages().stream().filter(ProductImageEntity::isMain)
-                                .findFirst().map(ProductImageEntity::getImageURL).orElse(null));
-                        return ori;
-                    }).toList());
+                    .map(this::toOrderItemResponse).toList());
             return or;
         }).toList();
         res.setOrders(orderRes);
@@ -113,15 +108,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void updateStatus(String id, String status, String lyDoHuy) {
         OrderEntity order = this.orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("order not found"));
-        order.setStatus(OrderStatus.valueOf(status));
-        if (OrderStatus.CANCELLED.equals(OrderStatus.valueOf(status))) {
+        OrderStatus newStatus = OrderStatus.valueOf(status);
+        order.setStatus(newStatus);
+        if (OrderStatus.CANCELLED.equals(newStatus)) {
             order.setLyDoHuy(lyDoHuy);
             order.setNguoiHuy(AuthServiceImpl.getCurrentUserLogin().orElse("anonymous"));
         }
         this.orderRepository.save(order);
+        if (OrderStatus.COMPLETED.equals(newStatus)) {
+            createReviewEligibilities(order);
+        }
     }
 
     @Override
@@ -158,25 +158,7 @@ public class OrderServiceImpl implements OrderService {
         List<GetOrderResponse.Order> orders = page.getContent().stream().map(order -> {
                     GetOrderResponse.Order res = this.modelMapper.map(order, GetOrderResponse.Order.class);
                     res.setOrderItems(order.getOrderItems().stream()
-                                    .map(item -> {
-                                        GetOrderResponse.Order.OrderItem ori = new GetOrderResponse.Order.OrderItem();
-                                        ori.setProductName(item.getProductName());
-                                        ori.setSize(item.getSize());
-                                        ori.setPrice(item.getPrice());
-                                        ori.setQuantity(item.getQuantity());
-                                        String imageUrl = null;
-                                        if (item.getProductVariant() != null && item.getProductVariant().getImages() != null) {
-                                            imageUrl = item.getProductVariant()
-                                                    .getImages()
-                                                    .stream()
-                                                    .filter(ProductImageEntity::isMain)
-                                                    .findFirst()
-                                                    .map(ProductImageEntity::getImageURL)
-                                                    .orElse(null);
-                                        }
-                                        ori.setUrl(imageUrl);
-                                        return ori;
-                                    }).toList()
+                                    .map(this::toOrderItemResponse).toList()
                     );
                     return res;
                 }).toList();
@@ -196,5 +178,54 @@ public class OrderServiceImpl implements OrderService {
             order.setNguoiHuy(AuthServiceImpl.getCurrentUserLogin().orElse("anonymous"));
         }
         this.orderRepository.save(order);
+    }
+
+    private void createReviewEligibilities(OrderEntity order) {
+        List<ReviewEligibilityEntity> eligibilities = orderItemRepository.findByOrderId(order.getId()).stream()
+                .filter(item -> !reviewEligibilityRepository.existsByOrderItemId(item.getId()))
+                .map(item -> {
+                    ReviewEligibilityEntity eligibility = new ReviewEligibilityEntity();
+                    eligibility.setUserId(order.getUserId());
+                    eligibility.setProductId(item.getProductId());
+                    eligibility.setOrderId(order.getId());
+                    eligibility.setOrderItemId(item.getId());
+                    eligibility.setStatus(false);
+                    return eligibility;
+                })
+                .toList();
+        reviewEligibilityRepository.saveAll(eligibilities);
+    }
+
+    private GetOrderResponse.Order.OrderItem toOrderItemResponse(OrderItemEntity item) {
+        GetOrderResponse.Order.OrderItem response = new GetOrderResponse.Order.OrderItem();
+        response.setId(item.getId());
+        response.setProductId(item.getProductId());
+        response.setProductName(item.getProductName());
+        response.setSize(item.getSize());
+        response.setPrice(item.getPrice());
+        response.setQuantity(item.getQuantity());
+        response.setUrl(getMainImageUrl(item));
+        reviewEligibilityRepository.findByOrderItemId(item.getId())
+                .ifPresentOrElse(eligibility -> {
+                    response.setReviewStatus(eligibility.isStatus());
+                    response.setCanReview(!eligibility.isStatus());
+                }, () -> {
+                    response.setReviewStatus(false);
+                    response.setCanReview(false);
+                });
+        return response;
+    }
+
+    private String getMainImageUrl(OrderItemEntity item) {
+        if (item.getProductVariant() == null || item.getProductVariant().getImages() == null) {
+            return null;
+        }
+        return item.getProductVariant()
+                .getImages()
+                .stream()
+                .filter(ProductImageEntity::isMain)
+                .findFirst()
+                .map(ProductImageEntity::getImageURL)
+                .orElse(null);
     }
 }

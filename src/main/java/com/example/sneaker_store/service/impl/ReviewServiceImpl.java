@@ -1,18 +1,23 @@
 package com.example.sneaker_store.service.impl;
 
-import com.example.sneaker_store.dto.request.review.CreateReviewGuestRequest;
 import com.example.sneaker_store.dto.request.review.CreateReviewRequest;
-import com.example.sneaker_store.model.*;
+import com.example.sneaker_store.model.OrderEntity;
+import com.example.sneaker_store.model.ProductEntity;
+import com.example.sneaker_store.model.ReviewEligibilityEntity;
+import com.example.sneaker_store.model.ReviewEntity;
+import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.repository.OrderRepository;
 import com.example.sneaker_store.repository.ProductRepository;
+import com.example.sneaker_store.repository.ReviewEligibilityRepository;
 import com.example.sneaker_store.repository.ReviewRepository;
 import com.example.sneaker_store.service.ReviewService;
 import com.example.sneaker_store.service.UserService;
-import com.example.sneaker_store.util.enumEntity.OrderStatus;
-import com.example.sneaker_store.util.exception.RefreshTokenInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 import static com.example.sneaker_store.service.impl.AuthServiceImpl.getCurrentUserLogin;
 
@@ -24,6 +29,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserService userService;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final ReviewEligibilityRepository reviewEligibilityRepository;
 
     private void updateProductRating(ProductEntity product) {
         Double avgRating = reviewRepository.getAverageRatingByProductId(product.getId());
@@ -32,46 +38,103 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public void createReview(CreateReviewRequest req) {
-        String email = getCurrentUserLogin().orElseThrow(() -> new RefreshTokenInvalidException("Email do not match!"));
-        UserEntity user = this.userService.findByEmail(email);
         ProductEntity product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        boolean hasPurchased = orderRepository.existsCompletedOrder(user.getId(), product.getId(), OrderStatus.COMPLETED);
-        if (!hasPurchased) throw new RuntimeException("Bạn cần mua sản phẩm trước khi đánh giá");
-        boolean reviewed = reviewRepository.existsByUserIdAndProductId(user.getId() ,product.getId());
-        if (reviewed) throw new RuntimeException("Bạn đã đánh giá sản phẩm này");
+
+        UserEntity currentUser = getCurrentUser();
+        ReviewEligibilityEntity eligibility = getEligibility(req, product.getId(), currentUser);
+
+        OrderEntity order = orderRepository.findById(eligibility.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
 
         ReviewEntity review = new ReviewEntity();
-
-        review.setUserId(user.getId());
+        review.setUserId(eligibility.getUserId());
         review.setProductId(product.getId());
         review.setStar(req.getStar());
         review.setComment(req.getComment());
-        review.setPhone(user.getPhone());
+        review.setPhone(currentUser != null && currentUser.getId().equals(eligibility.getUserId())
+                ? currentUser.getPhone()
+                : order.getPhone());
+        review.setOrderCode(order.getCode());
         reviewRepository.save(review);
+
+        eligibility.setReviewId(review.getId());
+        eligibility.setStatus(true);
+        reviewEligibilityRepository.save(eligibility);
+
         updateProductRating(product);
     }
 
-    @Override
-    public void createReviewGuest(CreateReviewGuestRequest req) {
-        OrderEntity order = orderRepository.findByCodeAndProductId(req.getCodeOrder(), req.getProductId())
+    private ReviewEligibilityEntity getEligibility(
+            CreateReviewRequest req,
+            String productId,
+            UserEntity currentUser
+    ) {
+        if (hasText(req.getOrderItemId())) {
+            return getEligibilityByOrderItemId(req.getOrderItemId(), req.getCodeOrder(), productId, currentUser);
+        }
+        if (hasText(req.getCodeOrder())) {
+            return getEligibilityByOrderCode(req.getCodeOrder(), productId);
+        }
+        return getEligibilityByCurrentUser(currentUser, productId);
+    }
+
+    private ReviewEligibilityEntity getEligibilityByOrderItemId(
+            String orderItemId,
+            String codeOrder,
+            String productId,
+            UserEntity currentUser
+    ) {
+        ReviewEligibilityEntity eligibility = reviewEligibilityRepository.findByOrderItemIdAndStatusFalse(orderItemId)
+                .orElseThrow(() -> new RuntimeException("This order item has no available review"));
+        if (!productId.equals(eligibility.getProductId())) {
+            throw new RuntimeException("Product does not match this order item");
+        }
+        OrderEntity order = orderRepository.findById(eligibility.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        ProductEntity product = productRepository.findById(req.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        if (order.getStatus() != OrderStatus.COMPLETED) throw new RuntimeException("Đơn hàng chưa hoàn thành");
 
-        boolean reviewed = reviewRepository.existsByOrderCodeAndProductId(req.getCodeOrder(), req.getProductId());
-        if (reviewed) throw new RuntimeException("Đơn hàng đã được đánh giá");
+        if (hasText(codeOrder) && !codeOrder.equals(order.getCode())) {
+            throw new RuntimeException("Order code does not match this order item");
+        }
+        if (!hasText(codeOrder)) {
+            if (currentUser == null) {
+                throw new RuntimeException("codeOrder is required for guest review");
+            }
+            if (eligibility.getUserId() == null || !eligibility.getUserId().equals(currentUser.getId())) {
+                throw new RuntimeException("This order item does not belong to current user");
+            }
+        }
+        return eligibility;
+    }
 
-        ReviewEntity review = new ReviewEntity();
+    private ReviewEligibilityEntity getEligibilityByOrderCode(String codeOrder, String productId) {
+        OrderEntity order = orderRepository.findByCodeAndProductId(codeOrder, productId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return reviewEligibilityRepository.findFirstByOrderIdAndProductIdAndStatusFalseOrderByCreatedAtAsc(
+                order.getId(),
+                productId
+        ).orElseThrow(() -> new RuntimeException("This order has no available review"));
+    }
 
-        review.setProductId(product.getId());
-        review.setStar(req.getStar());
-        review.setComment(req.getComment());
-        review.setPhone(order.getPhone());
-        review.setOrderCode(order.getCode());
-        reviewRepository.save(review);
-        updateProductRating(product);
+    private ReviewEligibilityEntity getEligibilityByCurrentUser(UserEntity user, String productId) {
+        if (user == null) {
+            throw new RuntimeException("codeOrder is required for guest review");
+        }
+        return reviewEligibilityRepository.findFirstByUserIdAndProductIdAndStatusFalseOrderByCreatedAtAsc(
+                user.getId(),
+                productId
+        ).orElseThrow(() -> new RuntimeException("You have no available review for this product"));
+    }
+
+    private UserEntity getCurrentUser() {
+        Optional<String> email = getCurrentUserLogin()
+                .filter(value -> !"anonymousUser".equals(value));
+        return email.map(userService::findByEmail).orElse(null);
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }
