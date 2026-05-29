@@ -184,9 +184,10 @@ public class OrderServiceImpl implements OrderService {
         List<ReviewEligibilityEntity> eligibilities = orderItemRepository.findByOrderId(order.getId()).stream()
                 .filter(item -> !reviewEligibilityRepository.existsByOrderItemId(item.getId()))
                 .map(item -> {
+                    String productId = resolveProductId(item);
                     ReviewEligibilityEntity eligibility = new ReviewEligibilityEntity();
                     eligibility.setUserId(order.getUserId());
-                    eligibility.setProductId(item.getProductId());
+                    eligibility.setProductId(productId);
                     eligibility.setOrderId(order.getId());
                     eligibility.setOrderItemId(item.getId());
                     eligibility.setStatus(false);
@@ -199,7 +200,7 @@ public class OrderServiceImpl implements OrderService {
     private GetOrderResponse.Order.OrderItem toOrderItemResponse(OrderItemEntity item) {
         GetOrderResponse.Order.OrderItem response = new GetOrderResponse.Order.OrderItem();
         response.setId(item.getId());
-        response.setProductId(item.getProductId());
+        response.setProductId(resolveProductId(item));
         response.setProductName(item.getProductName());
         response.setSize(item.getSize());
         response.setPrice(item.getPrice());
@@ -227,5 +228,18 @@ public class OrderServiceImpl implements OrderService {
                 .findFirst()
                 .map(ProductImageEntity::getImageURL)
                 .orElse(null);
+    }
+
+    private String resolveProductId(OrderItemEntity item) {
+        if (item.getProductId() != null && !item.getProductId().isBlank()) {
+            return item.getProductId();
+        }
+        if (item.getProductVariant() == null || item.getProductVariant().getProduct() == null) {
+            throw new RuntimeException("Product not found for order item: " + item.getId());
+        }
+        String productId = item.getProductVariant().getProduct().getId();
+        item.setProductId(productId);
+        orderItemRepository.save(item);
+        return productId;
     }
 }

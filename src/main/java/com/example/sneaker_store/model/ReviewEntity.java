@@ -31,11 +31,19 @@ public class ReviewEntity {
     @Max(5)
     private Integer star;
 
+    @Column(nullable = false)
+    @Min(1)
+    @Max(5)
+    private Integer rating;
+
     private Instant createdAt;
     private String createdBy;
 
     @PrePersist
     public void create(){
+        if (this.rating == null) {
+            this.rating = this.star;
+        }
         this.createdAt = Instant.now();
         this.createdBy = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : "Khách vãng lai";

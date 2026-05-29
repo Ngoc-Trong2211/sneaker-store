@@ -1,6 +1,7 @@
 package com.example.sneaker_store.controller;
 
 import com.example.sneaker_store.dto.request.review.CreateReviewRequest;
+import com.example.sneaker_store.dto.response.review.GetReviewResponse;
 import com.example.sneaker_store.service.ReviewService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,10 +10,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,5 +32,19 @@ public class ReviewController {
     public ResponseEntity<Void> createReview(@RequestBody @Valid CreateReviewRequest request) {
         reviewService.createReview(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/reviews/product/{productId}")
+    @Operation(summary = "Get reviews by product", description = "Get rating summary and reviews of a product")
+    @ApiMessage(message = "Get reviews by product successfully")
+    public ResponseEntity<GetReviewResponse> getReviewsByProduct(@PathVariable String productId) {
+        return ResponseEntity.ok(reviewService.getReviewsByProduct(productId));
+    }
+
+    @GetMapping("/reviews/user/{userId}")
+    @Operation(summary = "Get reviews by user", description = "Get all reviews of a user")
+    @ApiMessage(message = "Get reviews by user successfully")
+    public ResponseEntity<List<GetReviewResponse.Review>> getReviewsByUserId(@PathVariable String userId) {
+        return ResponseEntity.ok(reviewService.getReviewsByUserId(userId));
     }
 }

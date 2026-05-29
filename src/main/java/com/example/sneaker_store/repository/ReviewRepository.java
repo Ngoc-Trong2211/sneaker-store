@@ -10,6 +10,10 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     boolean existsByUserIdAndProductId(String userId, String productId);
     List<ReviewEntity> findByProductId(String productId);
+    List<ReviewEntity> findByProductIdOrderByCreatedAtDesc(String productId);
+    List<ReviewEntity> findByUserIdOrderByCreatedAtDesc(String userId);
+    long countByProductId(String productId);
+
     @Query("SELECT COALESCE(AVG(r.star), 0) FROM ReviewEntity r WHERE r.productId = :productId")
     Double getAverageRatingByProductId(@Param("productId") String productId );
 

@@ -1,6 +1,7 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.dto.request.review.CreateReviewRequest;
+import com.example.sneaker_store.dto.response.review.GetReviewResponse;
 import com.example.sneaker_store.model.OrderEntity;
 import com.example.sneaker_store.model.ProductEntity;
 import com.example.sneaker_store.model.ReviewEligibilityEntity;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.example.sneaker_store.service.impl.AuthServiceImpl.getCurrentUserLogin;
@@ -38,6 +40,30 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public GetReviewResponse getReviewsByProduct(String productId) {
+        ProductEntity product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        GetReviewResponse response = new GetReviewResponse();
+        response.setProductId(product.getId());
+        response.setAverageRating(reviewRepository.getAverageRatingByProductId(product.getId()));
+        response.setTotalReviews(reviewRepository.countByProductId(product.getId()));
+        response.setReviews(reviewRepository.findByProductIdOrderByCreatedAtDesc(product.getId())
+                .stream()
+                .map(this::toReviewResponse)
+                .toList());
+        return response;
+    }
+
+    @Override
+    public List<GetReviewResponse.Review> getReviewsByUserId(String userId) {
+        return reviewRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(this::toReviewResponse)
+                .toList();
+    }
+
+    @Override
     @Transactional
     public void createReview(CreateReviewRequest req) {
         ProductEntity product = productRepository.findById(req.getProductId())
@@ -53,6 +79,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setUserId(eligibility.getUserId());
         review.setProductId(product.getId());
         review.setStar(req.getStar());
+        review.setRating(req.getStar());
         review.setComment(req.getComment());
         review.setPhone(currentUser != null && currentUser.getId().equals(eligibility.getUserId())
                 ? currentUser.getPhone()
@@ -136,5 +163,19 @@ public class ReviewServiceImpl implements ReviewService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private GetReviewResponse.Review toReviewResponse(ReviewEntity review) {
+        GetReviewResponse.Review response = new GetReviewResponse.Review();
+        response.setId(review.getId());
+        response.setProductId(review.getProductId());
+        response.setUserId(review.getUserId());
+        response.setPhone(review.getPhone());
+        response.setOrderCode(review.getOrderCode());
+        response.setStar(review.getStar());
+        response.setRating(review.getRating());
+        response.setComment(review.getComment());
+        response.setCreatedAt(review.getCreatedAt());
+        return response;
     }
 }

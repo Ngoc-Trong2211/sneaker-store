@@ -71,6 +71,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItem.setQuantity(cartItem.getQuantity());
         orderItem.setPrice(variant.getProduct().getPrice());
         orderItem.setProductName(variant.getProduct().getName());
+        orderItem.setProductId(variant.getProduct().getId());
         orderItem.setSize(cartItem.getSize());
         return orderItem;
     }
