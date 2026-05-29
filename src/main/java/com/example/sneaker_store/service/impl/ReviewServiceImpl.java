@@ -11,6 +11,7 @@ import com.example.sneaker_store.repository.OrderRepository;
 import com.example.sneaker_store.repository.ProductRepository;
 import com.example.sneaker_store.repository.ReviewEligibilityRepository;
 import com.example.sneaker_store.repository.ReviewRepository;
+import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.ReviewService;
 import com.example.sneaker_store.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final ReviewEligibilityRepository reviewEligibilityRepository;
+    private final UserRepository userRepository;
 
     private void updateProductRating(ProductEntity product) {
         Double avgRating = reviewRepository.getAverageRatingByProductId(product.getId());
@@ -113,10 +115,10 @@ public class ReviewServiceImpl implements ReviewService {
             UserEntity currentUser
     ) {
         if (hasText(req.getOrderItemId())) {
-            return getEligibilityByOrderItemId(req.getOrderItemId(), req.getCodeOrder(), productId, currentUser);
+            return getEligibilityByOrderItemId(req.getOrderItemId(), req.getOrderCode(), productId, currentUser);
         }
-        if (hasText(req.getCodeOrder())) {
-            return getEligibilityByOrderCode(req.getCodeOrder(), productId);
+        if (hasText(req.getOrderCode())) {
+            return getEligibilityByOrderCode(req.getOrderCode(), productId);
         }
         return getEligibilityByCurrentUser(currentUser, productId);
     }
@@ -188,7 +190,22 @@ public class ReviewServiceImpl implements ReviewService {
         response.setStar(review.getStar());
         response.setRating(review.getRating());
         response.setComment(review.getComment());
+        response.setUserName(resolveReviewUserName(review));
         response.setCreatedAt(review.getCreatedAt());
         return response;
+    }
+
+    private String resolveReviewUserName(ReviewEntity review) {
+        if (hasText(review.getUserId())) {
+            return userRepository.findById(review.getUserId())
+                    .map(UserEntity::getName)
+                    .orElse(null);
+        }
+        if (hasText(review.getOrderCode())) {
+            return orderRepository.findByCode(review.getOrderCode())
+                    .map(OrderEntity::getReceiverName)
+                    .orElse(null);
+        }
+        return null;
     }
 }

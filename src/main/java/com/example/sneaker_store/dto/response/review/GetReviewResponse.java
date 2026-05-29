@@ -26,6 +26,7 @@ public class GetReviewResponse {
         private Integer star;
         private Integer rating;
         private String comment;
+        private String userName;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
         private Instant createdAt;
