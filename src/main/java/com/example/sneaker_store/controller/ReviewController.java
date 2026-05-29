@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,6 +33,16 @@ public class ReviewController {
     public ResponseEntity<Void> createReview(@RequestBody @Valid CreateReviewRequest request) {
         reviewService.createReview(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/reviews/check-eligibility")
+    @Operation(summary = "Check review eligibility", description = "Check order code and product can be reviewed")
+    @ApiMessage(message = "Check review eligibility successfully")
+    public ResponseEntity<Boolean> checkReviewEligibility(
+            @RequestParam String codeOrder,
+            @RequestParam String productId
+    ) {
+        return ResponseEntity.ok(reviewService.canReviewByOrderCodeAndProduct(codeOrder, productId));
     }
 
     @GetMapping("/reviews/product/{productId}")

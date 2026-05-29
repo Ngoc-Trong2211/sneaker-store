@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface ReviewService {
     void createReview(CreateReviewRequest req);
+    boolean canReviewByOrderCodeAndProduct(String codeOrder, String productId);
     GetReviewResponse getReviewsByProduct(String productId);
     List<GetReviewResponse.Review> getReviewsByUserId(String userId);
 }

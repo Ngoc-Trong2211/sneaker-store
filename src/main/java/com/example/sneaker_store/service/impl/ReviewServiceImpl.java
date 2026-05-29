@@ -40,6 +40,19 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public boolean canReviewByOrderCodeAndProduct(String codeOrder, String productId) {
+        if (!hasText(codeOrder) || !hasText(productId)) {
+            return false;
+        }
+        return orderRepository.findByCodeAndProductId(codeOrder, productId)
+                .map(order -> reviewEligibilityRepository.existsByOrderIdAndProductIdAndStatusFalse(
+                        order.getId(),
+                        productId
+                ))
+                .orElse(false);
+    }
+
+    @Override
     public GetReviewResponse getReviewsByProduct(String productId) {
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));

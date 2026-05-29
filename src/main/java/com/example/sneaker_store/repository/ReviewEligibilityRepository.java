@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface ReviewEligibilityRepository extends JpaRepository<ReviewEligibilityEntity, String> {
     boolean existsByOrderItemId(String orderItemId);
 
+    boolean existsByOrderIdAndProductIdAndStatusFalse(String orderId, String productId);
+
     Optional<ReviewEligibilityEntity> findByOrderItemId(String orderItemId);
 
     Optional<ReviewEligibilityEntity> findByOrderItemIdAndStatusFalse(String orderItemId);
