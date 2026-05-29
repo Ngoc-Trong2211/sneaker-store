@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GetReviewByProductResponse {
-    private Integer rating
+    private Integer rating;
 }

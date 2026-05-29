@@ -15,8 +15,8 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
 
 
     @Query("""
-        SELECT COUNT(oi) > 0
-        FROM OrderItem oi
+        SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END
+        FROM OrderItemEntity oi
         JOIN oi.order o
         JOIN oi.productVariant pv
         WHERE o.code = :codeOrder

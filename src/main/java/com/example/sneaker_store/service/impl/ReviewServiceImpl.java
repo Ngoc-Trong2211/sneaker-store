@@ -37,7 +37,7 @@ public class ReviewServiceImpl implements ReviewService {
         UserEntity user = this.userService.findByEmail(email);
         ProductEntity product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        boolean hasPurchased = orderRepository.existsCompletedOrder(user.getId(), product.getId());
+        boolean hasPurchased = orderRepository.existsCompletedOrder(user.getId(), product.getId(), OrderStatus.COMPLETED);
         if (!hasPurchased) throw new RuntimeException("Bạn cần mua sản phẩm trước khi đánh giá");
         boolean reviewed = reviewRepository.existsByUserIdAndProductId(user.getId() ,product.getId());
         if (reviewed) throw new RuntimeException("Bạn đã đánh giá sản phẩm này");

@@ -22,15 +22,18 @@ public interface OrderRepository extends JpaRepository<OrderEntity, String>, Jpa
     Optional<OrderEntity> findByCode(String code);
 
     @Query("""
-    SELECT COUNT(o) > 0
-    FROM Order o
+    SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END
+    FROM OrderEntity o
     JOIN o.orderItems oi
-    JOIN oi.productVariant pv
-    WHERE o.user.id = :userId
-    AND pv.product.id = :productId
-    AND o.status = com.example.sneaker_store.util.enumEntity.OrderStatus.COMPLETED
+    WHERE o.userId = :userId
+      AND oi.productId = :productId
+      AND o.status = :status
 """)
-    boolean existsCompletedOrder(@Param("userId") String userId, @Param("productId") String productId);
+    boolean existsCompletedOrder(
+            @Param("userId") String userId,
+            @Param("productId") String productId,
+            @Param("status") OrderStatus status
+    );
 
     @Query("""
     SELECT DISTINCT o
