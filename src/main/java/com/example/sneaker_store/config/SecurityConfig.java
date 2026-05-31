@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/review/v1/reviews/check-eligibility").permitAll()
                         .requestMatchers(HttpMethod.POST, "/order/v1/orders").permitAll()
                         .requestMatchers(HttpMethod.POST, "/review/v1/reviews").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/v1/users/change-password/login").permitAll()
                         .requestMatchers(whiteList).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception ->

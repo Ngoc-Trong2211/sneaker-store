@@ -201,6 +201,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void handleChangePasswordLogin(ChangePasswordRequest req, String email) {
+        Optional<UserEntity> user = this.userRepository.findByEmail(email);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (user.isPresent()){
+            UserEntity currentUser = user.get();
+            if (!encoder.matches(req.getCurrentPassword(), currentUser.getPassword()) ||
+                    encoder.matches(req.getNewPassword(), currentUser.getPassword())){
+                throw new ChangePasswordException(
+                        "Incorrect password or new password must not be the same as the old password!");
+            }
+            else{
+                if (req.getNewPassword().equals(req.getConfirmPassword())){
+                    currentUser.setPassword(this.passwordEncoder.encode(req.getNewPassword()));
+                    this.userRepository.save(currentUser);
+                }
+                else{
+                    throw new PasswordMismatchException("Passwords do not match!");
+                }
+            }
+        }
+        else{
+            throw new EmailInvalidException("Email is invalid!");
+        }
+    }
+
+    @Override
 //    @PreAuthorize("""
 //        hasAuthority('USER_READ_DETAIL')
 //        or #id == authentication.principal.id

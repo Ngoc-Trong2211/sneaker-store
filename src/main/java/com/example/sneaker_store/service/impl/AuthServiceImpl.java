@@ -143,7 +143,7 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("User not found");
         }
         if (!user.getStatus().toString().equals("ACTIVE")) {
-            throw new StatusInvalidException("Account is locked!");
+            throw new StatusInvalidException("Tài khoản đã bị khóa!");
         }
         if (guestId != null && !guestId.isBlank()) {
             cartService.mergeCart(user.getId(), guestId);

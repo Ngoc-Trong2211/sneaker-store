@@ -89,4 +89,13 @@ public class UserController {
         this.userService.handleChangePassword(req);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Đã cập nhật mật khẩu mới");
     }
+
+    @PostMapping("/users/change-password/login")
+    @Operation(summary = "Change password", description = "Đổi mật khẩu người dùng trong hệ thống")
+    @ApiMessage(message = "Change password")
+    public ResponseEntity<String> changePasswordLogin(@RequestBody @Valid ChangePasswordRequest req, @RequestParam String email) {
+        log.info("Change password");
+        this.userService.handleChangePasswordLogin(req, email);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Đã cập nhật mật khẩu mới");
+    }
 }

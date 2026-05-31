@@ -18,7 +18,7 @@ public class GlobalHandleException {
         SystemResponse<Object> res = new SystemResponse<>();
         res.setStatus(HttpStatus.BAD_REQUEST.value());
         res.setData(null);
-        res.setMessage("Error in system =>>>>> " + ex.getMessage());
+        res.setMessage(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
@@ -38,7 +38,7 @@ public class GlobalHandleException {
         SystemResponse<Object> res = new SystemResponse<>();
         res.setStatus(HttpStatus.BAD_REQUEST.value());
         res.setData(null);
-        res.setMessage("Error in system =>>>>> " + ex.getMessage());
+        res.setMessage(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
