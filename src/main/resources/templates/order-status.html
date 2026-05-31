@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cap nhat trang thai don hang</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f4f6f8;
+            color: #1f2937;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .wrapper {
+            width: 100%;
+            padding: 28px 12px;
+            background: #f4f6f8;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #111827;
+            color: #ffffff;
+            padding: 28px 32px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            line-height: 1.3;
+        }
+
+        .header p,
+        .content p {
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .content {
+            padding: 28px 32px 32px;
+        }
+
+        .status-box {
+            margin: 22px 0;
+            padding: 18px 20px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .status-label {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-value {
+            margin-top: 6px;
+            color: #111827;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .cancel-reason {
+            margin-top: 14px;
+            padding: 14px 16px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            color: #9a3412;
+            line-height: 1.6;
+        }
+
+        .summary {
+            margin: 24px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .summary-row {
+            display: table;
+            width: 100%;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .summary-row:last-child {
+            border-bottom: 0;
+        }
+
+        .summary-label,
+        .summary-value {
+            display: table-cell;
+            padding: 12px 16px;
+            vertical-align: top;
+            line-height: 1.5;
+        }
+
+        .summary-label {
+            width: 34%;
+            background: #f9fafb;
+            color: #6b7280;
+            font-weight: 700;
+        }
+
+        .summary-value {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th {
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 13px;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            line-height: 1.5;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .product-name {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .total-box {
+            margin-top: 20px;
+            padding: 18px 20px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: right;
+        }
+
+        .total-box span {
+            display: block;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .total-box strong {
+            display: block;
+            margin-top: 6px;
+            color: #111827;
+            font-size: 24px;
+        }
+
+        .footer {
+            padding: 20px 32px;
+            background: #f9fafb;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        @media only screen and (max-width: 560px) {
+            .header,
+            .content,
+            .footer {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            .summary-label,
+            .summary-value {
+                display: block;
+                width: auto;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                border-bottom: 1px solid #e5e7eb;
+                padding: 10px 0;
+            }
+
+            td {
+                border: 0;
+                padding: 6px 0;
+            }
+
+            .text-right {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="container">
+        <div class="header">
+            <h1>Cap nhat trang thai don hang</h1>
+            <p>Don hang cua ban vua duoc cap nhat tren Sneaker Store.</p>
+        </div>
+
+        <div class="content">
+            <p>Xin chao <strong th:text="${receiverName}">khach hang</strong>,</p>
+            <p>Sneaker Store thong bao trang thai moi nhat cua don hang nhu ben duoi.</p>
+
+            <div class="status-box">
+                <div class="status-label">Trang thai hien tai</div>
+                <div class="status-value" th:text="${order.status}">PENDING</div>
+                <div class="cancel-reason" th:if="${isCancelled}">
+                    <strong>Ly do huy:</strong>
+                    <span th:text="${cancelReason}">Khach hang yeu cau huy don.</span>
+                </div>
+            </div>
+
+            <div class="summary">
+                <div class="summary-row">
+                    <div class="summary-label">Ma don hang</div>
+                    <div class="summary-value" th:text="${order.code}">ORDER-CODE</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-label">Ngay dat</div>
+                    <div class="summary-value" th:text="${orderDate}">31/05/2026 20:30</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-label">Nguoi nhan</div>
+                    <div class="summary-value" th:text="${order.receiverName}">Nguyen Van A</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-label">So dien thoai</div>
+                    <div class="summary-value" th:text="${order.phone}">0900000000</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-label">Dia chi giao hang</div>
+                    <div class="summary-value" th:text="${order.address}">Dia chi giao hang</div>
+                </div>
+            </div>
+
+            <h2 style="margin: 0 0 8px; font-size: 18px; color: #111827;">Chi tiet san pham</h2>
+            <table role="presentation" aria-label="Chi tiet don hang">
+                <thead>
+                <tr>
+                    <th>San pham</th>
+                    <th>Size</th>
+                    <th class="text-right">SL</th>
+                    <th class="text-right">Don gia</th>
+                    <th class="text-right">Thanh tien</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${orderItems}">
+                    <td>
+                        <div class="product-name" th:text="${item.productName}">Ten san pham</div>
+                        <div class="muted" th:if="${item.percent != ''}" th:text="'Giam ' + ${item.percent} + '%'">Giam 10%</div>
+                    </td>
+                    <td th:text="${item.size}">42</td>
+                    <td class="text-right" th:text="${item.quantity}">1</td>
+                    <td class="text-right" th:text="${item.price}">1.000.000 d</td>
+                    <td class="text-right" th:text="${item.lineTotal}">1.000.000 d</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="total-box">
+                <span>Tong thanh toan</span>
+                <strong th:text="${totalAmount}">1.000.000 d</strong>
+            </div>
+        </div>
+
+        <div class="footer">
+            Email nay duoc gui tu he thong Sneaker Store khi trang thai don hang thay doi.
+            Vui long lien he cua hang neu can ho tro them.
+        </div>
+    </div>
+</div>
+</body>
+</html>

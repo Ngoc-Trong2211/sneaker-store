@@ -8,6 +8,7 @@ import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
 import com.example.sneaker_store.repository.OrderItemRepository;
 import com.example.sneaker_store.repository.OrderRepository;
 import com.example.sneaker_store.repository.ReviewEligibilityRepository;
+import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.EmailService;
 import com.example.sneaker_store.service.OrderItemService;
 import com.example.sneaker_store.service.OrderService;
@@ -47,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ReviewEligibilityRepository reviewEligibilityRepository;
     private final EmailService emailService;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -103,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
     private CreateOrderResponse toCreateOrderResponse(OrderEntity order, List<OrderItemEntity> orderItems, String email) {
         CreateOrderResponse response = this.modelMapper.map(order, CreateOrderResponse.class);
         response.setCode(order.getCode());
-        response.setEmail(email);
+        response.setEmail(email == null ? order.getEmail() : email);
         response.setPhone(order.getPhone());
         response.setReceiverName(order.getReceiverName());
         response.setGuestPhone(order.getPhone());
@@ -181,6 +183,8 @@ public class OrderServiceImpl implements OrderService {
             order.setNguoiHuy(AuthServiceImpl.getCurrentUserLogin().orElse("anonymous"));
         }
         this.orderRepository.save(order);
+        List<OrderItemEntity> orderItems = this.orderItemRepository.findByOrderId(order.getId());
+        sendOrderStatusUpdateEmailAfterCommit(resolveRecipientEmail(order), order, orderItems);
         if (OrderStatus.COMPLETED.equals(newStatus)) {
             createReviewEligibilities(order);
         }
@@ -231,6 +235,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void cancelOrder(String code, String lyDoHuy) {
         OrderEntity order = this.orderRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("order not found"));
@@ -238,8 +243,41 @@ public class OrderServiceImpl implements OrderService {
             order.setStatus(OrderStatus.CANCELLED);
             order.setLyDoHuy(lyDoHuy);
             order.setNguoiHuy(AuthServiceImpl.getCurrentUserLogin().orElse("anonymous"));
+            this.orderRepository.save(order);
+            List<OrderItemEntity> orderItems = this.orderItemRepository.findByOrderId(order.getId());
+            sendOrderStatusUpdateEmailAfterCommit(resolveRecipientEmail(order), order, orderItems);
+            return;
         }
         this.orderRepository.save(order);
+    }
+
+    private void sendOrderStatusUpdateEmailAfterCommit(String recipientEmail, OrderEntity order, List<OrderItemEntity> orderItems) {
+        if (recipientEmail == null || recipientEmail.isBlank()) {
+            log.warn("Skip order status email because recipient email is empty. orderCode={}", order.getCode());
+            return;
+        }
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    emailService.sendOrderStatusUpdateEmail(recipientEmail, order, orderItems);
+                }
+            });
+            return;
+        }
+        emailService.sendOrderStatusUpdateEmail(recipientEmail, order, orderItems);
+    }
+
+    private String resolveRecipientEmail(OrderEntity order) {
+        if (order.getEmail() != null && !order.getEmail().isBlank()) {
+            return order.getEmail();
+        }
+        if (order.getUserId() == null || order.getUserId().isBlank()) {
+            return null;
+        }
+        return userRepository.findById(order.getUserId())
+                .map(UserEntity::getEmail)
+                .orElse(null);
     }
 
     private void createReviewEligibilities(OrderEntity order) {
