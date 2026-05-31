@@ -33,6 +33,7 @@ public class OrderEntity {
     private String phone;
     private String receiverName;
     private String code;
+    private String email;
 
     @Column(columnDefinition = "MEDIUMTEXT")
     private String lyDoHuy;

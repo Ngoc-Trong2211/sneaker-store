@@ -8,6 +8,7 @@ import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
 import com.example.sneaker_store.repository.OrderItemRepository;
 import com.example.sneaker_store.repository.OrderRepository;
 import com.example.sneaker_store.repository.ReviewEligibilityRepository;
+import com.example.sneaker_store.service.EmailService;
 import com.example.sneaker_store.service.OrderItemService;
 import com.example.sneaker_store.service.OrderService;
 import com.example.sneaker_store.service.UserService;
@@ -23,7 +24,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.text.Normalizer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -42,20 +46,24 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemService orderItemService;
     private final OrderItemRepository orderItemRepository;
     private final ReviewEligibilityRepository reviewEligibilityRepository;
+    private final EmailService emailService;
 
     @Override
     @Transactional
     public CreateOrderResponse createOrder(CreateOrderRequest request, String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
+        String recipientEmail = null;
         OrderEntity order = new OrderEntity();
         order.setStatus(OrderStatus.PENDING);
         if (email != null && !email.equals("anonymousUser")){
             UserEntity user = this.userService.findByEmail(email);
+            recipientEmail = user.getEmail();
             order.setPhone(request.getPhone());
             order.setReceiverName(request.getReceiverName());
             order.setAddress(request.getAddress());
             order.setUserId(user.getId());
+            order.setEmail(email);
             order.setCode(createCodeOrder(request.getAddress(), request.getPhone(), request.getReceiverName()));
         }
         else{
@@ -63,12 +71,57 @@ public class OrderServiceImpl implements OrderService {
             order.setReceiverName(request.getReceiverName());
             order.setAddress(request.getAddress());
             order.setGuestId(guestId);
+            order.setEmail(request.getEmail());
             order.setCode(createCodeOrder(request.getAddress(), request.getPhone(), request.getReceiverName()));
+            recipientEmail = request.getEmail();
         }
         order = this.orderRepository.save(order);
         order.setTotalAmount(this.orderItemService.addToOrder(guestId, order));
-        this.orderRepository.save(order);
-        return this.modelMapper.map(order, CreateOrderResponse.class);
+        order = this.orderRepository.save(order);
+        List<OrderItemEntity> orderItems = this.orderItemRepository.findByOrderId(order.getId());
+        sendOrderConfirmationEmailAfterCommit(recipientEmail, order, orderItems);
+        return toCreateOrderResponse(order, orderItems, recipientEmail);
+    }
+
+    private void sendOrderConfirmationEmailAfterCommit(String recipientEmail, OrderEntity order, List<OrderItemEntity> orderItems) {
+        if (recipientEmail == null || recipientEmail.isBlank()) {
+            log.warn("Skip order confirmation email because recipient email is empty. orderCode={}", order.getCode());
+            return;
+        }
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    emailService.sendOrderConfirmationEmail(recipientEmail, order, orderItems);
+                }
+            });
+            return;
+        }
+        emailService.sendOrderConfirmationEmail(recipientEmail, order, orderItems);
+    }
+
+    private CreateOrderResponse toCreateOrderResponse(OrderEntity order, List<OrderItemEntity> orderItems, String email) {
+        CreateOrderResponse response = this.modelMapper.map(order, CreateOrderResponse.class);
+        response.setCode(order.getCode());
+        response.setEmail(email);
+        response.setPhone(order.getPhone());
+        response.setReceiverName(order.getReceiverName());
+        response.setGuestPhone(order.getPhone());
+        response.setGuestName(order.getReceiverName());
+        response.setOrderItems(orderItems.stream().map(this::toCreateOrderItemResponse).toList());
+        return response;
+    }
+
+    private CreateOrderResponse.OrderItem toCreateOrderItemResponse(OrderItemEntity item) {
+        CreateOrderResponse.OrderItem response = new CreateOrderResponse.OrderItem();
+        response.setId(item.getId());
+        response.setProductId(item.getProductId());
+        response.setProductName(item.getProductName());
+        response.setQuantity(item.getQuantity());
+        response.setSize(item.getSize());
+        response.setPrice(item.getPrice());
+        response.setPercent(item.getPercent());
+        return response;
     }
 
     private String createCodeOrder(String address, String phone, String name){
@@ -84,10 +137,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private static String toCode(String input) {
-        return input.trim()
+        if (input == null || input.isBlank()) {
+            return "NA";
+        }
+        String normalized = Normalizer.normalize(input.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .replace('\u0110', 'D')
+                .replace('\u0111', 'd')
                 .toUpperCase()
-                .replaceAll("[^A-Z0-9]", "")
-                .substring(0, Math.min(5, input.length()));
+                .replaceAll("[^A-Z0-9]", "");
+        if (normalized.isBlank()) {
+            return "NA";
+        }
+        return normalized.substring(0, Math.min(5, normalized.length()));
     }
 
     @Override
