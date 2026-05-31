@@ -18,6 +18,7 @@ public class GetAddressResponse {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Address{
+        private Long id;
         private String name;
         private String phone;
         private String ward;
