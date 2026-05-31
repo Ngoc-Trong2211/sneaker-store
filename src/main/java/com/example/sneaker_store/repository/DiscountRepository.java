@@ -33,6 +33,17 @@ public interface DiscountRepository extends JpaRepository<DiscountEntity, String
     @Query("UPDATE DiscountEntity d SET d.status = 'EXPIRED' WHERE d.endTime < :currentTime AND d.status != 'EXPIRED'")
     void updateExpiredDiscounts(@Param("currentTime") Instant currentTime);
 
+    @Modifying
+    @Transactional
+    @Query("""
+    UPDATE DiscountEntity d
+    SET d.status = 'ACTIVE'
+    WHERE d.status = 'UPCOMING'
+      AND d.startTime <= :currentTime
+      AND d.endTime > :currentTime
+""")
+    void updateUpcomingToActive(@Param("currentTime") Instant currentTime);
+
     @Query("SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END FROM DiscountEntity d WHERE d.id = :id AND d.endTime < :currentTime")
     boolean checkEndTimeBeforeCurrentTime(@Param("id") String id, @Param("currentTime") Instant currentTime);
 }

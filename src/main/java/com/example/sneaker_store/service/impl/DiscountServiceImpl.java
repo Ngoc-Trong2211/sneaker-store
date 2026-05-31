@@ -71,7 +71,14 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setDescription(request.getDescription());
         discount.setStartTime(request.getStartTime());
         discount.setEndTime(request.getEndTime());
-        discount.setStatus(DiscountStatus.ACTIVE);
+        Instant now = Instant.now();
+        if (request.getStartTime().isAfter(now)) {
+            discount.setStatus(DiscountStatus.UPCOMING);
+        } else if (request.getEndTime().isBefore(now)) {
+            discount.setStatus(DiscountStatus.EXPIRED);
+        } else {
+            discount.setStatus(DiscountStatus.ACTIVE);
+        }
         discount.setApplyFor(request.getApplyFor());
         discount.setNameApply(request.getNameApply());
         this.discountRepository.save(discount);
@@ -93,6 +100,14 @@ public class DiscountServiceImpl implements DiscountService {
             throw new RuntimeException(
                     "Discount with nameApply already exists: " + request.getNameApply());
         }
+        Instant now = Instant.now();
+        if (request.getStartTime().isAfter(now)) {
+            discount.setStatus(DiscountStatus.UPCOMING);
+        } else if (request.getEndTime().isBefore(now)) {
+            discount.setStatus(DiscountStatus.EXPIRED);
+        } else {
+            discount.setStatus(DiscountStatus.ACTIVE);
+        }
         discount.setPercent(request.getPercent());
         discount.setDescription(request.getDescription());
         discount.setStartTime(request.getStartTime());
@@ -110,9 +125,10 @@ public class DiscountServiceImpl implements DiscountService {
         return this.modelMapper.map(discount, UpdateDiscountResponse.class);
     }
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 * * * * ?")
     public void updateExpiredDiscounts() {
         log.info("Running scheduled task to update expired discounts");
+        this.discountRepository.updateUpcomingToActive(Instant.now());
         this.discountRepository.updateExpiredDiscounts(Instant.now());
         this.productRepository.autoClearDiscountFromProducts();
     }

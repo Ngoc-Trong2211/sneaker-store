@@ -206,6 +206,7 @@ public class OrderServiceImpl implements OrderService {
         response.setPrice(item.getPrice());
         response.setQuantity(item.getQuantity());
         response.setUrl(getMainImageUrl(item));
+        if (item.getPercent()!=null) response.setPercent(item.getPercent());
         reviewEligibilityRepository.findByOrderItemId(item.getId())
                 .ifPresentOrElse(eligibility -> {
                     response.setReviewStatus(eligibility.isStatus());

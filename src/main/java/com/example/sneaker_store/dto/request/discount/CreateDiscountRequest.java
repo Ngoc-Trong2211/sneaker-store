@@ -21,7 +21,6 @@ public class CreateDiscountRequest {
     @NotBlank(message = "Apply for is required")
     private String applyFor;
 
-    @NotBlank(message = "Name apply is required")
     private String nameApply;
     
     @NotNull(message = "Start time is required")

@@ -57,6 +57,7 @@ public class GetOrderResponse {
             private String url;
             private Boolean reviewStatus;
             private Boolean canReview;
+            private Integer percent;
         }
     }
 }

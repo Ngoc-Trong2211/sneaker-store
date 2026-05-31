@@ -30,5 +30,6 @@ public class GetCartResponse {
         private String sku;
         private String url;
         private Long idSize;
+        private Integer percent;
     }
 }

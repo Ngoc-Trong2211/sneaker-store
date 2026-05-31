@@ -41,6 +41,7 @@ public class GetProductResponse {
         private String slugCategory;
         private String brandName;
         private List<Variant> variants;
+        private Integer percent;
 
         @Getter
         @Setter

@@ -148,6 +148,7 @@ public class CartServiceImpl implements CartService {
                 break;
             }
         }
+        if (item.getProductVariant().getProduct().getDiscount() != null) itemRes.setPercent(item.getProductVariant().getProduct().getDiscount().getPercent());
         itemRes.setSlugCategory(item.getProductVariant().getProduct().getCategory().getSlug());
         itemRes.setBrandName(item.getProductVariant().getProduct().getBrand().getName());
         return itemRes;

@@ -140,6 +140,7 @@ public class ProductServiceImpl implements ProductService {
                         return rv;
                     }).toList();
             prod.setVariants(variants);
+            if (product.getDiscount() != null) prod.setPercent(product.getDiscount().getPercent());
             prod.setPrice(formatPriceToResponse(product.getPrice()));
             prod.setBrandName(product.getBrand().getName());
             prod.setSlugCategory(product.getCategory().getSlug());
@@ -194,6 +195,7 @@ public class ProductServiceImpl implements ProductService {
                 rv.setImages(images);
                 return rv;
             }).toList();
+        if (product.getDiscount() != null) res.setPercent(product.getDiscount().getPercent());
         res.setVariants(variants);
         return res;
     }

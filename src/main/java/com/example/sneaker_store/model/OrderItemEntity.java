@@ -22,6 +22,7 @@ public class OrderItemEntity {
     private double price;
     private String productName;
     private String size;
+    private Integer percent;
 
     private Instant createdAt;
     private String createdBy;

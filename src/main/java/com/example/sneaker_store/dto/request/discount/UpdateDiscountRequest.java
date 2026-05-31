@@ -15,7 +15,6 @@ public class UpdateDiscountRequest {
     @NotNull(message = "Discount ID cannot be null")
     private String id;
 
-    @NotBlank(message = "Name of the discount application cannot be blank")
     private String nameApply;
 
     @NotBlank(message = "Apply for cannot be blank")
@@ -28,7 +27,6 @@ public class UpdateDiscountRequest {
     private int percent;
 
     @NotNull(message = "Start time is required")
-    @FutureOrPresent(message = "Start time must be in the present or future")
     private Instant startTime;
 
     @NotNull(message = "End time is required")

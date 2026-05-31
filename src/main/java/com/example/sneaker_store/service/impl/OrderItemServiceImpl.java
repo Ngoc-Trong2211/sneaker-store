@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -69,7 +70,14 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItem.setOrder(order);
         orderItem.setProductVariant(variant);
         orderItem.setQuantity(cartItem.getQuantity());
-        orderItem.setPrice(variant.getProduct().getPrice());
+        Instant now = Instant.now();
+        DiscountEntity discount = variant.getProduct().getDiscount();
+        double price = variant.getProduct().getPrice();
+        if (discount != null && discount.getStartTime().isBefore(now) && discount.getEndTime().isAfter(now)) {
+            price = price - (price * discount.getPercent()) / 100.0;
+            orderItem.setPercent(discount.getPercent());
+        }
+        orderItem.setPrice(price);
         orderItem.setProductName(variant.getProduct().getName());
         orderItem.setProductId(variant.getProduct().getId());
         orderItem.setSize(cartItem.getSize());

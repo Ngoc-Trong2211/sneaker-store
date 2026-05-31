@@ -28,6 +28,7 @@ public class GetProductByIdResponse {
     private String categorySlug;
     private String title;
     private List<Variant> variants;
+    private Integer percent;
 
     @Getter
     @Setter
