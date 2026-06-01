@@ -1,6 +1,8 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.dto.request.review.CreateReviewRequest;
+import com.example.sneaker_store.dto.request.review.SpecificationReviewRequest;
+import com.example.sneaker_store.dto.response.review.GetReviewPageResponse;
 import com.example.sneaker_store.dto.response.review.GetReviewResponse;
 import com.example.sneaker_store.model.OrderEntity;
 import com.example.sneaker_store.model.ProductEntity;
@@ -14,8 +16,13 @@ import com.example.sneaker_store.repository.ReviewRepository;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.ReviewService;
 import com.example.sneaker_store.service.UserService;
+import com.example.sneaker_store.specification.ReviewSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final OrderRepository orderRepository;
     private final ReviewEligibilityRepository reviewEligibilityRepository;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     private void updateProductRating(ProductEntity product) {
         Double avgRating = reviewRepository.getAverageRatingByProductId(product.getId());
@@ -204,6 +212,56 @@ public class ReviewServiceImpl implements ReviewService {
         if (hasText(review.getOrderCode())) {
             return orderRepository.findByCode(review.getOrderCode())
                     .map(OrderEntity::getReceiverName)
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    @Override
+    public GetReviewPageResponse getReview(Pageable pageable, SpecificationReviewRequest req) {
+        Specification<ReviewEntity> spec = ReviewSpecification.specReview(req);
+        Page<ReviewEntity> page = this.reviewRepository.findAll(spec, pageable);
+        GetReviewPageResponse res = new GetReviewPageResponse();
+        GetReviewPageResponse.DataPage pageRes = this.modelMapper.map(page, GetReviewPageResponse.DataPage.class);
+        res.setPage(pageRes);
+        List<GetReviewPageResponse.Review> reviews = page.getContent().stream().map(this::toReviewPageResponse).toList();
+        res.setReviews(reviews);
+        return res;
+    }
+
+    private GetReviewPageResponse.Review toReviewPageResponse(ReviewEntity review) {
+        GetReviewPageResponse.Review response = new GetReviewPageResponse.Review();
+        response.setId(review.getId());
+        response.setProductName(resolveProductName(review));
+        response.setEmail(resolveReviewEmail(review));
+        response.setPhone(review.getPhone());
+        response.setOrderCode(review.getOrderCode());
+        response.setStar(review.getStar());
+        response.setRating(review.getRating());
+        response.setComment(review.getComment());
+        response.setUserName(resolveReviewUserName(review));
+        response.setCreatedAt(review.getCreatedAt());
+        return response;
+    }
+
+    private String resolveProductName(ReviewEntity review) {
+        if (hasText(review.getProductId())) {
+            return productRepository.findById(review.getProductId())
+                    .map(ProductEntity::getName)
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    private String resolveReviewEmail(ReviewEntity review) {
+        if (hasText(review.getUserId())) {
+            return userRepository.findById(review.getUserId())
+                    .map(UserEntity::getEmail)
+                    .orElse(null);
+        }
+        if (hasText(review.getOrderCode())) {
+            return orderRepository.findByCode(review.getOrderCode())
+                    .map(OrderEntity::getEmail)
                     .orElse(null);
         }
         return null;

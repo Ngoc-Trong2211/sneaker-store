@@ -2,12 +2,13 @@ package com.example.sneaker_store.repository;
 
 import com.example.sneaker_store.model.ReviewEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
+public interface ReviewRepository extends JpaRepository<ReviewEntity, Long>, JpaSpecificationExecutor<ReviewEntity> {
     boolean existsByUserIdAndProductId(String userId, String productId);
     List<ReviewEntity> findByProductId(String productId);
     List<ReviewEntity> findByProductIdOrderByCreatedAtDesc(String productId);
