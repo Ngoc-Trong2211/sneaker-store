@@ -41,6 +41,7 @@ public class FormatResponse implements ResponseBodyAdvice<Object> {
         res.setStatus(status);
         if (body instanceof Resource) return body;
         if (body instanceof String) return body;
+        if (body instanceof byte[]) return body;
         if (status >= 400) return body;
         else{
             res.setData(body);
