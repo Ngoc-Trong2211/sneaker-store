@@ -9,4 +9,5 @@ public interface FavouriteService {
     void createFavourite(String guestId, String productId) throws BadRequestException;
     List<FavouriteResponse> getFavouriteById(String guestId);
     void deleteFavourite(String guestId, String productId);
+    void mergeGuestFavouriteToUser(String guestId, String userId);
 }

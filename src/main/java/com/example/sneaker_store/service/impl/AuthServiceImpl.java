@@ -8,10 +8,7 @@ import com.example.sneaker_store.dto.request.auth.RegisterRequest;
 import com.example.sneaker_store.dto.response.auth.LoginResponse;
 import com.example.sneaker_store.dto.response.auth.LoginResult;
 import com.example.sneaker_store.repository.UserRepository;
-import com.example.sneaker_store.service.AuthService;
-import com.example.sneaker_store.service.CartService;
-import com.example.sneaker_store.service.RoleService;
-import com.example.sneaker_store.service.UserService;
+import com.example.sneaker_store.service.*;
 import com.example.sneaker_store.util.enumEntity.UserStatus;
 import com.example.sneaker_store.util.exception.RefreshTokenInvalidException;
 import com.example.sneaker_store.util.exception.user.EmailExistsAlreadyException;
@@ -54,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final CartService cartService;
     private final RoleService roleService;
+    private final FavouriteService favouriteService;
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
@@ -147,6 +145,7 @@ public class AuthServiceImpl implements AuthService {
         }
         if (guestId != null && !guestId.isBlank()) {
             cartService.mergeCart(user.getId(), guestId);
+            favouriteService.mergeGuestFavouriteToUser(guestId, user.getId());
         }
         LoginResponse.UserLogin userRes = new LoginResponse.UserLogin();
         userRes.setId(user.getId());

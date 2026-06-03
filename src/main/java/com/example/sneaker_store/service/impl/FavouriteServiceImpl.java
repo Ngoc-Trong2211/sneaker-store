@@ -51,7 +51,6 @@ public class FavouriteServiceImpl implements FavouriteService {
     }
 
     @Override
-    @Transactional
     public List<FavouriteResponse> getFavouriteById(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         String sql = """
@@ -73,9 +72,6 @@ public class FavouriteServiceImpl implements FavouriteService {
         if (email != null && !email.equals("anonymousUser")) {
             UserEntity user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
-            if (guestId != null) {
-                mergeGuestFavouriteToUser(guestId, user.getId());
-            }
             sql += " AND f.user_id = :userId";
             params.addValue("userId", user.getId());
         } else {
@@ -104,7 +100,9 @@ public class FavouriteServiceImpl implements FavouriteService {
         return new ArrayList<>(map.values());
     }
 
-    private void mergeGuestFavouriteToUser(String guestId, String userId) {
+    @Override
+    @Transactional
+    public void mergeGuestFavouriteToUser(String guestId, String userId) {
         List<FavouriteEntity> guestFavourites = favouriteRepository.findByGuestId(guestId);
         for (FavouriteEntity guestFav : guestFavourites) {
             if (!favouriteRepository.existsByUserIdAndProductId(userId, guestFav.getProductId())) {
