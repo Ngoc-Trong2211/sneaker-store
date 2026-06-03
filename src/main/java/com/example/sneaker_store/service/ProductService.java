@@ -15,8 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ProductService {
     CreateProductResponse createProduct(CreateProductRequest request);
     UpdateProductResponse updateProduct(UpdateProductRequest request);
-    GetProductResponse getProducts(Pageable pageable, SpecificationProductRequest request);
-    GetProductByIdResponse getProductById(String id);
+    GetProductResponse getProducts(Pageable pageable, SpecificationProductRequest request, String guestId);
+    GetProductByIdResponse getProductById(String id, String guestId);
     void updateStatusProduct(String id, String status);
     void deleteProduct(String id);
 }

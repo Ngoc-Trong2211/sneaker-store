@@ -1,8 +1,7 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.model.*;
-import com.example.sneaker_store.repository.ProductImageRepository;
-import com.example.sneaker_store.repository.ProductVariantRepository;
+import com.example.sneaker_store.repository.*;
 import com.example.sneaker_store.service.*;
 import com.example.sneaker_store.specification.ProductSpecification;
 import com.example.sneaker_store.util.enumEntity.ProductStatus;
@@ -14,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -32,7 +28,6 @@ import com.example.sneaker_store.dto.response.product.CreateProductResponse;
 import com.example.sneaker_store.dto.response.product.GetProductByIdResponse;
 import com.example.sneaker_store.dto.response.product.GetProductResponse;
 import com.example.sneaker_store.dto.response.product.UpdateProductResponse;
-import com.example.sneaker_store.repository.ProductRepository;
 
 @Service
 @Slf4j(topic = "PRODUCT-SERVICE")
@@ -43,6 +38,8 @@ public class ProductServiceImpl implements ProductService {
     private final BrandService brandService;
     private final CategoryService categoryService;
     private final ProductVariantRepository productVariantRepository;
+    private final FavouriteRepository favouriteRepository;
+    private final UserRepository userRepository;
 
     private String formatPriceToResponse(Double price) {
         NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
@@ -101,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public GetProductResponse getProducts(Pageable pageable, SpecificationProductRequest request) {
+    public GetProductResponse getProducts(Pageable pageable, SpecificationProductRequest request, String guestId) {
         Specification<ProductEntity> specification = ProductSpecification.specProduct(request);
         Page<ProductEntity> productPage = this.productRepository.findAll(specification, pageable);
 
@@ -144,13 +141,24 @@ public class ProductServiceImpl implements ProductService {
             prod.setPrice(formatPriceToResponse(product.getPrice()));
             prod.setBrandName(product.getBrand().getName());
             prod.setSlugCategory(product.getCategory().getSlug());
+            String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
+            Set<String> favouriteProductIds = new HashSet<>();
+            if (email != null && !email.equals("anonymousUser")) {
+                UserEntity user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+
+                favouriteProductIds = favouriteRepository.findProductIdsByUserId(user.getId());
+            } else if (guestId != null) {
+                favouriteProductIds = favouriteRepository.findProductIdsByGuestId(guestId);
+            }
+            prod.setFavourite(favouriteProductIds.contains(product.getId()));
             return prod;
         }).getContent());
         return response;
     }
 
     @Override
-    public GetProductByIdResponse getProductById(String slug) {
+    public GetProductByIdResponse getProductById(String slug, String guestId) {
         ProductEntity product = productRepository.findBySlug(slug)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         GetProductByIdResponse res = modelMapper.map(product, GetProductByIdResponse.class);
@@ -197,6 +205,16 @@ public class ProductServiceImpl implements ProductService {
             }).toList();
         if (product.getDiscount() != null) res.setPercent(product.getDiscount().getPercent());
         res.setVariants(variants);
+        String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
+        boolean favourite = false;
+        if (email != null && !email.equals("anonymousUser")) {
+            UserEntity user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+            favourite = favouriteRepository.existsByUserIdAndProductId(user.getId(), product.getId());
+        } else if (guestId != null) {
+            favourite = favouriteRepository.existsByGuestIdAndProductId(guestId, product.getId());
+        }
+        res.setFavourite(favourite);
         return res;
     }
 

@@ -42,6 +42,7 @@ public class GetProductResponse {
         private String brandName;
         private List<Variant> variants;
         private Integer percent;
+        private Boolean favourite;
 
         @Getter
         @Setter

@@ -30,4 +30,11 @@ public class FavouriteController {
             @CookieValue(value = "guest_id", required = false) String guestId) {
         return ResponseEntity.ok(favouriteService.getFavouriteById(guestId));
     }
+
+    @DeleteMapping("/favourites")
+    public ResponseEntity<Void> deleteFavourite(@CookieValue(value = "guest_id", required = false) String guestId,
+                                                @RequestParam String productId) {
+        favouriteService.deleteFavourite(guestId, productId);
+        return ResponseEntity.noContent().build();
+    }
 }

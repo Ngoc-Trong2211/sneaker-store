@@ -14,6 +14,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -32,7 +33,7 @@ public class FavouriteServiceImpl implements FavouriteService {
     public void createFavourite(String guestId, String productId) throws BadRequestException {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         FavouriteEntity favourite = new FavouriteEntity();
-        if (email != null) {
+        if (email != null && !email.equals("anonymousUser")) {
             UserEntity user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
             if (favouriteRepository.existsByUserIdAndProductId(user.getId(), productId)) {
@@ -50,6 +51,7 @@ public class FavouriteServiceImpl implements FavouriteService {
     }
 
     @Override
+    @Transactional
     public List<FavouriteResponse> getFavouriteById(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         String sql = """
@@ -68,10 +70,12 @@ public class FavouriteServiceImpl implements FavouriteService {
             """;
         MapSqlParameterSource params = new MapSqlParameterSource();
 
-        if (email != null) {
+        if (email != null && !email.equals("anonymousUser")) {
             UserEntity user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
-
+            if (guestId != null) {
+                mergeGuestFavouriteToUser(guestId, user.getId());
+            }
             sql += " AND f.user_id = :userId";
             params.addValue("userId", user.getId());
         } else {
@@ -98,5 +102,36 @@ public class FavouriteServiceImpl implements FavouriteService {
                             rs.getString("image_url")));
         });
         return new ArrayList<>(map.values());
+    }
+
+    private void mergeGuestFavouriteToUser(String guestId, String userId) {
+        List<FavouriteEntity> guestFavourites = favouriteRepository.findByGuestId(guestId);
+        for (FavouriteEntity guestFav : guestFavourites) {
+            if (!favouriteRepository.existsByUserIdAndProductId(userId, guestFav.getProductId())) {
+                FavouriteEntity newFav = new FavouriteEntity();
+                newFav.setUserId(userId);
+                newFav.setProductId(guestFav.getProductId());
+                favouriteRepository.save(newFav);
+            }
+        }
+        favouriteRepository.deleteByGuestId(guestId);
+    }
+
+    @Override
+    public void deleteFavourite(String guestId, String productId) {
+        String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
+        if (email != null && !email.equals("anonymousUser")) {
+            UserEntity user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+            if (!favouriteRepository.existsByUserIdAndProductId(user.getId(), productId)) {
+                throw new RuntimeException("Sản phẩm không tồn tại trong danh sách yêu thích");
+            }
+            favouriteRepository.deleteByUserIdAndProductId(user.getId(), productId);
+        } else {
+            if (!favouriteRepository.existsByGuestIdAndProductId(guestId, productId)) {
+                throw new RuntimeException("Sản phẩm không tồn tại trong danh sách yêu thích");
+            }
+            favouriteRepository.deleteByGuestIdAndProductId(guestId, productId);
+        }
     }
 }

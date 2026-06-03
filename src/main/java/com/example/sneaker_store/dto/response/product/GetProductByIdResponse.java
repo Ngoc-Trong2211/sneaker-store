@@ -29,6 +29,7 @@ public class GetProductByIdResponse {
     private String title;
     private List<Variant> variants;
     private Integer percent;
+    private Boolean favourite;
 
     @Getter
     @Setter

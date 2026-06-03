@@ -52,17 +52,19 @@ public class ProductController {
     @GetMapping("/products")
     @Operation(summary = "Get products with pagination and filtering", description = "Retrieves a paginated list of products based on the provided filters")
     @ApiMessage(message = "Products retrieved successfully")
-    public ResponseEntity<GetProductResponse> getMethodName(@ParameterObject Pageable pageable, SpecificationProductRequest request) {
+    public ResponseEntity<GetProductResponse> getMethodName(@ParameterObject Pageable pageable, SpecificationProductRequest request,
+                                                            @CookieValue(value = "guest_id", required = false) String guestId) {
         log.info("Received request to get products with filters");
-        return ResponseEntity.ok(this.productService.getProducts(pageable, request));
+        return ResponseEntity.ok(this.productService.getProducts(pageable, request, guestId));
     }
     
     @GetMapping("/products/{id}")
     @Operation(summary = "Get product by ID", description = "Retrieves a product by its unique ID")
     @ApiMessage(message = "Product retrieved successfully")
-    public ResponseEntity<GetProductByIdResponse> getProductById(@PathVariable("id") String id) {
+    public ResponseEntity<GetProductByIdResponse> getProductById(@PathVariable("id") String id,
+                                                                 @CookieValue(value = "guest_id", required = false) String guestId) {
         log.info("Received request to get product with id '{}'", id);
-        return ResponseEntity.ok(this.productService.getProductById(id));
+        return ResponseEntity.ok(this.productService.getProductById(id, guestId));
     }
 
     @PatchMapping("/products/{id}/status")
