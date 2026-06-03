@@ -1,5 +1,6 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.dto.response.FavouriteResponse;
 import com.example.sneaker_store.model.FavouriteEntity;
 import com.example.sneaker_store.model.ProductEntity;
 import com.example.sneaker_store.model.UserEntity;
@@ -10,15 +11,22 @@ import com.example.sneaker_store.service.FavouriteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j(topic = "FAVOURITE-SERVICE")
 @RequiredArgsConstructor
 public class FavouriteServiceImpl implements FavouriteService {
     private final FavouriteRepository favouriteRepository;
-    private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
     public void createFavourite(String guestId, String productId) throws BadRequestException {
@@ -39,5 +47,56 @@ public class FavouriteServiceImpl implements FavouriteService {
         }
         favourite.setProductId(productId);
         favouriteRepository.save(favourite);
+    }
+
+    @Override
+    public List<FavouriteResponse> getFavouriteById(String guestId) {
+        String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
+        String sql = """
+            SELECT
+                p.id AS product_id,
+                p.name AS product_name,
+                p.price AS price,
+                pv.color AS color,
+                pi.imageurl AS image_url,
+                p.slug AS slug
+            FROM tbl_favourite f
+            JOIN tbl_product p ON f.product_id = p.id
+            JOIN tbl_product_variant pv ON pv.product_id = p.id
+            JOIN tbl_product_image pi ON pi.variant_id = pv.id
+            WHERE pi.is_main = true
+            """;
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        if (email != null) {
+            UserEntity user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+
+            sql += " AND f.user_id = :userId";
+            params.addValue("userId", user.getId());
+        } else {
+            sql += " AND f.guest_id = :guestId";
+            params.addValue("guestId", guestId);
+        }
+        Map<String, FavouriteResponse> map = new LinkedHashMap<>();
+
+        namedParameterJdbcTemplate.query(sql, params, rs -> {
+            String productId = rs.getString("product_id");
+            FavouriteResponse response = map.get(productId);
+
+            if (response == null) {
+                response = new FavouriteResponse();
+                response.setProductId(productId);
+                response.setProductName(rs.getString("product_name"));
+                response.setPrice(rs.getDouble("price"));
+                response.setVariants(new ArrayList<>());
+                response.setSlug(rs.getString("slug"));
+                map.put(productId, response);
+            }
+
+            response.getVariants().add(new FavouriteResponse.Variant(rs.getString("color"),
+                            rs.getString("image_url")));
+        });
+        return new ArrayList<>(map.values());
     }
 }

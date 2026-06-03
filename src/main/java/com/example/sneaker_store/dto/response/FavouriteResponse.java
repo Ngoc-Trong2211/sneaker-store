@@ -11,8 +11,9 @@ import java.util.List;
 @Setter
 public class FavouriteResponse {
     private String productId;
-    private String url;
     private String productName;
+    private Double price;
+    private String slug;
     private List<Variant> variants;
 
     @Getter
