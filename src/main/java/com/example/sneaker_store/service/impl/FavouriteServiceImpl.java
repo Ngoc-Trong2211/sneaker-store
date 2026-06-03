@@ -116,6 +116,7 @@ public class FavouriteServiceImpl implements FavouriteService {
     }
 
     @Override
+    @Transactional
     public void deleteFavourite(String guestId, String productId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         if (email != null && !email.equals("anonymousUser")) {
