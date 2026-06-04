@@ -1,8 +1,12 @@
 package com.example.sneaker_store.service;
 
 import com.example.sneaker_store.dto.response.DashboardResponse;
+import com.example.sneaker_store.dto.response.FavouriteResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import org.apache.poi.ss.usermodel.*;
@@ -14,6 +18,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +29,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DashboardService {
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public DashboardResponse getDashboardStatistic() {
         String sql = """
@@ -243,5 +252,140 @@ public class DashboardService {
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
+    }
+
+    public List<FavouriteResponse> topPick(String gender) {
+
+        String productSql = """
+        SELECT
+            COUNT(ot.id) AS total_sold,
+            p.id AS product_id,
+            p.name AS product_name,
+            p.price,
+            p.slug
+        FROM tbl_order o
+        JOIN tbl_order_item ot ON ot.order_id = o.id
+        JOIN tbl_product p ON p.id = ot.product_id
+        JOIN tbl_category c ON c.id = p.category_id
+        LEFT JOIN tbl_category cp ON cp.id = c.parent_id
+        WHERE o.status = 'COMPLETED'
+          AND cp.name = :gender
+        GROUP BY p.id, p.name, p.price, p.slug
+        ORDER BY total_sold DESC
+        LIMIT 8
+        """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("gender", gender);
+
+        List<FavouriteResponse> products = namedParameterJdbcTemplate.query(
+                productSql,
+                params,
+                (rs, rowNum) -> mapProduct(rs)
+        );
+
+        if (products.size() < 8) {
+            int remain = 8 - products.size();
+
+            List<String> existingIds = products.stream()
+                    .map(FavouriteResponse::getProductId)
+                    .toList();
+
+            String additionalSql = getString(existingIds);
+
+            MapSqlParameterSource additionalParams = new MapSqlParameterSource()
+                    .addValue("gender", gender)
+                    .addValue("remain", remain);
+
+            if (!existingIds.isEmpty()) {
+                additionalParams.addValue("productIds", existingIds);
+            }
+
+            List<FavouriteResponse> additionalProducts =
+                    namedParameterJdbcTemplate.query(
+                            additionalSql,
+                            additionalParams,
+                            (rs, rowNum) -> mapProduct(rs)
+                    );
+
+            products.addAll(additionalProducts);
+        }
+
+        if (products.isEmpty()) {
+            return products;
+        }
+
+        List<String> productIds = products.stream()
+                .map(FavouriteResponse::getProductId)
+                .toList();
+
+        String variantSql = """
+        SELECT
+            pv.product_id,
+            pv.color,
+            pi.imageurl AS image_url
+        FROM tbl_product_variant pv
+        LEFT JOIN tbl_product_image pi
+            ON pi.variant_id = pv.id
+            AND pi.is_main = true
+        WHERE pv.product_id IN (:productIds)
+        """;
+
+        MapSqlParameterSource variantParams = new MapSqlParameterSource()
+                .addValue("productIds", productIds);
+
+        Map<String, List<FavouriteResponse.Variant>> variantMap = new HashMap<>();
+
+        namedParameterJdbcTemplate.query(variantSql, variantParams, rs -> {
+            String productId = rs.getString("product_id");
+
+            FavouriteResponse.Variant variant = new FavouriteResponse.Variant(
+                    rs.getString("color"),
+                    rs.getString("image_url")
+            );
+
+            variantMap.computeIfAbsent(productId, k -> new ArrayList<>()).add(variant);
+        });
+
+        for (FavouriteResponse product : products) {
+            product.setVariants(
+                    variantMap.getOrDefault(product.getProductId(), new ArrayList<>())
+            );
+        }
+
+        return products.stream()
+                .limit(8)
+                .toList();
+    }
+
+    private static @NonNull String getString(List<String> existingIds) {
+        String additionalSql = """
+        SELECT
+            p.id AS product_id,
+            p.name AS product_name,
+            p.price,
+            p.slug
+        FROM tbl_product p
+        JOIN tbl_category c ON c.id = p.category_id
+        LEFT JOIN tbl_category cp ON cp.id = c.parent_id
+        WHERE cp.name = :gender
+        """;
+
+        if (!existingIds.isEmpty()) {
+            additionalSql += " AND p.id NOT IN (:productIds) ";
+        }
+
+        additionalSql += " LIMIT :remain ";
+        return additionalSql;
+    }
+
+    private FavouriteResponse mapProduct(ResultSet rs) throws SQLException {
+        FavouriteResponse item = new FavouriteResponse();
+        item.setProductId(rs.getString("product_id"));
+        item.setProductName(rs.getString("product_name"));
+        item.setPrice(rs.getDouble("price"));
+        item.setSlug(rs.getString("slug"));
+        item.setVariants(new ArrayList<>());
+        return item;
     }
 }
