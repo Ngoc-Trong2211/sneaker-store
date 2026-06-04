@@ -48,7 +48,7 @@ public class SecurityConfig {
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
                 "/cart-item/v1/cart-items/**",
-                "/favourite/v1/**"
+                "/favourite/v1/**", "/chat"
         };
         http
                 .cors(Customizer.withDefaults())
