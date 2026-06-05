@@ -25,6 +25,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Value(("${security.authentication.jwt.refresh-token-validity}"))
     private long refreshTokenTime;
 
+    @Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendUrl;
+
     private String getCookieValue(HttpServletRequest request) {
         if (request.getCookies() == null) {
             return null;
@@ -60,25 +63,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, deleteGuestCookie.toString());
 
-        response.setContentType("application/json");
-        response.getWriter().write("""
-            {
-              "accessToken": "%s",
-              "userLogin": {
-                "id": "%s",
-                "email": "%s",
-                "name": "%s"
-              }
-            }
-            """.formatted(
-                responseBody.getLoginResponse().getAccessToken(),
-                responseBody.getLoginResponse().getUserLogin().getId(),
-                responseBody.getLoginResponse().getUserLogin().getEmail(),
-                responseBody.getLoginResponse().getUserLogin().getName()
-        ));
-
         response.sendRedirect(
-                "http://localhost:3000/oauth2/redirect?token="
+                frontendUrl.replaceAll("/$", "") + "/oauth2/redirect?token="
                         + responseBody.getLoginResponse().getAccessToken()
         );
     }

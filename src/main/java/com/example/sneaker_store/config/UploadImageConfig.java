@@ -9,9 +9,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class UploadImageConfig implements WebMvcConfigurer {
 
+    @Value("${app.upload-dir:file:///D:/DoAnTN/projectSneaker/images/}")
+    private String uploadDir;
+
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:///D:/DoAnTN/projectSneaker/images/");
+                .addResourceLocations(normalizeUploadDir());
+    }
+
+    private String normalizeUploadDir() {
+        return uploadDir.endsWith("/") ? uploadDir : uploadDir + "/";
     }
 }

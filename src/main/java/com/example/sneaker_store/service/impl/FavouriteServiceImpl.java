@@ -53,20 +53,20 @@ public class FavouriteServiceImpl implements FavouriteService {
     @Override
     public List<FavouriteResponse> getFavouriteById(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
-        String sql = """
-            SELECT
-                p.id AS product_id,
-                p.name AS product_name,
-                p.price AS price,
-                pv.color AS color,
-                pi.imageurl AS image_url,
-                p.slug AS slug
-            FROM tbl_favourite f
-            JOIN tbl_product p ON f.product_id = p.id
-            JOIN tbl_product_variant pv ON pv.product_id = p.id
-            JOIN tbl_product_image pi ON pi.variant_id = pv.id
-            WHERE pi.is_main = true
-            """;
+        String sql = String.join(" ",
+                "SELECT",
+                "p.id AS product_id,",
+                "p.name AS product_name,",
+                "p.price AS price,",
+                "pv.color AS color,",
+                "pi.imageurl AS image_url,",
+                "p.slug AS slug",
+                "FROM tbl_favourite f",
+                "JOIN tbl_product p ON f.product_id = p.id",
+                "JOIN tbl_product_variant pv ON pv.product_id = p.id",
+                "JOIN tbl_product_image pi ON pi.variant_id = pv.id",
+                "WHERE pi.is_main = true"
+        );
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         if (email != null && !email.equals("anonymousUser")) {

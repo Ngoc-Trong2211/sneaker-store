@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface RoleService {
     RoleEntity findById(Long id);
+    RoleEntity findByName(String name);
     CreateRoleResponse createRole(CreateRoleRequest req);
     UpdateRoleResponse updateRole(UpdateRoleRequest req);
     void updateActiveRole(Long id, String active);

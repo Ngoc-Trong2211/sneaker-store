@@ -35,14 +35,12 @@ public interface ProductRepository extends JpaRepository<ProductEntity, String>,
 
     @Transactional
     @Modifying
-    @Query("""
-        UPDATE ProductEntity p
-            SET p.discount = null
-                WHERE p.discount.id in (
-                    SELECT d.id
-                    FROM DiscountEntity d
-                    WHERE d.status = 'EXPIRED'
-                )
-    """)
+    @Query("UPDATE ProductEntity p " +
+            "SET p.discount = null " +
+            "WHERE p.discount.id in (" +
+            "SELECT d.id " +
+            "FROM DiscountEntity d " +
+            "WHERE d.status = 'EXPIRED'" +
+            ")")
     void autoClearDiscountFromProducts();
 }

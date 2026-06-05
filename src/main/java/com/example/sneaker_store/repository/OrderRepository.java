@@ -21,28 +21,24 @@ public interface OrderRepository extends JpaRepository<OrderEntity, String>, Jpa
                                         Pageable pageable);
     Optional<OrderEntity> findByCode(String code);
 
-    @Query("""
-    SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END
-    FROM OrderEntity o
-    JOIN o.orderItems oi
-    WHERE o.userId = :userId
-      AND oi.productId = :productId
-      AND o.status = :status
-""")
+    @Query("SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END " +
+            "FROM OrderEntity o " +
+            "JOIN o.orderItems oi " +
+            "WHERE o.userId = :userId " +
+            "AND oi.productId = :productId " +
+            "AND o.status = :status")
     boolean existsCompletedOrder(
             @Param("userId") String userId,
             @Param("productId") String productId,
             @Param("status") OrderStatus status
     );
 
-    @Query("""
-    SELECT DISTINCT o
-    FROM OrderEntity o
-    JOIN o.orderItems oi
-    JOIN oi.productVariant pv
-    WHERE o.code = :codeOrder
-    AND pv.product.id = :productId
-""")
+    @Query("SELECT DISTINCT o " +
+            "FROM OrderEntity o " +
+            "JOIN o.orderItems oi " +
+            "JOIN oi.productVariant pv " +
+            "WHERE o.code = :codeOrder " +
+            "AND pv.product.id = :productId")
     Optional<OrderEntity> findByCodeAndProductId(
             @Param("codeOrder") String codeOrder,
             @Param("productId") String productId

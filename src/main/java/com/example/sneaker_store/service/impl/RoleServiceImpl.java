@@ -41,6 +41,11 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public RoleEntity findByName(String name) {
+        return this.roleRepository.findByName(name.toUpperCase());
+    }
+
+    @Override
 //    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
     public CreateRoleResponse createRole(CreateRoleRequest req) {
         if (this.roleRepository.existsByName(req.getName())) throw new NameRoleExistsException("Tên role đã tồn tại!");

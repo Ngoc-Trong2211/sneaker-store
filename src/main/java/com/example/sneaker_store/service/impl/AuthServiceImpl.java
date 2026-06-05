@@ -16,6 +16,7 @@ import com.example.sneaker_store.util.exception.user.EmailInvalidException;
 import com.example.sneaker_store.util.exception.user.PasswordMismatchException;
 import com.example.sneaker_store.util.exception.user.StatusInvalidException;
 import com.nimbusds.jose.util.Base64;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -205,7 +206,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResult registerUser(RegisterRequest req, String guestId) {
-        RoleEntity role = roleService.findById(1L);
+        RoleEntity role = findDefaultUserRole();
         if (!validate(req.getEmail())){
             throw new EmailInvalidException("Invalid email format!");
         }
@@ -221,7 +222,7 @@ public class AuthServiceImpl implements AuthService {
             user.setEmail(req.getEmail());
             user.setName(req.getName());
             user.setStatus(UserStatus.ACTIVE);
-            if (role!=null) user.setRole(role);
+            user.setRole(role);
             user = this.userRepository.save(user);
             cartService.mergeCart(user.getId(), guestId);
 
@@ -253,12 +254,15 @@ public class AuthServiceImpl implements AuthService {
     private static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
-        } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
-            return springSecurityUser.getUsername();
-        } else if (authentication.getPrincipal() instanceof Jwt jwt) {
-            return jwt.getSubject();
-        } else if (authentication.getPrincipal() instanceof String s) {
-            return s;
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else if (principal instanceof Jwt) {
+            return ((Jwt) principal).getSubject();
+        } else if (principal instanceof String) {
+            return (String) principal;
         }
         return null;
     }
@@ -304,17 +308,24 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public LoginResult loginWithGoogle(String email, String name, String guestId) {
-        RoleEntity role = roleService.findById(1L);
+        RoleEntity role = findDefaultUserRole();
         UserEntity user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     UserEntity newUser = new UserEntity();
                     newUser.setEmail(email);
                     newUser.setName(name);
                     newUser.setStatus(UserStatus.ACTIVE);
-                    if (role != null) newUser.setRole(role);
+                    newUser.setRole(role);
                     return userRepository.save(newUser);
                 });
+        if (user.getRole() == null || !"USER".equalsIgnoreCase(user.getRole().getName())) {
+            user.setRole(role);
+            user = userRepository.save(user);
+        } else {
+            user.setRole(role);
+        }
         if (!user.getStatus().equals(UserStatus.ACTIVE)) {
             throw new StatusInvalidException("Account is locked!");
         }
@@ -338,5 +349,13 @@ public class AuthServiceImpl implements AuthService {
         result.setRefreshToken(refreshToken);
         result.setLoginResponse(loginResponse);
         return result;
+    }
+
+    private RoleEntity findDefaultUserRole() {
+        RoleEntity role = roleService.findByName("USER");
+        if (role == null) {
+            throw new StatusInvalidException("Default USER role is not configured!");
+        }
+        return role;
     }
 }

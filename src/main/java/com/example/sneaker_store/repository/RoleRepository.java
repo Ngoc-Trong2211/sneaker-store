@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 public interface RoleRepository extends JpaRepository<RoleEntity, Long> , JpaSpecificationExecutor<RoleEntity> {
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, Long id);
-    @Query(value = "SELECT * FROM tbl_role WHERE name = :name", nativeQuery = true)
+    @Query("SELECT DISTINCT r FROM RoleEntity r LEFT JOIN FETCH r.permissions WHERE r.name = :name")
     RoleEntity findByName(@Param("name") String name);
 }

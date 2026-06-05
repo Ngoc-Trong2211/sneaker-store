@@ -32,32 +32,29 @@ public class DashboardService {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public DashboardResponse getDashboardStatistic() {
-        String sql = """
-            SELECT
-                (
-                    SELECT COALESCE(SUM(o.total_amount), 0)
-                    FROM tbl_order o
-                    WHERE o.status = 'COMPLETED'
-                      AND YEAR(o.created_at) = YEAR(CURDATE())
-                      AND MONTH(o.created_at) = MONTH(CURDATE())
-                ) AS revenue,
-
-                (
-                    SELECT COUNT(*)
-                    FROM tbl_product p
-                ) AS total_product,
-
-                (
-                    SELECT COUNT(*)
-                    FROM tbl_order o
-                    WHERE o.status <> 'CANCELLED'
-                ) AS total_order,
-
-                (
-                    SELECT COUNT(*)
-                    FROM tbl_user u
-                ) AS total_user
-            """;
+        String sql = sql(
+                "SELECT",
+                "(",
+                "SELECT COALESCE(SUM(o.total_amount), 0)",
+                "FROM tbl_order o",
+                "WHERE o.status = 'COMPLETED'",
+                "AND YEAR(o.created_at) = YEAR(CURDATE())",
+                "AND MONTH(o.created_at) = MONTH(CURDATE())",
+                ") AS revenue,",
+                "(",
+                "SELECT COUNT(*)",
+                "FROM tbl_product p",
+                ") AS total_product,",
+                "(",
+                "SELECT COUNT(*)",
+                "FROM tbl_order o",
+                "WHERE o.status <> 'CANCELLED'",
+                ") AS total_order,",
+                "(",
+                "SELECT COUNT(*)",
+                "FROM tbl_user u",
+                ") AS total_user"
+        );
 
         return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
             DashboardResponse res = new DashboardResponse();
@@ -158,16 +155,16 @@ public class DashboardService {
                 cell.setCellStyle(headerStyle);
             }
 
-            String revenueSql = """
-            SELECT
-                YEAR(created_at) AS year,
-                MONTH(created_at) AS month,
-                COALESCE(SUM(total_amount), 0) AS revenue
-            FROM tbl_order
-            WHERE status = 'COMPLETED'
-            GROUP BY YEAR(created_at), MONTH(created_at)
-            ORDER BY year, month
-            """;
+            String revenueSql = sql(
+                    "SELECT",
+                    "YEAR(created_at) AS year,",
+                    "MONTH(created_at) AS month,",
+                    "COALESCE(SUM(total_amount), 0) AS revenue",
+                    "FROM tbl_order",
+                    "WHERE status = 'COMPLETED'",
+                    "GROUP BY YEAR(created_at), MONTH(created_at)",
+                    "ORDER BY year, month"
+            );
 
             List<Map<String, Object>> revenues = jdbcTemplate.queryForList(revenueSql);
 
@@ -206,18 +203,18 @@ public class DashboardService {
                 cell.setCellStyle(headerStyle);
             }
 
-            String productSql = """
-            SELECT
-                p.name,
-                SUM(oi.quantity) AS total_sold
-            FROM tbl_product p
-            JOIN tbl_order_item oi ON oi.product_id = p.id
-            JOIN tbl_order o ON o.id = oi.order_id
-            WHERE o.status = 'COMPLETED'
-            GROUP BY p.id, p.name
-            ORDER BY total_sold DESC
-            LIMIT 5
-            """;
+            String productSql = sql(
+                    "SELECT",
+                    "p.name,",
+                    "SUM(oi.quantity) AS total_sold",
+                    "FROM tbl_product p",
+                    "JOIN tbl_order_item oi ON oi.product_id = p.id",
+                    "JOIN tbl_order o ON o.id = oi.order_id",
+                    "WHERE o.status = 'COMPLETED'",
+                    "GROUP BY p.id, p.name",
+                    "ORDER BY total_sold DESC",
+                    "LIMIT 5"
+            );
 
             List<Map<String, Object>> products = jdbcTemplate.queryForList(productSql);
 
@@ -256,24 +253,24 @@ public class DashboardService {
 
     public List<FavouriteResponse> topPick(String gender) {
 
-        String productSql = """
-        SELECT
-            COUNT(ot.id) AS total_sold,
-            p.id AS product_id,
-            p.name AS product_name,
-            p.price,
-            p.slug
-        FROM tbl_order o
-        JOIN tbl_order_item ot ON ot.order_id = o.id
-        JOIN tbl_product p ON p.id = ot.product_id
-        JOIN tbl_category c ON c.id = p.category_id
-        LEFT JOIN tbl_category cp ON cp.id = c.parent_id
-        WHERE o.status = 'COMPLETED'
-          AND cp.name = :gender
-        GROUP BY p.id, p.name, p.price, p.slug
-        ORDER BY total_sold DESC
-        LIMIT 8
-        """;
+        String productSql = sql(
+                "SELECT",
+                "COUNT(ot.id) AS total_sold,",
+                "p.id AS product_id,",
+                "p.name AS product_name,",
+                "p.price,",
+                "p.slug",
+                "FROM tbl_order o",
+                "JOIN tbl_order_item ot ON ot.order_id = o.id",
+                "JOIN tbl_product p ON p.id = ot.product_id",
+                "JOIN tbl_category c ON c.id = p.category_id",
+                "LEFT JOIN tbl_category cp ON cp.id = c.parent_id",
+                "WHERE o.status = 'COMPLETED'",
+                "AND cp.name = :gender",
+                "GROUP BY p.id, p.name, p.price, p.slug",
+                "ORDER BY total_sold DESC",
+                "LIMIT 8"
+        );
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("gender", gender);
@@ -319,17 +316,17 @@ public class DashboardService {
                 .map(FavouriteResponse::getProductId)
                 .toList();
 
-        String variantSql = """
-        SELECT
-            pv.product_id,
-            pv.color,
-            pi.imageurl AS image_url
-        FROM tbl_product_variant pv
-        LEFT JOIN tbl_product_image pi
-            ON pi.variant_id = pv.id
-            AND pi.is_main = true
-        WHERE pv.product_id IN (:productIds)
-        """;
+        String variantSql = sql(
+                "SELECT",
+                "pv.product_id,",
+                "pv.color,",
+                "pi.imageurl AS image_url",
+                "FROM tbl_product_variant pv",
+                "LEFT JOIN tbl_product_image pi",
+                "ON pi.variant_id = pv.id",
+                "AND pi.is_main = true",
+                "WHERE pv.product_id IN (:productIds)"
+        );
 
         MapSqlParameterSource variantParams = new MapSqlParameterSource()
                 .addValue("productIds", productIds);
@@ -359,17 +356,17 @@ public class DashboardService {
     }
 
     private static @NonNull String getString(List<String> existingIds) {
-        String additionalSql = """
-        SELECT
-            p.id AS product_id,
-            p.name AS product_name,
-            p.price,
-            p.slug
-        FROM tbl_product p
-        JOIN tbl_category c ON c.id = p.category_id
-        LEFT JOIN tbl_category cp ON cp.id = c.parent_id
-        WHERE cp.name = :gender
-        """;
+        String additionalSql = sql(
+                "SELECT",
+                "p.id AS product_id,",
+                "p.name AS product_name,",
+                "p.price,",
+                "p.slug",
+                "FROM tbl_product p",
+                "JOIN tbl_category c ON c.id = p.category_id",
+                "LEFT JOIN tbl_category cp ON cp.id = c.parent_id",
+                "WHERE cp.name = :gender"
+        );
 
         if (!existingIds.isEmpty()) {
             additionalSql += " AND p.id NOT IN (:productIds) ";
@@ -377,6 +374,10 @@ public class DashboardService {
 
         additionalSql += " LIMIT :remain ";
         return additionalSql;
+    }
+
+    private static String sql(String... lines) {
+        return String.join(" ", lines);
     }
 
     private FavouriteResponse mapProduct(ResultSet rs) throws SQLException {

@@ -14,15 +14,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface DiscountRepository extends JpaRepository<DiscountEntity, String>, JpaSpecificationExecutor<DiscountEntity> {
-    @Query("""
-        SELECT COUNT(d) > 0
-                FROM DiscountEntity d
-                        WHERE d.applyFor = :applyFor
-                                 AND d.nameApply = :nameApply
-                                 AND d.status = 'ACTIVE'
-                                 AND d.endTime >= :startTime
-                                 AND d.startTime <= :endTime
-        """)
+    @Query("SELECT COUNT(d) > 0 " +
+            "FROM DiscountEntity d " +
+            "WHERE d.applyFor = :applyFor " +
+            "AND d.nameApply = :nameApply " +
+            "AND d.status = 'ACTIVE' " +
+            "AND d.endTime >= :startTime " +
+            "AND d.startTime <= :endTime")
     boolean existsOverlap(@Param("applyFor") String applyFor,
                           @Param("nameApply") String nameApply,
                           @Param("endTime") Instant endTime,
@@ -35,13 +33,11 @@ public interface DiscountRepository extends JpaRepository<DiscountEntity, String
 
     @Modifying
     @Transactional
-    @Query("""
-    UPDATE DiscountEntity d
-    SET d.status = 'ACTIVE'
-    WHERE d.status = 'UPCOMING'
-      AND d.startTime <= :currentTime
-      AND d.endTime > :currentTime
-""")
+    @Query("UPDATE DiscountEntity d " +
+            "SET d.status = 'ACTIVE' " +
+            "WHERE d.status = 'UPCOMING' " +
+            "AND d.startTime <= :currentTime " +
+            "AND d.endTime > :currentTime")
     void updateUpcomingToActive(@Param("currentTime") Instant currentTime);
 
     @Query("SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END FROM DiscountEntity d WHERE d.id = :id AND d.endTime < :currentTime")
