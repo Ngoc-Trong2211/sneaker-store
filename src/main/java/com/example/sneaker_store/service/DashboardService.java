@@ -266,6 +266,7 @@ public class DashboardService {
                 "JOIN tbl_category c ON c.id = p.category_id",
                 "LEFT JOIN tbl_category cp ON cp.id = c.parent_id",
                 "WHERE o.status = 'COMPLETED'",
+                "AND p.status = 'ACTIVE'",
                 "AND cp.name = :gender",
                 "GROUP BY p.id, p.name, p.price, p.slug",
                 "ORDER BY total_sold DESC",
@@ -365,7 +366,8 @@ public class DashboardService {
                 "FROM tbl_product p",
                 "JOIN tbl_category c ON c.id = p.category_id",
                 "LEFT JOIN tbl_category cp ON cp.id = c.parent_id",
-                "WHERE cp.name = :gender"
+                "WHERE cp.name = :gender",
+                "AND p.status = 'ACTIVE'"
         );
 
         if (!existingIds.isEmpty()) {

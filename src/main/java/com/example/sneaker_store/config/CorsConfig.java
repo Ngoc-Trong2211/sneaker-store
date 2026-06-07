@@ -17,7 +17,9 @@ public class CorsConfig {
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
                 "https://*.amazonaws.com:*",
-                "http://3.27.84.155:3000"
+                "http://3.27.84.155:3000",
+                "http://sneakerstore.online",
+                "https://sneakerstore.online"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Guest-Id"));

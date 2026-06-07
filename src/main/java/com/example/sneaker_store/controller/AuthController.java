@@ -43,9 +43,9 @@ public class AuthController {
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh", loginResult.getRefreshToken())
                 .httpOnly(true)
-//                .secure(true)
-                .secure(false)
-                .sameSite("Lax")
+                .secure(true)
+//                .secure(false)
+                .sameSite("None")
                 .path("/")
                 .maxAge(refreshTokenTime)
                 .build();
@@ -74,9 +74,9 @@ public class AuthController {
                 .httpOnly(true)
                 .path("/")
                 .maxAge(refreshTokenTime)
-//                .secure(true)
-                .secure(false)
-                .sameSite("Lax")
+                .secure(true)
+//                .secure(false)
+                .sameSite("None")
                 .build();
 
         return ResponseEntity.ok()
@@ -94,9 +94,9 @@ public class AuthController {
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh", result.getRefreshToken())
                 .httpOnly(true)
-//                .secure(true)
-                .secure(false)
-                .sameSite("Lax")
+                .secure(true)
+//                .secure(false)
+                .sameSite("None")
                 .path("/")
                 .maxAge(refreshTokenTime)
                 .build();
@@ -113,9 +113,9 @@ public class AuthController {
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh", null)
                 .httpOnly(true)
-//                .secure(true)
-                .secure(false)
-                .sameSite("Lax")
+                .secure(true)
+//                .secure(false)
+                .sameSite("None")
                 .path("/")
                 .maxAge(0)
                 .build();

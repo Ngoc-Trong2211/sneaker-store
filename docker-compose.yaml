@@ -22,7 +22,7 @@ services:
     container_name: sneaker-frontend
     image: pvngoctrong/sneaker-store-frontend:latest
     ports:
-      - "3000:80"
+      - "80:80"
     depends_on:
       - backend-service
     restart: unless-stopped

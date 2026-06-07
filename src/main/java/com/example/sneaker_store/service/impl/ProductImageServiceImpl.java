@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -40,6 +41,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
+    @Transactional
     public List<CreateProductImageResponse> createProductImage(MultipartFile[] files) {
         List<CreateProductImageResponse> listRes = new ArrayList<>();
         List<UploadFileResponse> uploadMultiFile = uploadFileResponses(files);
