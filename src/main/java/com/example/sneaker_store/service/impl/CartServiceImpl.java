@@ -11,6 +11,7 @@ import com.example.sneaker_store.service.UserService;
 import jakarta.transaction.Transactional;
 import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.sneaker_store.service.CartService;
@@ -18,7 +19,8 @@ import com.example.sneaker_store.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.text.NumberFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -96,7 +98,6 @@ public class CartServiceImpl implements CartService {
         this.cartRepository.deleteById(guestCart.getId());
     }
 
-
     @Override
     @Transactional
     public GetCartResponse getCart(String guestId) {
@@ -152,5 +153,13 @@ public class CartServiceImpl implements CartService {
         itemRes.setSlugCategory(item.getProductVariant().getProduct().getCategory().getSlug());
         itemRes.setBrandName(item.getProductVariant().getProduct().getBrand().getName());
         return itemRes;
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void deleteFavouriteGuest() {
+        Instant expiredDate = Instant.now().minus(30, ChronoUnit.DAYS);
+        cartItemRepository.deleteExpiredGuestCartItems(expiredDate);
+        cartRepository.deleteExpiredGuestCart(expiredDate);
     }
 }

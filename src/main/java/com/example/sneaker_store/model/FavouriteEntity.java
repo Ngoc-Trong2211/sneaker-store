@@ -1,6 +1,5 @@
 package com.example.sneaker_store.model;
 
-import com.example.sneaker_store.service.impl.AuthServiceImpl;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

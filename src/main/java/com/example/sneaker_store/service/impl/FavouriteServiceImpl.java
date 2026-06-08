@@ -2,10 +2,8 @@ package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.dto.response.FavouriteResponse;
 import com.example.sneaker_store.model.FavouriteEntity;
-import com.example.sneaker_store.model.ProductEntity;
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.repository.FavouriteRepository;
-import com.example.sneaker_store.repository.ProductRepository;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.FavouriteService;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -132,5 +133,11 @@ public class FavouriteServiceImpl implements FavouriteService {
             }
             favouriteRepository.deleteByGuestIdAndProductId(guestId, productId);
         }
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void deleteFavouriteGuest() {
+        Instant expiredDate = Instant.now().minus(30, ChronoUnit.DAYS);
+        favouriteRepository.deleteExpiredGuestFavourite(expiredDate);
     }
 }
