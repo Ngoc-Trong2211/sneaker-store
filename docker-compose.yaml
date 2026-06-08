@@ -21,6 +21,11 @@ services:
   frontend:
     container_name: sneaker-frontend
     image: pvngoctrong/sneaker-store-frontend:latest
+    build:
+      context: ../fe-sneaker-store
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: https://sneakerstore.online
     ports:
       - "80:80"
     depends_on:
@@ -32,6 +37,9 @@ services:
   backend-service:
     container_name: sneaker-backend
     image: pvngoctrong/sneaker-store-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     expose:
       - "8080"
     depends_on:
@@ -47,9 +55,11 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD:-}
       GEMINI_KEY: ${GEMINI_KEY:?GEMINI_KEY is required}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
-      APP_FRONTEND_URL: ${APP_FRONTEND_URL:-http://localhost:3000}
+      APP_FRONTEND_URL: https://sneakerstore.online
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI: https://sneakerstore.online/login/oauth2/code/google
       APP_UPLOAD_DIR: file:/app/uploads/
-      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0"
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -Dapp.frontend-url=https://sneakerstore.online"
     volumes:
       - uploads_data:/app/uploads
     networks:
