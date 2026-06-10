@@ -10,4 +10,5 @@ public class CreateOrderRequest {
     private String phone;
     private String receiverName;
     private String address;
+    private String couponCode;
 }

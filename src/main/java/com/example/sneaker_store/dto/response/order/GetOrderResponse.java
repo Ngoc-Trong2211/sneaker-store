@@ -36,7 +36,10 @@ public class GetOrderResponse {
         private String phone;
         private String receiverName;
         private String status;
-        private Long totalAmount;
+        private Double subTotalAmount;
+        private Double couponDiscountAmount;
+        private String couponCode;
+        private Double totalAmount;
         private String code;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")

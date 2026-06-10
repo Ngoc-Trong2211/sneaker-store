@@ -12,6 +12,9 @@ import java.util.List;
 public class CreateOrderResponse {
     private String id;
     private String code;
+    private double subTotalAmount;
+    private double couponDiscountAmount;
+    private String couponCode;
     private double totalAmount;
     private OrderStatus status;
     private String email;

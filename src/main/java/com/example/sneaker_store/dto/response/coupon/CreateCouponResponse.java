@@ -2,8 +2,6 @@ package com.example.sneaker_store.dto.response.coupon;
 
 import com.example.sneaker_store.util.enumEntity.CouponType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +20,5 @@ public class CreateCouponResponse {
     private Instant expiresAt;
     private int quantity;
 
-    @Enumerated(EnumType.STRING)
     private CouponType type;
 }

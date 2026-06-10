@@ -24,6 +24,9 @@ public class OrderEntity {
     private String userId;
     private String guestId;
 
+    private double subTotalAmount;
+    private double couponDiscountAmount;
+    private String couponCode;
     private double totalAmount;
 
     @Enumerated(EnumType.STRING)

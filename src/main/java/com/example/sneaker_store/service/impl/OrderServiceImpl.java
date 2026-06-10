@@ -10,6 +10,7 @@ import com.example.sneaker_store.repository.OrderRepository;
 import com.example.sneaker_store.repository.ReviewEligibilityRepository;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.EmailService;
+import com.example.sneaker_store.service.CouponService;
 import com.example.sneaker_store.service.OrderItemService;
 import com.example.sneaker_store.service.OrderService;
 import com.example.sneaker_store.service.UserService;
@@ -49,6 +50,7 @@ public class OrderServiceImpl implements OrderService {
     private final ReviewEligibilityRepository reviewEligibilityRepository;
     private final EmailService emailService;
     private final UserRepository userRepository;
+    private final CouponService couponService;
 
     @Override
     @Transactional
@@ -78,7 +80,15 @@ public class OrderServiceImpl implements OrderService {
             recipientEmail = request.getEmail();
         }
         order = this.orderRepository.save(order);
-        order.setTotalAmount(this.orderItemService.addToOrder(guestId, order));
+        double subTotalAmount = this.orderItemService.addToOrder(guestId, order);
+        double couponDiscountAmount = 0;
+        if (request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
+            couponDiscountAmount = this.couponService.useCoupon(request.getCouponCode(), subTotalAmount);
+            order.setCouponCode(request.getCouponCode().trim().toUpperCase());
+        }
+        order.setSubTotalAmount(subTotalAmount);
+        order.setCouponDiscountAmount(couponDiscountAmount);
+        order.setTotalAmount(Math.max(0, subTotalAmount - couponDiscountAmount));
         order = this.orderRepository.save(order);
         List<OrderItemEntity> orderItems = this.orderItemRepository.findByOrderId(order.getId());
         sendOrderConfirmationEmailAfterCommit(recipientEmail, order, orderItems);
