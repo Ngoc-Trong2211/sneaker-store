@@ -1,6 +1,7 @@
 package com.example.sneaker_store.service.impl;
 
 import com.example.sneaker_store.dto.request.auth.GetAccountResponse;
+import com.example.sneaker_store.model.PermissionEntity;
 import com.example.sneaker_store.model.RoleEntity;
 import com.example.sneaker_store.model.UserEntity;
 import com.example.sneaker_store.dto.request.auth.LoginRequest;
@@ -301,6 +302,10 @@ public class AuthServiceImpl implements AuthService {
             userLogin.setEmail(emailLogin);
             RoleEntity role = roleService.findById(user.getRole().getId());
             userLogin.setRole(role.getName());
+            userLogin.setPermissions(role.getPermissions()
+                            .stream()
+                            .map(PermissionEntity::getName)
+                            .toList());
             userLogin.setStatus(user.getStatus().toString());
             return userLogin;
         }

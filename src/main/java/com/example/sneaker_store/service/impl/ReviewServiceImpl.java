@@ -23,6 +23,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('REVIEW_READ') or isAnonymous()")
     public boolean canReviewByOrderCodeAndProduct(String codeOrder, String productId) {
         if (!hasText(codeOrder) || !hasText(productId)) {
             return false;
@@ -79,6 +81,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('REVIEW_READ_USER')")
     public List<GetReviewResponse.Review> getReviewsByUserId(String userId) {
         return reviewRepository.findByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
@@ -88,6 +91,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('REVIEW_CREATE') or isAnonymous()")
     public void createReview(CreateReviewRequest req) {
         ProductEntity product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -218,6 +222,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('REVIEW_READ') or hasAuthority('ADMIN')")
     public GetReviewPageResponse getReview(Pageable pageable, SpecificationReviewRequest req) {
         Specification<ReviewEntity> spec = ReviewSpecification.specReview(req);
         Page<ReviewEntity> page = this.reviewRepository.findAll(spec, pageable);

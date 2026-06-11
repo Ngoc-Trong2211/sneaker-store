@@ -18,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @PreAuthorize("hasAuthority('BRAND_CREATE') or hasAuthority('ADMIN')")
     public CreateBrandResponse createBrand(CreateBrandRequest req) {
         BrandEntity brand = new BrandEntity();
         if (this.brandRepository.existsByName(req.getName().toUpperCase()))
@@ -76,7 +77,7 @@ public class BrandServiceImpl implements BrandService {
 //    }
 
     @Override
-    // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @PreAuthorize("hasAuthority('BRAND_UPDATE') or hasAuthority('ADMIN')")
     public UpdateBrandResponse updateBrand(UpdateBrandRequest req){
         BrandEntity brand = this.findById(req.getId());
 
@@ -104,7 +105,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @PreAuthorize("hasAuthority('BRAND_READ') or hasAuthority('ADMIN')")
     public GetBrandResponse getBrand(Pageable pageable, SpecificationBrandRequest request) {
         Specification<BrandEntity> spec = BrandSpecification.specBrand(request);
         Page<BrandEntity> page = this.brandRepository.findAll(spec, pageable);
@@ -132,7 +133,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    // @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @PreAuthorize("hasAuthority('BRAND_DELETE') or hasAuthority('ADMIN')")
     public void deleteBrand(Long id) {
         BrandEntity brand = this.findById(id);
         this.fileService.deleteFile(brand.getPublicId());

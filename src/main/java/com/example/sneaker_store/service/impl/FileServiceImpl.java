@@ -7,6 +7,7 @@ import com.example.sneaker_store.service.FileService;
 import com.example.sneaker_store.util.exception.user.IdInvalidException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +35,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('FILE_CREATE') or hasAuthority('ADMIN')")
     public UploadFileResponse uploadFile(MultipartFile file, String folder) {
         if (file == null || file.isEmpty()) {
             throw new IdInvalidException("File is empty");
@@ -67,6 +69,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('FILE_DELETE') or hasAuthority('ADMIN')")
     public void deleteFile(String publicId) {
         if (publicId == null || publicId.isEmpty()) {
             throw new IdInvalidException("PublicId không được để trống");

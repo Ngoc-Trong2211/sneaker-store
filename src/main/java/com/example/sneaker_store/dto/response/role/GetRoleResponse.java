@@ -51,6 +51,7 @@ public class GetRoleResponse {
         @AllArgsConstructor
         @NoArgsConstructor
         public static class Permission{
+            private Long id;
             private String path;
             private MethodPermission method;
             private String entity;

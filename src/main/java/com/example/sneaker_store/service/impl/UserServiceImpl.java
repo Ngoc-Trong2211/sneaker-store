@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-//    @PreAuthorize("hasAuthority('USER_CREATE')")
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     public CreateUserResponse createUser(CreateUserRequest req) throws Exception {
         UserEntity user = new UserEntity();
         if(!validate(req.getEmail())){
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-//    @PreAuthorize("hasAuthority('USER_READ')")
+    @PreAuthorize("hasAuthority('USER_READ')")
     public GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req) {
         Specification<UserEntity> spec = UserSpecification.specUser(req);
         Page<UserEntity> pageUser = this.userRepository.findAll(spec, pageable);
@@ -100,10 +101,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-//    @PreAuthorize("""
-//                hasAuthority('USER_UPDATE')
-//                or #req.id = authentication.principal.id
-//            """)
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public UpdateUserResponse updateUser(UpdateUserRequest req) {
         Optional<UserEntity> user = this.userRepository.findById(req.getId());
         if (this.userRepository.existsByPhoneAndIdNot(req.getPhone(), req.getId())){
@@ -125,6 +123,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER_UPDATE_INFO')")
     public UpdateUserResponse updateUserInfo(UpdateInfoUserRequest req) {
         Optional<UserEntity> user = this.userRepository.findById(req.getId());
         if (this.userRepository.existsByPhoneAndIdNot(req.getPhone(), req.getId())){
@@ -143,7 +142,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-//    @PreAuthorize("hasAuthority('USER_UPDATE_STATUS')")
+    @PreAuthorize("hasAuthority('USER_UPDATE_STATUS')")
     public GetUserResponse.User updateStatus(String id, String status) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
@@ -158,7 +157,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @PreAuthorize("hasAuthority('USER_DELETE')")
     public void disableUser(String id) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
@@ -172,7 +171,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-//    @PreAuthorize("isFullyAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     public void handleChangePassword(ChangePasswordRequest req) {
         String email = AuthServiceImpl.getCurrentUserLogin()
                 .orElseThrow(() -> new RuntimeException("user not found"));;
@@ -227,10 +226,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-//    @PreAuthorize("""
-//        hasAuthority('USER_READ_DETAIL')
-//        or #id == authentication.principal.id
-//    """)
+    @PreAuthorize("hasAuthority('USER_READ_DETAIL')")
     public GetUserByIdResponse getUserById(String id) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){

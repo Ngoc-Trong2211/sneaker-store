@@ -18,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,7 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('COUPON_CREATE') or hasAuthority('ADMIN')")
     public CreateCouponResponse createCoupon(CreateCouponRequest req) {
         String code = normalizeCode(req.getCode());
         validateCouponData(code, req.getType(), req.getDiscountValue(), req.getMinOrderValue(), req.getQuantity());
@@ -54,6 +56,7 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('COUPON_UPDATE') or hasAuthority('ADMIN')")
     public UpdateCouponResponse updateCoupon(UpdateCouponRequest req) {
         CouponEntity coupon = this.couponRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Coupon not found with id: " + req.getId()));
@@ -76,6 +79,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('COUPON_READ') or hasAuthority('ADMIN')")
     public GetCouponResponse.Coupon getCouponById(Long id) {
         CouponEntity coupon = this.couponRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Coupon not found with id: " + id));
@@ -83,6 +87,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('COUPON_READ') or hasAuthority('ADMIN')")
     public GetCouponResponse getCoupons(CouponSpecificationRequest request, Pageable pageable) {
         Page<CouponEntity> page = this.couponRepository.findAll(specCoupon(request), pageable);
         GetCouponResponse response = new GetCouponResponse();
@@ -99,6 +104,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('COUPON_VALIDATE') or isAnonymous() or hasAuthority('ADMIN') or hasRole('USER')")
     public ValidateCouponResponse validateCoupon(String code, double orderAmount) {
         CouponEntity coupon = this.couponRepository.findByCodeIgnoreCase(normalizeCode(code))
                 .orElseThrow(() -> new RuntimeException("Coupon not found"));
@@ -121,6 +127,7 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('COUPON_DELETE') or hasAuthority('ADMIN')")
     public void deleteCoupon(Long id) {
         CouponEntity coupon = this.couponRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Coupon not found with id: " + id));

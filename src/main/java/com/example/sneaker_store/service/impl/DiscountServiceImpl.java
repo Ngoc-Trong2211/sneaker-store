@@ -30,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('DISCOUNT_CREATE') or hasAuthority('ADMIN')")
     public CreateDiscountResponse createDiscount(CreateDiscountRequest request) {
         if (this.discountRepository.existsOverlap(
                 request.getApplyFor(), request.getNameApply(), request.getEndTime(), request.getStartTime()))
@@ -91,6 +93,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('DISCOUNT_UPDATE') or hasAuthority('ADMIN')")
     public UpdateDiscountResponse updateDiscount(UpdateDiscountRequest request) {
         DiscountEntity discount = this.discountRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + request.getId()));
@@ -134,6 +137,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('DISCOUNT_READ') or hasAuthority('ADMIN')")
     public Discount getDiscountById(String id) {
         DiscountEntity discount = this.discountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
@@ -141,6 +145,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('DISCOUNT_UPDATE_STATUS') or hasAuthority('ADMIN')")
     public void updateStatusDiscount(String id, DiscountStatus status) {
         DiscountEntity discount = this.discountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
@@ -152,6 +157,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('DISCOUNT_READ') or hasAuthority('ADMIN')")
     public GetDiscountResponse getDiscounts(DiscountSpecificationRequest request, Pageable pageable) {
         Specification<DiscountEntity> spec = DiscountSpecification.specDiscount(request);
         Page<DiscountEntity> discountPage = this.discountRepository.findAll(spec, pageable);
@@ -163,6 +169,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('DISCOUNT_DELETE') or hasAuthority('ADMIN')")
     public void deleteDiscount(String id) {
         DiscountEntity discount = this.discountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));

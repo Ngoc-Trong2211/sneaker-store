@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.example.sneaker_store.service.CartService;
@@ -34,6 +35,7 @@ public class CartServiceImpl implements CartService {
     private final ModelMapper modelMapper;
 
     @Override
+    @PreAuthorize("hasAuthority('CART_CREATE') or isAnonymous()")
     public CartEntity createCart(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         if (email != null && !email.equals("anonymousUser")) {
@@ -100,6 +102,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('CART_READ') or isAnonymous()")
     public GetCartResponse getCart(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         GetCartResponse res = new GetCartResponse();

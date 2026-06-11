@@ -18,6 +18,7 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -61,6 +62,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('CHAT_USE') or isAnonymous()")
     public String chat(String message) {
         String excelAnswer = excelFallback(message);
 

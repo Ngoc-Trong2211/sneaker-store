@@ -11,6 +11,7 @@ import com.example.sneaker_store.util.enumEntity.SizeStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +24,7 @@ public class ProductSizeServiceImpl implements ProductSizeService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN')")
     public void updateSize(String variantId, Long sizeId, String sizeReq, Integer quantity) {
         ProductVariantEntity variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new RuntimeException("Variant not found"));

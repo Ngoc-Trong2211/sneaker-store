@@ -12,6 +12,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ public class FavouriteServiceImpl implements FavouriteService {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
+    @PreAuthorize("hasAuthority('FAVOURITE_CREATE') or isAnonymous()")
     public void createFavourite(String guestId, String productId) throws BadRequestException {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         FavouriteEntity favourite = new FavouriteEntity();
@@ -52,6 +54,7 @@ public class FavouriteServiceImpl implements FavouriteService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('FAVOURITE_READ') or isAnonymous()")
     public List<FavouriteResponse> getFavouriteById(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         String sql = String.join(" ",
@@ -118,6 +121,7 @@ public class FavouriteServiceImpl implements FavouriteService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('FAVOURITE_DELETE') or isAnonymous()")
     public void deleteFavourite(String guestId, String productId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         if (email != null && !email.equals("anonymousUser")) {

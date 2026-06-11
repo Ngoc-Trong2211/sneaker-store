@@ -18,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class PermissionServiceImpl implements PermissionService {
     private final ModelMapper modelMapper;
 
     @Override
-//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @PreAuthorize("hasAuthority('PERMISSION_CREATE') or hasAuthority('ADMIN')")
     public CreatePermissionResponse createPermission(CreatePermissionRequest req) {
         if (this.permissionRepository.existsByName(req.getName())){
             throw new PermissionInvalidException("Tên quyền hạn đã tồn tại!");
@@ -54,7 +55,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @PreAuthorize("hasAuthority('PERMISSION_UPDATE') or hasAuthority('ADMIN')")
     public UpdatePermissionResponse updatePermission(UpdatePermissionRequest req) {
         PermissionEntity permission = permissionRepository.findById(req.getId())
                 .orElseThrow(() -> new PermissionInvalidException("Không tìm thấy permission!"));
@@ -85,7 +86,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @PreAuthorize("hasAuthority('PERMISSION_DELETE') or hasAuthority('ADMIN')")
     public void deletePermission(Long id) {
         PermissionEntity permission = this.permissionRepository.findById(id).orElseThrow(() ->
                 new PermissionInvalidException("Quyền hạn này không tồn tại!"));
@@ -95,7 +96,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-//    @PreAuthorize("hasRole('ADMIN_SYSTEM')")
+    @PreAuthorize("hasAuthority('PERMISSION_READ') or hasAuthority('ADMIN')")
     public GetPermissionResponse getPermission(Pageable pageable, PermissionSpecificationRequest req) {
         Specification<PermissionEntity> spec = PermissionSpecification.specPermission(req);
         Page<PermissionEntity> pagePermission = this.permissionRepository.findAll(spec, pageable);

@@ -15,6 +15,7 @@ import com.example.sneaker_store.service.CartItemService;
 import com.example.sneaker_store.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -29,6 +30,7 @@ public class CartItemServiceImpl implements CartItemService {
     private final ProductSizeRepository productSizeRepository;
 
     @Override
+    @PreAuthorize("hasAuthority('CART_ITEM_CREATE') or isAnonymous()")
     public CreateCartItemResponse addToCart(CreateCartItemRequest req, String guestId) {
         ProductVariantEntity existingVariant = this.productVariantRepository.findById(req.getVariantId()).orElseThrow(() -> {
             log.warn("Product variant with id: {} not found", req.getVariantId());
@@ -76,6 +78,7 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('CART_ITEM_DELETE') or isAnonymous()")
     public void deleteCartItem(Long id) {
         CartItemEntity cartItem = this.cartItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
@@ -83,6 +86,7 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('CART_ITEM_UPDATE') or isAnonymous()")
     public int updateQuantity(UpdateQuantityRequest req) {
         CartItemEntity cartItem = this.cartItemRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));

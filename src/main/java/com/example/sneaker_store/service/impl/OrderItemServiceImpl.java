@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Transactional
     @Override
+    @PreAuthorize("hasAuthority('ORDER_ITEM_CREATE') or hasAuthority('ORDER_CREATE') or isAnonymous()")
     public double addToOrder(String guestId, OrderEntity order) {
         CartEntity cart = getCart(guestId);
         List<CartItemEntity> cartItems = cartItemRepository.findByCartId(cart.getId());

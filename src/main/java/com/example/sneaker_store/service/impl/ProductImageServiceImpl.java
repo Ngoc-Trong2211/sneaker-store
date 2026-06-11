@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +43,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_CREATE')")
     public List<CreateProductImageResponse> createProductImage(MultipartFile[] files) {
         List<CreateProductImageResponse> listRes = new ArrayList<>();
         List<UploadFileResponse> uploadMultiFile = uploadFileResponses(files);
@@ -57,6 +59,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_UPDATE')")
     public List<String> updateProductImage(MultipartFile[] files, List<String> oldFiles) {
         List<String> listRes = new ArrayList<>(
                 oldFiles != null ? oldFiles : new ArrayList<>()
@@ -77,6 +80,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_DELETE')")
     public void deleteProductImage(Long id) {
         ProductImageEntity img = this.productImageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy image"));
@@ -85,6 +89,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_READ')")
     public GetProductImageResponse getProductImageById(String productId) {
         List<ProductImageEntity> imgList = this.productImageRepository.findByVariantId(productId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy image"));

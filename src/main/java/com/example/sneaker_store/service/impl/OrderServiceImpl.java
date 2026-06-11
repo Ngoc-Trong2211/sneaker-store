@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -54,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('ORDER_CREATE') or isAnonymous()")
     public CreateOrderResponse createOrder(CreateOrderRequest request, String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
@@ -165,6 +167,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('ORDER_READ')")
     public GetOrderResponse getOrder(Pageable pageable, SpecificationOrderRequest req) {
         Specification<OrderEntity> spec = OrderSpecification.specOrder(req);
         Page<OrderEntity> page = this.orderRepository.findAll(spec, pageable);
@@ -183,6 +186,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('ORDER_UPDATE_STATUS')")
     public void updateStatus(String id, String status, String lyDoHuy) {
         OrderEntity order = this.orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("order not found"));
@@ -202,6 +206,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('ORDER_READ_OWN')")
     public GetOrderResponse getOrderByUser(Pageable pageable, String dateFrom, String dateTo, String status) {
         GetOrderResponse response = new GetOrderResponse();
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
@@ -246,6 +251,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('ORDER_CANCEL')")
     public void cancelOrder(String code, String lyDoHuy) {
         OrderEntity order = this.orderRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("order not found"));

@@ -32,6 +32,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
@@ -58,6 +59,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('PRODUCT_CREATE') or hasAuthority('ADMIN')")
     public CreateProductVariantResponse createProductVariant(CreateProductVariantRequest request) {
         ProductEntity product = this.productRepository.findByName(request.getProductName()).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", request.getProductName());
@@ -129,6 +131,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN')")
     public UpdateProductVariantResponse updateProductVariant(UpdateProductVariantRequest request) {
         ProductVariantEntity variant = productVariantRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Variant not found"));
@@ -261,6 +264,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN')")
     public GetVariantByIdResponse getVariantById(String id) {
         ProductVariantEntity variant = productVariantRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Variant not found"));
@@ -290,6 +294,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN')")
     public GetVariantBySkuResponse getVariantBySku(String sku) {
         ProductVariantEntity variant = this.productVariantRepository.findBySku(sku)
                 .orElseThrow(() -> new RuntimeException("Variant not found"));
@@ -321,6 +326,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN')")
     public GetProductVariantResponse getProductVariant(Pageable pageable, SpecificationProductVariantRequest request) {
         Specification<ProductVariantEntity> specification = ProductVariantSpecification.specVariant(request);
         Page<ProductVariantEntity> productVariantPage = this.productVariantRepository.findAll(specification, pageable);
@@ -345,6 +351,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('PRODUCT_DELETE') or hasAuthority('ADMIN')")
     public void deleteProductVariant(String id) {
         ProductVariantEntity existingVariant = this.productVariantRepository.findById(id).orElse(null);
         if (existingVariant == null) {
@@ -374,6 +381,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }  
 
     @Override
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE_STATUS') or hasAuthority('ADMIN')")
     public void updateProductVariantStatus(String id, String status) {
         if (VariantStatus.valueOf(status) == VariantStatus.DELETED) {
             this.deleteProductVariant(id);

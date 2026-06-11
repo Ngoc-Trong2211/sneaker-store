@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,6 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('CATEGORY_CREATE') or hasAuthority('ADMIN')")
     public CreateCategoryResponse createCategory(CreateCategoryRequest req) {
         if (this.categoryRepository.existsByNameAndParentId(req.getName().toUpperCase(), req.getParentId()))
             throw new NameExistsException("Name is exists");
@@ -63,6 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('CATEGORY_UPDATE') or hasAuthority('ADMIN')")
     public UpdateCategoryResponse updateCategory(UpdateCategoryRequest req) {
         CategoryEntity category = this.findById(req.getId());
         if (this.categoryRepository.existsByNameAndSlugAndIdNot(req.getName().toUpperCase(), category.getSlug(), req.getId())) {
@@ -83,6 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('CATEGORY_READ') or hasAuthority('ADMIN')")
     public GetCategoryResponse getCategory(Pageable pageable, SpecificationCategoryRequest name) {
         Specification<CategoryEntity> spec = CategorySpecification.specCategory(name);
         Page<CategoryEntity> page = this.categoryRepository.findAll(spec, pageable);
@@ -124,6 +128,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('CATEGORY_DELETE') or hasAuthority('ADMIN')")
     public void deleteCategory(Long id) {
         CategoryEntity category = this.findById(id);
         this.categoryRepository.deleteCategoryExistsParentId(id);
