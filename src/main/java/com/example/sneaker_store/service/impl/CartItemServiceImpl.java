@@ -30,7 +30,7 @@ public class CartItemServiceImpl implements CartItemService {
     private final ProductSizeRepository productSizeRepository;
 
     @Override
-    @PreAuthorize("hasAuthority('CART_ITEM_CREATE') or isAnonymous()")
+    @PreAuthorize("hasAuthority('CART_ITEM_CREATE') or isAnonymous() or hasAuthority('USER')")
     public CreateCartItemResponse addToCart(CreateCartItemRequest req, String guestId) {
         ProductVariantEntity existingVariant = this.productVariantRepository.findById(req.getVariantId()).orElseThrow(() -> {
             log.warn("Product variant with id: {} not found", req.getVariantId());
@@ -78,7 +78,7 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CART_ITEM_DELETE') or isAnonymous()")
+    @PreAuthorize("hasAuthority('CART_ITEM_DELETE') or isAnonymous() or hasAuthority('USER')")
     public void deleteCartItem(Long id) {
         CartItemEntity cartItem = this.cartItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
@@ -86,7 +86,7 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CART_ITEM_UPDATE') or isAnonymous()")
+    @PreAuthorize("hasAuthority('CART_ITEM_UPDATE') or isAnonymous() or hasAuthority('USER')")
     public int updateQuantity(UpdateQuantityRequest req) {
         CartItemEntity cartItem = this.cartItemRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));

@@ -35,7 +35,7 @@ public class CartServiceImpl implements CartService {
     private final ModelMapper modelMapper;
 
     @Override
-    @PreAuthorize("hasAuthority('CART_CREATE') or isAnonymous()")
+    @PreAuthorize("hasAuthority('CART_CREATE') or isAnonymous() or hasAuthority('USER')")
     public CartEntity createCart(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         if (email != null && !email.equals("anonymousUser")) {
@@ -102,7 +102,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('CART_READ') or isAnonymous()")
+    @PreAuthorize("hasAuthority('CART_READ') or isAnonymous() or hasAuthority('USER')")
     public GetCartResponse getCart(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         GetCartResponse res = new GetCartResponse();

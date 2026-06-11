@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('ORDER_CREATE') or isAnonymous()")
+    @PreAuthorize("hasAuthority('ORDER_CREATE') or isAnonymous() or hasAuthority('USER')")
     public CreateOrderResponse createOrder(CreateOrderRequest request, String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
@@ -206,7 +206,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('ORDER_READ_OWN')")
+    @PreAuthorize("hasAuthority('ORDER_READ_OWN') or hasAuthority('USER')")
     public GetOrderResponse getOrderByUser(Pageable pageable, String dateFrom, String dateTo, String status) {
         GetOrderResponse response = new GetOrderResponse();
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
@@ -251,7 +251,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('ORDER_CANCEL')")
+    @PreAuthorize("hasAuthority('ORDER_CANCEL') or hasAuthority('USER')")
     public void cancelOrder(String code, String lyDoHuy) {
         OrderEntity order = this.orderRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("order not found"));

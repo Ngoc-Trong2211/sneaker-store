@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_CREATE')")
+    @PreAuthorize("hasAuthority('USER_CREATE') or hasAuthority('ADMIN')")
     public CreateUserResponse createUser(CreateUserRequest req) throws Exception {
         UserEntity user = new UserEntity();
         if(!validate(req.getEmail())){
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_READ')")
+    @PreAuthorize("hasAuthority('USER_READ') or hasAuthority('ADMIN')")
     public GetUserResponse getUser(Pageable pageable, SpecificationUserRequest req) {
         Specification<UserEntity> spec = UserSpecification.specUser(req);
         Page<UserEntity> pageUser = this.userRepository.findAll(spec, pageable);
@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_UPDATE')")
+    @PreAuthorize("hasAuthority('USER_UPDATE') or hasAuthority('ADMIN')")
     public UpdateUserResponse updateUser(UpdateUserRequest req) {
         Optional<UserEntity> user = this.userRepository.findById(req.getId());
         if (this.userRepository.existsByPhoneAndIdNot(req.getPhone(), req.getId())){
@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_UPDATE_STATUS')")
+    @PreAuthorize("hasAuthority('USER_UPDATE_STATUS') or hasAuthority('ADMIN')")
     public GetUserResponse.User updateStatus(String id, String status) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('USER_DELETE')")
+    @PreAuthorize("hasAuthority('USER_DELETE') or hasAuthority('ADMIN')")
     public void disableUser(String id) {
         Optional<UserEntity> user = this.userRepository.findById(id);
         if (user.isPresent()){
