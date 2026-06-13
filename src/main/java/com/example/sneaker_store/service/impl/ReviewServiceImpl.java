@@ -51,7 +51,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('REVIEW_READ') or isAnonymous()")
+    @PreAuthorize("hasAuthority('REVIEW_READ') or isAnonymous() or hasAuthority('USER')")
     public boolean canReviewByOrderCodeAndProduct(String codeOrder, String productId) {
         if (!hasText(codeOrder) || !hasText(productId)) {
             return false;
@@ -81,7 +81,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('REVIEW_READ_USER')")
+    @PreAuthorize("hasAuthority('REVIEW_READ_USER') or hasAuthority('USER')")
     public List<GetReviewResponse.Review> getReviewsByUserId(String userId) {
         return reviewRepository.findByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
@@ -91,7 +91,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('REVIEW_CREATE') or isAnonymous()")
+    @PreAuthorize("hasAuthority('REVIEW_CREATE') or isAnonymous() or hasAuthority('USER')")
     public void createReview(CreateReviewRequest req) {
         ProductEntity product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));

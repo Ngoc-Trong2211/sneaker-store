@@ -28,7 +28,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Transactional
     @Override
-    @PreAuthorize("hasAuthority('ORDER_ITEM_CREATE') or hasAuthority('ORDER_CREATE') or isAnonymous()")
+    @PreAuthorize("hasAuthority('ORDER_ITEM_CREATE') or hasAuthority('ORDER_CREATE') or isAnonymous() or hasAuthority('USER')")
     public double addToOrder(String guestId, OrderEntity order) {
         CartEntity cart = getCart(guestId);
         List<CartItemEntity> cartItems = cartItemRepository.findByCartId(cart.getId());

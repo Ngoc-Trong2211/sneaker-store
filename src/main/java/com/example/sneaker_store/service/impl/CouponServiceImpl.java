@@ -87,7 +87,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('COUPON_READ') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('COUPON_READ') or hasAuthority('ADMIN') or hasAuthority('USER')")
     public GetCouponResponse getCoupons(CouponSpecificationRequest request, Pageable pageable) {
         Page<CouponEntity> page = this.couponRepository.findAll(specCoupon(request), pageable);
         GetCouponResponse response = new GetCouponResponse();
@@ -104,7 +104,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('COUPON_VALIDATE') or isAnonymous() or hasAuthority('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasAuthority('COUPON_VALIDATE') or isAnonymous() or hasAuthority('ADMIN') or hasAuthority('USER')")
     public ValidateCouponResponse validateCoupon(String code, double orderAmount) {
         CouponEntity coupon = this.couponRepository.findByCodeIgnoreCase(normalizeCode(code))
                 .orElseThrow(() -> new RuntimeException("Coupon not found"));

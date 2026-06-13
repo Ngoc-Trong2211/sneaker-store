@@ -32,7 +32,7 @@ public class FavouriteServiceImpl implements FavouriteService {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    @PreAuthorize("hasAuthority('FAVOURITE_CREATE') or isAnonymous()")
+    @PreAuthorize("hasAuthority('FAVOURITE_CREATE') or isAnonymous() or hasAuthority('USER')")
     public void createFavourite(String guestId, String productId) throws BadRequestException {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         FavouriteEntity favourite = new FavouriteEntity();
@@ -54,7 +54,7 @@ public class FavouriteServiceImpl implements FavouriteService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('FAVOURITE_READ') or isAnonymous()")
+    @PreAuthorize("hasAuthority('FAVOURITE_READ') or isAnonymous() or hasAuthority('USER')")
     public List<FavouriteResponse> getFavouriteById(String guestId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         String sql = String.join(" ",
@@ -121,7 +121,7 @@ public class FavouriteServiceImpl implements FavouriteService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('FAVOURITE_DELETE') or isAnonymous()")
+    @PreAuthorize("hasAuthority('FAVOURITE_DELETE') or isAnonymous() or hasAuthority('USER')")
     public void deleteFavourite(String guestId, String productId) {
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         if (email != null && !email.equals("anonymousUser")) {

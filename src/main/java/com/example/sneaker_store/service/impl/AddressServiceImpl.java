@@ -30,7 +30,7 @@ public class AddressServiceImpl implements AddressService{
     private final UserRepository userRepository;
 
     @Override
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public CreateAddressResponse createAddress(CreateAddressRequest req) {
         UserEntity user = this.userRepository.findById(req.getUserId())
             .orElseThrow(() -> new IdInvalidException("User khong ton tai"));
@@ -50,7 +50,7 @@ public class AddressServiceImpl implements AddressService{
     }
 
     @Override
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public UpdateAddressResponse updateAddress(UpdateAddressRequest req) {
         AddressEntity address = this.addressRepository.findById(req.getId())
             .orElseThrow(() -> new IdInvalidException("khong ton tai address nay"));
@@ -62,7 +62,7 @@ public class AddressServiceImpl implements AddressService{
     }
 
     @Override
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public void updateDefault(Long id, String userId) {
         UserEntity user = this.userRepository.findById(userId)
             .orElseThrow(() -> new IdInvalidException("User khong ton tai"));
@@ -77,7 +77,7 @@ public class AddressServiceImpl implements AddressService{
     }
 
     @Override
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public void deleteAddress(Long id) {
         AddressEntity address = this.addressRepository.findById(id)
             .orElseThrow(() -> new IdInvalidException("khong ton tai address nay"));
@@ -85,7 +85,7 @@ public class AddressServiceImpl implements AddressService{
     }
 
     @Override
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     public GetAddressResponse getAddressByUserId(String userId) {
         List<AddressEntity> address = this.addressRepository.findByUserId(userId);
         GetAddressResponse res = new GetAddressResponse();
