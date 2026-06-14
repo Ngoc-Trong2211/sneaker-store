@@ -11,4 +11,5 @@ public class CreateOrderRequest {
     private String receiverName;
     private String address;
     private String couponCode;
+    private String paymentMethod;
 }

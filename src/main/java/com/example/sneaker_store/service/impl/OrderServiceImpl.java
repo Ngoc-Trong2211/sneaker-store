@@ -1,13 +1,22 @@
 package com.example.sneaker_store.service.impl;
 
+import com.example.sneaker_store.config.SePayConfig;
+import com.example.sneaker_store.dto.request.SePayRequest;
 import com.example.sneaker_store.dto.request.order.SpecificationOrderRequest;
+import com.example.sneaker_store.dto.response.coupon.ValidateCouponResponse;
 import com.example.sneaker_store.dto.response.order.GetOrderResponse;
+import com.example.sneaker_store.dto.response.order.PaymentStatusResponse;
+import com.example.sneaker_store.dto.response.order.SePayPaymentSessionResponse;
 import com.example.sneaker_store.model.*;
 import com.example.sneaker_store.dto.request.order.CreateOrderRequest;
 import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
 import com.example.sneaker_store.repository.OrderItemRepository;
 import com.example.sneaker_store.repository.OrderRepository;
+import com.example.sneaker_store.repository.CartItemRepository;
+import com.example.sneaker_store.repository.CartRepository;
+import com.example.sneaker_store.repository.ProductSizeRepository;
 import com.example.sneaker_store.repository.ReviewEligibilityRepository;
+import com.example.sneaker_store.repository.SePayPaymentSessionRepository;
 import com.example.sneaker_store.repository.UserRepository;
 import com.example.sneaker_store.service.EmailService;
 import com.example.sneaker_store.service.CouponService;
@@ -31,6 +40,8 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.text.Normalizer;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -38,6 +49,11 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j(topic = "ORDER-SERVICE")
@@ -52,16 +68,30 @@ public class OrderServiceImpl implements OrderService {
     private final EmailService emailService;
     private final UserRepository userRepository;
     private final CouponService couponService;
+    private final SePayConfig sePayConfig;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final ProductSizeRepository productSizeRepository;
+    private final SePayPaymentSessionRepository sePayPaymentSessionRepository;
+    private static final String PAYMENT_METHOD_SEPAY = "SEPAY";
+    private static final String PAYMENT_METHOD_COD = "COD";
+    private static final String PAYMENT_SESSION_PENDING = "PENDING";
+    private static final String PAYMENT_SESSION_PAID = "PAID";
+    private static final Pattern SEPAY_PAYMENT_CODE_PATTERN = Pattern.compile("DH[A-Z0-9]{12}");
 
     @Override
     @Transactional
     @PreAuthorize("hasAuthority('ORDER_CREATE') or isAnonymous() or hasAuthority('USER')")
     public CreateOrderResponse createOrder(CreateOrderRequest request, String guestId) {
+        if (PAYMENT_METHOD_SEPAY.equals(normalizePaymentMethod(request.getPaymentMethod()))) {
+            throw new RuntimeException("Please use SePay payment session before creating order");
+        }
         String email = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
         String recipientEmail = null;
         OrderEntity order = new OrderEntity();
         order.setStatus(OrderStatus.PENDING);
+        order.setPaymentMethod(normalizePaymentMethod(request.getPaymentMethod()));
         if (email != null && !email.equals("anonymousUser")){
             UserEntity user = this.userService.findByEmail(email);
             recipientEmail = user.getEmail();
@@ -122,8 +152,35 @@ public class OrderServiceImpl implements OrderService {
         response.setReceiverName(order.getReceiverName());
         response.setGuestPhone(order.getPhone());
         response.setGuestName(order.getReceiverName());
+        response.setPaymentMethod(order.getPaymentMethod());
+        response.setPaymentCode(order.getPaymentCode());
+        if (PAYMENT_METHOD_SEPAY.equals(order.getPaymentMethod())) {
+            response.setSepayBankCode(sePayConfig.getBankCode());
+            response.setSepayBankName(sePayConfig.getBankName());
+            response.setSepayAccountNumber(sePayConfig.getAccountNumber());
+            response.setSepayAccountHolder(sePayConfig.getAccountHolder());
+            response.setSepayTransferContent(order.getPaymentCode());
+            response.setSepayQrUrl(sePayConfig.createQrUrl(order.getTotalAmount(), order.getPaymentCode()));
+        }
         response.setOrderItems(orderItems.stream().map(this::toCreateOrderItemResponse).toList());
         return response;
+    }
+
+    private String normalizePaymentMethod(String paymentMethod) {
+        if (paymentMethod == null || paymentMethod.isBlank()) {
+            return PAYMENT_METHOD_COD;
+        }
+        String normalized = paymentMethod.trim().toUpperCase();
+        return PAYMENT_METHOD_SEPAY.equals(normalized) ? PAYMENT_METHOD_SEPAY : PAYMENT_METHOD_COD;
+    }
+
+    private String createSePayPaymentCode(String orderId) {
+        String source = orderId == null ? String.valueOf(System.currentTimeMillis()) : orderId;
+        String normalized = source.replaceAll("[^A-Za-z0-9]", "").toUpperCase();
+        if (normalized.length() < 12) {
+            normalized = (normalized + System.currentTimeMillis()).replaceAll("[^A-Za-z0-9]", "");
+        }
+        return "DH" + normalized.substring(0, 12);
     }
 
     private CreateOrderResponse.OrderItem toCreateOrderItemResponse(OrderItemEntity item) {
@@ -265,6 +322,341 @@ public class OrderServiceImpl implements OrderService {
             return;
         }
         this.orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public boolean confirmSePayPayment(SePayRequest request) {
+        if (request == null || !"in".equalsIgnoreCase(request.getTransferType())) {
+            return false;
+        }
+        Optional<SePayPaymentSessionEntity> optionalSession = findSePayPaymentSession(request);
+        if (optionalSession.isEmpty()) {
+            log.warn("SePay webhook ignored because payment session was not found. code={}, content={}",
+                    request.getCode(), request.getContent());
+            return false;
+        }
+        SePayPaymentSessionEntity session = optionalSession.get();
+        String transactionId = resolveTransactionId(request);
+        if (transactionId != null && !transactionId.isBlank()
+                && sePayPaymentSessionRepository.existsBySepayTransactionId(transactionId)
+                && !transactionId.equals(session.getSepayTransactionId())) {
+            log.warn("SePay webhook ignored because transaction already exists. transactionId={}", transactionId);
+            return true;
+        }
+        if (PAYMENT_SESSION_PAID.equals(session.getStatus())) {
+            return true;
+        }
+        if (!PAYMENT_SESSION_PENDING.equals(session.getStatus())) {
+            log.warn("SePay webhook ignored because payment session status is {}. paymentCode={}",
+                    session.getStatus(), session.getPaymentCode());
+            return false;
+        }
+        if (!isAmountMatched(session.getTotalAmount(), request.getTransferAmount())) {
+            log.warn("SePay webhook ignored because amount does not match. paymentCode={}, expected={}, actual={}",
+                    session.getPaymentCode(), session.getTotalAmount(), request.getTransferAmount());
+            return false;
+        }
+        OrderEntity order = createOrderFromPaidSePaySession(session, transactionId);
+        List<OrderItemEntity> orderItems = this.orderItemRepository.findByOrderId(order.getId());
+        sendOrderStatusUpdateEmailAfterCommit(resolveRecipientEmail(order), order, orderItems);
+        return true;
+    }
+
+    @Override
+    public PaymentStatusResponse getPaymentStatus(String code) {
+        OrderEntity order = orderRepository.findByCode(code)
+                .or(() -> orderRepository.findByPaymentCode(code))
+                .orElseThrow(() -> new RuntimeException("order not found"));
+        boolean paid = OrderStatus.CONFIRMED.equals(order.getStatus())
+                || OrderStatus.SHIPPING.equals(order.getStatus())
+                || OrderStatus.COMPLETED.equals(order.getStatus());
+        return new PaymentStatusResponse(
+                order.getCode(),
+                order.getPaymentCode(),
+                order.getStatus(),
+                order.getTotalAmount(),
+                paid
+        );
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("isAnonymous() or hasAuthority('USER')")
+    public SePayPaymentSessionResponse createSePayPaymentSession(CreateOrderRequest request, String guestId) {
+        if (!sePayConfig.isPaymentConfigured()) {
+            throw new RuntimeException("SePay payment is not configured");
+        }
+        String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
+        String userId = null;
+        String recipientEmail = request.getEmail();
+        if (email != null && !"anonymousUser".equals(email)) {
+            UserEntity user = this.userService.findByEmail(email);
+            userId = user.getId();
+            recipientEmail = user.getEmail();
+        }
+        CartEntity cart = resolveCheckoutCart(userId, guestId);
+        List<CartItemEntity> cartItems = cartItemRepository.findByCartId(cart.getId());
+        if (cartItems.isEmpty()) {
+            throw new RuntimeException("Cart is empty");
+        }
+
+        SePayPaymentSessionEntity session = new SePayPaymentSessionEntity();
+        session.setPaymentCode(createUniqueSePayPaymentCode());
+        session.setStatus(PAYMENT_SESSION_PENDING);
+        session.setCartId(cart.getId());
+        session.setUserId(userId);
+        session.setGuestId(guestId);
+        session.setEmail(recipientEmail);
+        session.setPhone(request.getPhone());
+        session.setReceiverName(request.getReceiverName());
+        session.setAddress(request.getAddress());
+
+        List<SePayPaymentSessionItemEntity> items = cartItems.stream()
+                .map(cartItem -> toSePayPaymentSessionItem(session, cartItem))
+                .collect(Collectors.toList());
+        double subTotalAmount = items.stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+        double couponDiscountAmount = 0;
+        if (request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
+            ValidateCouponResponse coupon = couponService.validateCoupon(request.getCouponCode(), subTotalAmount);
+            if (!coupon.isValid()) {
+                throw new RuntimeException(coupon.getMessage());
+            }
+            session.setCouponCode(coupon.getCode());
+            couponDiscountAmount = coupon.getDiscountAmount();
+        }
+        session.setSubTotalAmount(subTotalAmount);
+        session.setCouponDiscountAmount(couponDiscountAmount);
+        session.setTotalAmount(Math.max(0, subTotalAmount - couponDiscountAmount));
+        session.setItems(items);
+        SePayPaymentSessionEntity saved = sePayPaymentSessionRepository.save(session);
+        return toSePayPaymentSessionResponse(saved);
+    }
+
+    @Override
+    public SePayPaymentSessionResponse getSePayPaymentSessionStatus(String paymentCode) {
+        SePayPaymentSessionEntity session = sePayPaymentSessionRepository.findByPaymentCode(paymentCode)
+                .orElseThrow(() -> new RuntimeException("payment session not found"));
+        return toSePayPaymentSessionResponse(session);
+    }
+
+    private SePayPaymentSessionItemEntity toSePayPaymentSessionItem(
+            SePayPaymentSessionEntity session,
+            CartItemEntity cartItem) {
+        ProductVariantEntity variant = cartItem.getProductVariant();
+        if (variant.getStock() < cartItem.getQuantity()) {
+            throw new RuntimeException(variant.getProduct().getName() + " out of stock");
+        }
+        ProductSizeEntity size = this.productSizeRepository.findById(cartItem.getIdSize())
+                .orElseThrow(() -> new RuntimeException("size item not found"));
+        if (size.getQuantity() < cartItem.getQuantity()) {
+            throw new RuntimeException("Size out of stock");
+        }
+
+        SePayPaymentSessionItemEntity item = new SePayPaymentSessionItemEntity();
+        item.setPaymentSession(session);
+        item.setProductVariant(variant);
+        item.setProductId(variant.getProduct().getId());
+        item.setProductName(variant.getProduct().getName());
+        item.setQuantity(cartItem.getQuantity());
+        item.setSize(cartItem.getSize());
+        item.setIdSize(cartItem.getIdSize());
+        item.setPrice(resolveCartItemPrice(cartItem));
+        item.setPercent(resolveDiscountPercent(variant.getProduct()));
+        return item;
+    }
+
+    private double resolveCartItemPrice(CartItemEntity cartItem) {
+        ProductEntity product = cartItem.getProductVariant().getProduct();
+        double price = product.getPrice();
+        DiscountEntity discount = product.getDiscount();
+        Instant now = Instant.now();
+        if (discount != null && discount.getStartTime().isBefore(now) && discount.getEndTime().isAfter(now)) {
+            return price - (price * discount.getPercent()) / 100.0;
+        }
+        return price;
+    }
+
+    private Integer resolveDiscountPercent(ProductEntity product) {
+        DiscountEntity discount = product.getDiscount();
+        Instant now = Instant.now();
+        if (discount != null && discount.getStartTime().isBefore(now) && discount.getEndTime().isAfter(now)) {
+            return discount.getPercent();
+        }
+        return null;
+    }
+
+    private CartEntity resolveCheckoutCart(String userId, String guestId) {
+        if (userId != null && !userId.isBlank()) {
+            return cartRepository.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("Cart not found"));
+        }
+        if (guestId == null || guestId.isBlank()) {
+            throw new RuntimeException("Guest id is required");
+        }
+        return cartRepository.findByGuestId(guestId)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+    }
+
+    private String createUniqueSePayPaymentCode() {
+        String paymentCode;
+        do {
+            paymentCode = "DH" + UUID.randomUUID().toString()
+                    .replace("-", "")
+                    .toUpperCase()
+                    .substring(0, 12);
+        } while (sePayPaymentSessionRepository.findByPaymentCode(paymentCode).isPresent());
+        return paymentCode;
+    }
+
+    private SePayPaymentSessionResponse toSePayPaymentSessionResponse(SePayPaymentSessionEntity session) {
+        SePayPaymentSessionResponse response = new SePayPaymentSessionResponse();
+        response.setId(session.getId());
+        response.setPaymentCode(session.getPaymentCode());
+        response.setStatus(session.getStatus());
+        response.setTotalAmount(session.getTotalAmount());
+        response.setSepayBankCode(sePayConfig.getBankCode());
+        response.setSepayBankName(sePayConfig.getBankName());
+        response.setSepayAccountNumber(sePayConfig.getAccountNumber());
+        response.setSepayAccountHolder(sePayConfig.getAccountHolder());
+        response.setSepayTransferContent(session.getPaymentCode());
+        response.setSepayQrUrl(sePayConfig.createQrUrl(session.getTotalAmount(), session.getPaymentCode()));
+        if (session.getOrderId() != null) {
+            orderRepository.findById(session.getOrderId())
+                    .ifPresent(order -> response.setOrderCode(order.getCode()));
+        }
+        return response;
+    }
+
+    private Optional<OrderEntity> findSePayOrder(SePayRequest request) {
+        if (request.getCode() != null && !request.getCode().isBlank()) {
+            Optional<OrderEntity> byPaymentCode = orderRepository.findByPaymentCode(request.getCode().trim());
+            if (byPaymentCode.isPresent()) {
+                return byPaymentCode;
+            }
+            Optional<OrderEntity> byOrderCode = orderRepository.findByCode(request.getCode().trim());
+            if (byOrderCode.isPresent()) {
+                return byOrderCode;
+            }
+        }
+        return extractPaymentCode(request.getContent())
+                .or(() -> extractPaymentCode(request.getDescription()))
+                .flatMap(orderRepository::findByPaymentCode);
+    }
+
+    private Optional<String> extractPaymentCode(String value) {
+        if (value == null || value.isBlank()) {
+            return Optional.empty();
+        }
+        Matcher matcher = SEPAY_PAYMENT_CODE_PATTERN.matcher(value.toUpperCase());
+        if (matcher.find()) {
+            return Optional.of(matcher.group());
+        }
+        return Optional.empty();
+    }
+
+    private boolean isAmountMatched(double expected, BigDecimal actual) {
+        if (actual == null) {
+            return false;
+        }
+        BigDecimal expectedAmount = BigDecimal.valueOf(expected).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal actualAmount = actual.setScale(0, RoundingMode.HALF_UP);
+        return expectedAmount.compareTo(actualAmount) == 0;
+    }
+
+    private String resolveTransactionId(SePayRequest request) {
+        if (request.getId() != null) {
+            return String.valueOf(request.getId());
+        }
+        return request.getReferenceCode();
+    }
+
+    private Optional<SePayPaymentSessionEntity> findSePayPaymentSession(SePayRequest request) {
+        if (request.getCode() != null && !request.getCode().isBlank()) {
+            Optional<SePayPaymentSessionEntity> byPaymentCode =
+                    sePayPaymentSessionRepository.findByPaymentCode(request.getCode().trim());
+            if (byPaymentCode.isPresent()) {
+                return byPaymentCode;
+            }
+        }
+        return extractPaymentCode(request.getContent())
+                .or(() -> extractPaymentCode(request.getDescription()))
+                .flatMap(sePayPaymentSessionRepository::findByPaymentCode);
+    }
+
+    private OrderEntity createOrderFromPaidSePaySession(SePayPaymentSessionEntity session, String transactionId) {
+        OrderEntity order = new OrderEntity();
+        order.setStatus(OrderStatus.CONFIRMED);
+        order.setPaymentMethod(PAYMENT_METHOD_SEPAY);
+        order.setPaymentCode(session.getPaymentCode());
+        order.setSepayTransactionId(transactionId);
+        order.setPaidAt(Instant.now());
+        order.setUserId(session.getUserId());
+        order.setGuestId(session.getGuestId());
+        order.setEmail(session.getEmail());
+        order.setPhone(session.getPhone());
+        order.setReceiverName(session.getReceiverName());
+        order.setAddress(session.getAddress());
+        order.setCode(createCodeOrder(session.getAddress(), session.getPhone(), session.getReceiverName()));
+        order.setSubTotalAmount(session.getSubTotalAmount());
+        order.setCouponDiscountAmount(session.getCouponDiscountAmount());
+        order.setCouponCode(session.getCouponCode());
+        order.setTotalAmount(session.getTotalAmount());
+        order = orderRepository.save(order);
+
+        for (SePayPaymentSessionItemEntity item : session.getItems()) {
+            createOrderItemFromPaymentSessionItem(order, item);
+        }
+        if (session.getCouponCode() != null && !session.getCouponCode().isBlank()) {
+            tryConsumeCoupon(session);
+        }
+        if (session.getCartId() != null && !session.getCartId().isBlank()) {
+            cartItemRepository.deleteAllByCartId(session.getCartId());
+        }
+        session.setStatus(PAYMENT_SESSION_PAID);
+        session.setSepayTransactionId(transactionId);
+        session.setPaidAt(order.getPaidAt());
+        session.setOrderId(order.getId());
+        sePayPaymentSessionRepository.save(session);
+        return order;
+    }
+
+    private void createOrderItemFromPaymentSessionItem(OrderEntity order, SePayPaymentSessionItemEntity item) {
+        ProductVariantEntity variant = item.getProductVariant();
+        if (variant.getStock() < item.getQuantity()) {
+            throw new RuntimeException(variant.getProduct().getName() + " out of stock");
+        }
+        ProductSizeEntity size = productSizeRepository.findById(item.getIdSize())
+                .orElseThrow(() -> new RuntimeException("size item not found"));
+        if (size.getQuantity() < item.getQuantity()) {
+            throw new RuntimeException("Size out of stock");
+        }
+        size.setQuantity(size.getQuantity() - item.getQuantity());
+        variant.setStock(variant.getStock() - item.getQuantity());
+        ProductEntity product = variant.getProduct();
+        product.setQuantity(product.getQuantity() - item.getQuantity());
+
+        OrderItemEntity orderItem = new OrderItemEntity();
+        orderItem.setOrder(order);
+        orderItem.setProductVariant(variant);
+        orderItem.setProductId(item.getProductId());
+        orderItem.setProductName(item.getProductName());
+        orderItem.setQuantity(item.getQuantity());
+        orderItem.setSize(item.getSize());
+        orderItem.setPrice(item.getPrice());
+        orderItem.setPercent(item.getPercent());
+        orderItemRepository.save(orderItem);
+    }
+
+    private void tryConsumeCoupon(SePayPaymentSessionEntity session) {
+        try {
+            couponService.useCoupon(session.getCouponCode(), session.getSubTotalAmount());
+        } catch (Exception ex) {
+            log.warn("Can not consume coupon after paid SePay session. paymentCode={}, coupon={}, message={}",
+                    session.getPaymentCode(), session.getCouponCode(), ex.getMessage());
+        }
     }
 
     private void sendOrderStatusUpdateEmailAfterCommit(String recipientEmail, OrderEntity order, List<OrderItemEntity> orderItems) {

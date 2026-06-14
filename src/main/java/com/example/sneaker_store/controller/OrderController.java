@@ -5,6 +5,7 @@ import com.example.sneaker_store.dto.request.order.SpecificationOrderRequest;
 import com.example.sneaker_store.dto.response.cartItem.GetCartResponse;
 import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
 import com.example.sneaker_store.dto.response.order.GetOrderResponse;
+import com.example.sneaker_store.dto.response.order.PaymentStatusResponse;
 import com.example.sneaker_store.service.OrderService;
 import com.example.sneaker_store.util.ApiMessage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,5 +69,12 @@ public class OrderController {
                                             @RequestParam String lyDoHuy) {
         this.orderService.cancelOrder(code, lyDoHuy);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
+    @GetMapping("/orders/payment-status")
+    @Operation(summary = "Get payment status", description = "Get order payment status by order code or payment code")
+    @ApiMessage(message = "Get payment status")
+    public ResponseEntity<PaymentStatusResponse> getPaymentStatus(@RequestParam String code) {
+        return ResponseEntity.ok(this.orderService.getPaymentStatus(code));
     }
 }

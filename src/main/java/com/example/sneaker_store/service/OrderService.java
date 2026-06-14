@@ -1,9 +1,12 @@
 package com.example.sneaker_store.service;
 
 import com.example.sneaker_store.dto.request.order.CreateOrderRequest;
+import com.example.sneaker_store.dto.request.SePayRequest;
 import com.example.sneaker_store.dto.request.order.SpecificationOrderRequest;
 import com.example.sneaker_store.dto.response.order.CreateOrderResponse;
 import com.example.sneaker_store.dto.response.order.GetOrderResponse;
+import com.example.sneaker_store.dto.response.order.PaymentStatusResponse;
+import com.example.sneaker_store.dto.response.order.SePayPaymentSessionResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -14,4 +17,8 @@ public interface OrderService {
     void updateStatus(String id, String status, String lyDoHuy);
     GetOrderResponse getOrderByUser(Pageable pageable, String dateFrom, String dateTo, String status);
     void cancelOrder (String code, String lyDoHuy);
+    boolean confirmSePayPayment(SePayRequest request);
+    PaymentStatusResponse getPaymentStatus(String code);
+    SePayPaymentSessionResponse createSePayPaymentSession(CreateOrderRequest request, String guestId);
+    SePayPaymentSessionResponse getSePayPaymentSessionStatus(String paymentCode);
 }

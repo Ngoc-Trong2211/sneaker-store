@@ -23,6 +23,14 @@ public class CreateOrderResponse {
     private String guestPhone;
     private String guestName;
     private String address;
+    private String paymentMethod;
+    private String paymentCode;
+    private String sepayQrUrl;
+    private String sepayBankCode;
+    private String sepayBankName;
+    private String sepayAccountNumber;
+    private String sepayAccountHolder;
+    private String sepayTransferContent;
     private Instant createdAt;
     private List<OrderItem> orderItems;
 

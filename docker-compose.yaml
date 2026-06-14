@@ -28,6 +28,9 @@ services:
         VITE_API_URL: https://sneakerstore.online
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - backend-service
     restart: unless-stopped

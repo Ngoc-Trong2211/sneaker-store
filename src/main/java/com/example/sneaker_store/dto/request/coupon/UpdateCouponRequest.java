@@ -1,7 +1,6 @@
 package com.example.sneaker_store.dto.request.coupon;
 
 import com.example.sneaker_store.util.enumEntity.CouponType;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +25,6 @@ public class UpdateCouponRequest {
     private int minOrderValue;
 
     @NotNull(message = "Expires at cannot be null")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant expiresAt;
 
     @Min(value = 0, message = "Quantity cannot be negative")

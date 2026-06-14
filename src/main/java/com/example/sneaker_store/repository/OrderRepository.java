@@ -20,6 +20,8 @@ public interface OrderRepository extends JpaRepository<OrderEntity, String>, Jpa
                                         @Param("status") OrderStatus status,
                                         Pageable pageable);
     Optional<OrderEntity> findByCode(String code);
+    Optional<OrderEntity> findByPaymentCode(String paymentCode);
+    boolean existsBySepayTransactionId(String sepayTransactionId);
 
     @Query("SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END " +
             "FROM OrderEntity o " +

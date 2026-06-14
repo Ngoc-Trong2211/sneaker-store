@@ -41,6 +41,8 @@ public class GetOrderResponse {
         private String couponCode;
         private Double totalAmount;
         private String code;
+        private String paymentMethod;
+        private String paymentCode;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
         private Instant createdAt;
