@@ -33,9 +33,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -364,6 +366,23 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Async
+    @Transactional
+    public void processSePayPaymentAsync(SePayRequest request) {
+        try {
+            boolean success = confirmSePayPayment(request);
+            if (!success) {
+                log.warn("SePay webhook async processing finished without confirming payment. code={}, content={}",
+                        request == null ? null : request.getCode(),
+                        request == null ? null : request.getContent());
+            }
+        } catch (Exception ex) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            log.error("Can not process SePay webhook asynchronously", ex);
+        }
+    }
+
+    @Override
     public PaymentStatusResponse getPaymentStatus(String code) {
         OrderEntity order = orderRepository.findByCode(code)
                 .or(() -> orderRepository.findByPaymentCode(code))
@@ -512,6 +531,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private SePayPaymentSessionResponse toSePayPaymentSessionResponse(SePayPaymentSessionEntity session) {
+        String transferContent = createSePayTransferContent(session.getPaymentCode());
         SePayPaymentSessionResponse response = new SePayPaymentSessionResponse();
         response.setId(session.getId());
         response.setPaymentCode(session.getPaymentCode());
@@ -521,13 +541,17 @@ public class OrderServiceImpl implements OrderService {
         response.setSepayBankName(sePayConfig.getBankName());
         response.setSepayAccountNumber(sePayConfig.getAccountNumber());
         response.setSepayAccountHolder(sePayConfig.getAccountHolder());
-        response.setSepayTransferContent(session.getPaymentCode());
-        response.setSepayQrUrl(sePayConfig.createQrUrl(session.getTotalAmount(), session.getPaymentCode()));
+        response.setSepayTransferContent(transferContent);
+        response.setSepayQrUrl(sePayConfig.createQrUrl(session.getTotalAmount(), transferContent));
         if (session.getOrderId() != null) {
             orderRepository.findById(session.getOrderId())
                     .ifPresent(order -> response.setOrderCode(order.getCode()));
         }
         return response;
+    }
+
+    private String createSePayTransferContent(String paymentCode) {
+        return "THANH TOAN " + paymentCode;
     }
 
     private Optional<OrderEntity> findSePayOrder(SePayRequest request) {
@@ -588,7 +612,7 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderEntity createOrderFromPaidSePaySession(SePayPaymentSessionEntity session, String transactionId) {
         OrderEntity order = new OrderEntity();
-        order.setStatus(OrderStatus.CONFIRMED);
+        order.setStatus(OrderStatus.PENDING);
         order.setPaymentMethod(PAYMENT_METHOD_SEPAY);
         order.setPaymentCode(session.getPaymentCode());
         order.setSepayTransactionId(transactionId);

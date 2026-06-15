@@ -34,29 +34,31 @@ public class SePayConfig {
     @Value("${sepay.store-name:Sneaker Store}")
     private String storeName;
 
-    public boolean isValid(String rawBody, String authorizationHeader, List<String> signatureHeaders) {
-        boolean hasApiKey = hasText(webhookApiKey) || hasText(secret);
+    public boolean isValid(String rawBody, String authorizationHeader, List<String> signatureHeaders, String timestamp) {
         boolean hasSecret = hasText(secret);
 
-        if (!hasApiKey && !hasSecret) {
+        if (!hasSecret) {
             return true;
         }
 
-        if (hasApiKey && isValidApiKey(authorizationHeader)) {
-            return true;
+        if (signatureHeaders == null) {
+            return false;
         }
 
-        if (hasSecret && signatureHeaders != null) {
-            String expectedSignature = hmacSha256(rawBody, secret);
-            return signatureHeaders.stream()
-                    .filter(this::hasText)
-                    .anyMatch(signatureHeader -> MessageDigest.isEqual(
-                            expectedSignature.getBytes(StandardCharsets.UTF_8),
-                            normalizeSignature(signatureHeader).getBytes(StandardCharsets.UTF_8)
-                    ));
-        }
+        String expectedRawBody = hmacSha256(rawBody, secret);
+        String expectedWithTimestamp = hasText(timestamp)
+                ? hmacSha256(timestamp + "." + rawBody, secret)
+                : "";
 
-        return false;
+        System.out.println("SEPAY expectedRawBody = " + expectedRawBody);
+        System.out.println("SEPAY expectedWithTimestamp = " + expectedWithTimestamp);
+        System.out.println("SEPAY receivedSignatureHeaders = " + signatureHeaders);
+
+        return signatureHeaders.stream()
+                .filter(this::hasText)
+                .map(this::normalizeSignature)
+                .anyMatch(signature -> secureEquals(signature, expectedRawBody)
+                        || secureEquals(signature, expectedWithTimestamp));
     }
 
     public String createQrUrl(double amount, String description) {

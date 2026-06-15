@@ -18,6 +18,7 @@ public interface OrderService {
     GetOrderResponse getOrderByUser(Pageable pageable, String dateFrom, String dateTo, String status);
     void cancelOrder (String code, String lyDoHuy);
     boolean confirmSePayPayment(SePayRequest request);
+    void processSePayPaymentAsync(SePayRequest request);
     PaymentStatusResponse getPaymentStatus(String code);
     SePayPaymentSessionResponse createSePayPaymentSession(CreateOrderRequest request, String guestId);
     SePayPaymentSessionResponse getSePayPaymentSessionStatus(String paymentCode);

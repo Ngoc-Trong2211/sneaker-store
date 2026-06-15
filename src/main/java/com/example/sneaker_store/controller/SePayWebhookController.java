@@ -53,21 +53,29 @@ public class SePayWebhookController {
     public ResponseEntity<String> webhook(
             @RequestBody String rawBody,
             @RequestHeader HttpHeaders headers) {
+
+        log.info("SePay webhook headers={}", headers);
+        log.info("SePay webhook rawBody={}", rawBody);
+
         List<String> signatureHeaders = Arrays.asList(
                 headers.getFirst("X-SePay-Signature"),
                 headers.getFirst("X-Signature"),
                 headers.getFirst("X-Hub-Signature-256")
         );
-        if (!sePayConfig.isValid(rawBody, headers.getFirst(HttpHeaders.AUTHORIZATION), signatureHeaders)) {
-            log.warn("Rejected SePay webhook because signature or API key is invalid");
+
+        String timestamp = headers.getFirst("X-SePay-Timestamp");
+
+        if (!sePayConfig.isValid(rawBody, null, signatureHeaders, timestamp)) {
+            log.warn("Rejected SePay webhook because HMAC signature is invalid");
             return json(HttpStatus.UNAUTHORIZED, false);
         }
+
         try {
             SePayRequest request = objectMapper.readValue(rawBody, SePayRequest.class);
-            boolean success = orderService.confirmSePayPayment(request);
-            return json(success ? HttpStatus.OK : HttpStatus.BAD_REQUEST, success);
+            orderService.processSePayPaymentAsync(request);
+            return json(HttpStatus.OK, true);
         } catch (Exception ex) {
-            log.warn("Can not process SePay webhook: {}", ex.getMessage());
+            log.warn("Can not parse SePay webhook: {}", ex.getMessage());
             return json(HttpStatus.BAD_REQUEST, false);
         }
     }
