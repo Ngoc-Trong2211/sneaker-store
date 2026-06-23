@@ -264,7 +264,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetVariantByIdResponse getVariantById(String id) {
         ProductVariantEntity variant = productVariantRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Variant not found"));
@@ -294,7 +294,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetVariantBySkuResponse getVariantBySku(String sku) {
         ProductVariantEntity variant = this.productVariantRepository.findBySku(sku)
                 .orElseThrow(() -> new RuntimeException("Variant not found"));
@@ -326,7 +326,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetProductVariantResponse getProductVariant(Pageable pageable, SpecificationProductVariantRequest request) {
         Specification<ProductVariantEntity> specification = ProductVariantSpecification.specVariant(request);
         Page<ProductVariantEntity> productVariantPage = this.productVariantRepository.findAll(specification, pageable);
@@ -351,7 +351,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('PRODUCT_DELETE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteProductVariant(String id) {
         ProductVariantEntity existingVariant = this.productVariantRepository.findById(id).orElse(null);
         if (existingVariant == null) {
@@ -381,7 +381,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }  
 
     @Override
-    @PreAuthorize("hasAuthority('PRODUCT_UPDATE_STATUS') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE_STATUS') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void updateProductVariantStatus(String id, String status) {
         if (VariantStatus.valueOf(status) == VariantStatus.DELETED) {
             this.deleteProductVariant(id);

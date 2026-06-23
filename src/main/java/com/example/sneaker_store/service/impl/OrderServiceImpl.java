@@ -226,7 +226,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('ORDER_READ')")
+    @PreAuthorize("hasAuthority('ORDER_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetOrderResponse getOrder(Pageable pageable, SpecificationOrderRequest req) {
         Specification<OrderEntity> spec = OrderSpecification.specOrder(req);
         Page<OrderEntity> page = this.orderRepository.findAll(spec, pageable);
@@ -245,7 +245,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('ORDER_UPDATE_STATUS')")
+    @PreAuthorize("hasAuthority('ORDER_UPDATE_STATUS') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void updateStatus(String id, String status, String lyDoHuy) {
         OrderEntity order = this.orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("order not found"));

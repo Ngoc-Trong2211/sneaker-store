@@ -49,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('PRODUCT_CREATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public CreateProductResponse createProduct(CreateProductRequest request) {
         if (productRepository.existsByName(request.getName())) {
             log.warn("Product with name '{}' already exists", request.getName());
@@ -76,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UpdateProductResponse updateProduct(UpdateProductRequest request) {
         ProductEntity product = this.productRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -101,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('PRODUCT_READ') or isAnonymous() or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_READ') or isAnonymous() or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetProductResponse getProducts(Pageable pageable, SpecificationProductRequest request, String guestId) {
         Specification<ProductEntity> specification = ProductSpecification.specProduct(request);
         Page<ProductEntity> productPage = this.productRepository.findAll(specification, pageable);
@@ -224,7 +224,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('PRODUCT_UPDATE_STATUS') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE_STATUS') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void updateStatusProduct(String id, String status) {
         ProductEntity product = this.productRepository.findById(id).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", id);
@@ -246,7 +246,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('PRODUCT_DELETE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteProduct(String id) {
         ProductEntity product = this.productRepository.findById(id).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", id);

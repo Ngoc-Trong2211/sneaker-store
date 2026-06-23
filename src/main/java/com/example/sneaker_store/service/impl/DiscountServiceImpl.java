@@ -63,7 +63,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('DISCOUNT_CREATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('DISCOUNT_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public CreateDiscountResponse createDiscount(CreateDiscountRequest request) {
         if (this.discountRepository.existsOverlap(
                 request.getApplyFor(), request.getNameApply(), request.getEndTime(), request.getStartTime()))
@@ -93,7 +93,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('DISCOUNT_UPDATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('DISCOUNT_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UpdateDiscountResponse updateDiscount(UpdateDiscountRequest request) {
         DiscountEntity discount = this.discountRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + request.getId()));
@@ -137,7 +137,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('DISCOUNT_READ') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('DISCOUNT_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public Discount getDiscountById(String id) {
         DiscountEntity discount = this.discountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
@@ -145,7 +145,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('DISCOUNT_UPDATE_STATUS') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('DISCOUNT_UPDATE_STATUS') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void updateStatusDiscount(String id, DiscountStatus status) {
         DiscountEntity discount = this.discountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
@@ -157,7 +157,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('DISCOUNT_READ') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('DISCOUNT_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetDiscountResponse getDiscounts(DiscountSpecificationRequest request, Pageable pageable) {
         Specification<DiscountEntity> spec = DiscountSpecification.specDiscount(request);
         Page<DiscountEntity> discountPage = this.discountRepository.findAll(spec, pageable);
@@ -169,7 +169,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('DISCOUNT_DELETE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('DISCOUNT_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteDiscount(String id) {
         DiscountEntity discount = this.discountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));

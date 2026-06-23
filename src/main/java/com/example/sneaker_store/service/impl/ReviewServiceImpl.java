@@ -222,7 +222,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('REVIEW_READ') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('REVIEW_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetReviewPageResponse getReview(Pageable pageable, SpecificationReviewRequest req) {
         Specification<ReviewEntity> spec = ReviewSpecification.specReview(req);
         Page<ReviewEntity> page = this.reviewRepository.findAll(spec, pageable);

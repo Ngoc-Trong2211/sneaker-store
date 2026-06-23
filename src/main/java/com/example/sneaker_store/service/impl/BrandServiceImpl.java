@@ -45,7 +45,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('BRAND_CREATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('BRAND_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public CreateBrandResponse createBrand(CreateBrandRequest req) {
         BrandEntity brand = new BrandEntity();
         if (this.brandRepository.existsByName(req.getName().toUpperCase()))
@@ -77,7 +77,7 @@ public class BrandServiceImpl implements BrandService {
 //    }
 
     @Override
-    @PreAuthorize("hasAuthority('BRAND_UPDATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('BRAND_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UpdateBrandResponse updateBrand(UpdateBrandRequest req){
         BrandEntity brand = this.findById(req.getId());
 
@@ -105,7 +105,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('BRAND_READ') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('BRAND_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetBrandResponse getBrand(Pageable pageable, SpecificationBrandRequest request) {
         Specification<BrandEntity> spec = BrandSpecification.specBrand(request);
         Page<BrandEntity> page = this.brandRepository.findAll(spec, pageable);
@@ -133,7 +133,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('BRAND_DELETE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('BRAND_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteBrand(Long id) {
         BrandEntity brand = this.findById(id);
         this.fileService.deleteFile(brand.getPublicId());

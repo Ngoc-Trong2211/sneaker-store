@@ -35,7 +35,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('FILE_CREATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('FILE_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UploadFileResponse uploadFile(MultipartFile file, String folder) {
         if (file == null || file.isEmpty()) {
             throw new IdInvalidException("File is empty");
@@ -69,7 +69,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('FILE_DELETE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('FILE_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteFile(String publicId) {
         if (publicId == null || publicId.isEmpty()) {
             throw new IdInvalidException("PublicId không được để trống");

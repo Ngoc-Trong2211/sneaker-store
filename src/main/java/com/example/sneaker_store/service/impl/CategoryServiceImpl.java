@@ -45,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CATEGORY_CREATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('CATEGORY_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public CreateCategoryResponse createCategory(CreateCategoryRequest req) {
         if (this.categoryRepository.existsByNameAndParentId(req.getName().toUpperCase(), req.getParentId()))
             throw new NameExistsException("Name is exists");
@@ -65,7 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CATEGORY_UPDATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('CATEGORY_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UpdateCategoryResponse updateCategory(UpdateCategoryRequest req) {
         CategoryEntity category = this.findById(req.getId());
         if (this.categoryRepository.existsByNameAndSlugAndIdNot(req.getName().toUpperCase(), category.getSlug(), req.getId())) {
@@ -86,7 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CATEGORY_READ') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('CATEGORY_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetCategoryResponse getCategory(Pageable pageable, SpecificationCategoryRequest name) {
         Specification<CategoryEntity> spec = CategorySpecification.specCategory(name);
         Page<CategoryEntity> page = this.categoryRepository.findAll(spec, pageable);
@@ -128,7 +128,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('CATEGORY_DELETE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('CATEGORY_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteCategory(Long id) {
         CategoryEntity category = this.findById(id);
         this.categoryRepository.deleteCategoryExistsParentId(id);

@@ -43,7 +43,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_CREATE')")
+    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public List<CreateProductImageResponse> createProductImage(MultipartFile[] files) {
         List<CreateProductImageResponse> listRes = new ArrayList<>();
         List<UploadFileResponse> uploadMultiFile = uploadFileResponses(files);
@@ -59,7 +59,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_UPDATE')")
+    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public List<String> updateProductImage(MultipartFile[] files, List<String> oldFiles) {
         List<String> listRes = new ArrayList<>(
                 oldFiles != null ? oldFiles : new ArrayList<>()
@@ -80,7 +80,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_DELETE')")
+    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteProductImage(Long id) {
         ProductImageEntity img = this.productImageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy image"));
@@ -89,7 +89,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_READ')")
+    @PreAuthorize("hasAuthority('PRODUCT_IMAGE_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetProductImageResponse getProductImageById(String productId) {
         List<ProductImageEntity> imgList = this.productImageRepository.findByVariantId(productId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy image"));

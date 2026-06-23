@@ -24,7 +24,7 @@ public class ProductSizeServiceImpl implements ProductSizeService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void updateSize(String variantId, Long sizeId, String sizeReq, Integer quantity) {
         ProductVariantEntity variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new RuntimeException("Variant not found"));
