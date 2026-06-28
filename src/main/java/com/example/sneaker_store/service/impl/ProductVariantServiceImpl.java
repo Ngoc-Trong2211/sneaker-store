@@ -63,16 +63,16 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     public CreateProductVariantResponse createProductVariant(CreateProductVariantRequest request) {
         ProductEntity product = this.productRepository.findByName(request.getProductName()).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", request.getProductName());
-            return new RuntimeException("Product not found");
+            return new RuntimeException("Sản phẩm không tồn tại");
         });
-        if (product.getStatus() != ProductStatus.ACTIVE) throw new RuntimeException("San pham khong hoat dong");
+        if (product.getStatus() != ProductStatus.ACTIVE) throw new RuntimeException("Sản phẩm không hoạt động");
         ProductVariantEntity existedVariant =
                 productVariantRepository.findByColorAndProductId(
                         request.getColor(),
                         product.getId()
                 );
         if (existedVariant != null) {
-            throw new RuntimeException("Color already exists");
+            throw new RuntimeException("Màu sắc đã tồn tại");
         }
 
         ProductVariantEntity variant = new ProductVariantEntity();
@@ -91,7 +91,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         int totalStock = 0;
         for (CreateProductVariantRequest.SizeRequest req : request.getSizes()){
             if (req.getQuantity() <= 0) {
-                throw new RuntimeException("Quantity must be > 0");
+                throw new RuntimeException("Số lượng phải lớn hơn 0");
             }
             ProductSizeEntity sizeEntity = new ProductSizeEntity();
 
@@ -107,14 +107,14 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         if (request.getImages() != null && !request.getImages().isEmpty()) {
             if (request.getImages().size() > 6) {
                 log.warn("Too many images provided for product");
-                throw new IllegalArgumentException("Maximum 6 images allowed");
+                throw new IllegalArgumentException("Chỉ được phép tải lên tối đa 6 ảnh");
             }
 
             else{
                 for (int i=0; i<request.getImages().size(); i++){
                     ProductImageEntity image = this.productImageRepository.findByImageURL(request.getImages().get(i));
                     if (image == null) {
-                        throw new RuntimeException("Image not found with URL: " + request.getImages().get(i));
+                        throw new RuntimeException("Không tìm thấy ảnh có URL: " + request.getImages().get(i));
                     }
                     image.setMain(i == 0);
                     image.setVariant(variant);
@@ -134,15 +134,15 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN')")
     public UpdateProductVariantResponse updateProductVariant(UpdateProductVariantRequest request) {
         ProductVariantEntity variant = productVariantRepository.findById(request.getId())
-                .orElseThrow(() -> new RuntimeException("Variant not found"));
+                .orElseThrow(() -> new RuntimeException("Biến thể sản phẩm không tồn tại"));
         ProductEntity product = productRepository.findByName(request.getProductName())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
         if (product.getStatus() == ProductStatus.DELETED)
-            throw new RuntimeException("San pham khong hoat dong");
+            throw new RuntimeException("Sản phẩm không hoạt động");
         ProductVariantEntity duplicate = productVariantRepository
                 .findByColorAndProductId(request.getColor(), product.getId());
         if (duplicate != null && !duplicate.getId().equals(variant.getId())) {
-            throw new RuntimeException("Variant already exists");
+            throw new RuntimeException("Biến thể sản phẩm đã tồn tại");
         }
         variant.setColor(request.getColor());
         variant.setProduct(product);
@@ -190,7 +190,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 else {
                     boolean exists = currentSizes.stream()
                             .anyMatch(s -> s.getSize().equals(reqSize.getSize()));
-                    if (exists) throw new RuntimeException("Size " + reqSize.getSize() + " already exists");
+                    if (exists) throw new RuntimeException("Kích cỡ " + reqSize.getSize() + " đã tồn tại");
                     ProductSizeEntity newSize = new ProductSizeEntity();
                     newSize.setSize(reqSize.getSize());
                     newSize.setQuantity(reqSize.getQuantity());
@@ -220,7 +220,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             if (!exists) {
                 ProductImageEntity image = this.productImageRepository.findByImageURL(url);
                 if (image == null) {
-                    throw new RuntimeException("Image not found with URL: " + url);
+                    throw new RuntimeException("Không tìm thấy ảnh có URL: " + url);
                 }
                 image.setVariant(variant);
                 image.setMain(i == 0);
@@ -267,7 +267,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetVariantByIdResponse getVariantById(String id) {
         ProductVariantEntity variant = productVariantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Variant not found"));
+                .orElseThrow(() -> new RuntimeException("Biến thể sản phẩm không tồn tại"));
         GetVariantByIdResponse res = this.modelMapper.map(variant, GetVariantByIdResponse.class);
         res.setProductName(variant.getProduct().getName());
         res.setBrandName(variant.getProduct().getBrand().getName());
@@ -297,7 +297,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @PreAuthorize("hasAuthority('PRODUCT_VARIANT_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetVariantBySkuResponse getVariantBySku(String sku) {
         ProductVariantEntity variant = this.productVariantRepository.findBySku(sku)
-                .orElseThrow(() -> new RuntimeException("Variant not found"));
+                .orElseThrow(() -> new RuntimeException("Biến thể sản phẩm không tồn tại"));
         GetVariantBySkuResponse res = this.modelMapper.map(variant, GetVariantBySkuResponse.class);
         GetVariantBySkuResponse.Product resPrd = new GetVariantBySkuResponse.Product();
         List<GetVariantBySkuResponse.ProductImage> listResImg = new ArrayList<>();
@@ -356,11 +356,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         ProductVariantEntity existingVariant = this.productVariantRepository.findById(id).orElse(null);
         if (existingVariant == null) {
             log.warn("Product variant with id: {} not found", id);
-            throw new RuntimeException("Product variant not found");
+            throw new RuntimeException("Biến thể sản phẩm không tồn tại");
         }
         ProductEntity product = this.productRepository.findById(existingVariant.getProduct().getId()).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", existingVariant.getProduct().getId());
-            return new RuntimeException("Product not found");
+            return new RuntimeException("Sản phẩm không tồn tại");
         });
         product.setQuantity(product.getQuantity() - existingVariant.getStock());
         productRepository.save(product);
@@ -390,9 +390,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         ProductVariantEntity existingVariant = this.productVariantRepository.findById(id).orElse(null);
         if (existingVariant == null) {
             log.warn("Product variant with id: {} not found", id);
-            throw new RuntimeException("Product variant not found");
+            throw new RuntimeException("Biến thể sản phẩm không tồn tại");
         }
-        if (VariantStatus.valueOf(status) == VariantStatus.SOLD_OUT && existingVariant.getStock() > 0) throw new RuntimeException("Stock > 0");
+        if (VariantStatus.valueOf(status) == VariantStatus.SOLD_OUT && existingVariant.getStock() > 0) throw new RuntimeException("Không thể đặt trạng thái hết hàng khi tồn kho vẫn lớn hơn 0");
         existingVariant.setStatus(VariantStatus.valueOf(status));
         this.productVariantRepository.save(existingVariant);
     }

@@ -11,16 +11,16 @@ import java.util.List;
 @Getter
 @Setter
 public class CreateProductVariantRequest {
-    @NotBlank(message = "Color is required")
+    @NotBlank(message = "Màu sắc là bắt buộc")
     private String color;
 
-    @NotBlank(message = "Product ID is required")
+    @NotBlank(message = "ID sản phẩm là bắt buộc")
     private String productName;
 
-    @Size(max = 6, message = "Maximum 6 images allowed")
+    @Size(max = 6, message = "Chỉ được phép tải lên tối đa 6 ảnh")
     private List<String> images;
 
-    @NotEmpty(message = "Sizes is required")
+    @NotEmpty(message = "Danh sách kích cỡ là bắt buộc")
     private List<SizeRequest> sizes;
 
     @Getter
@@ -29,11 +29,11 @@ public class CreateProductVariantRequest {
     @NoArgsConstructor
     public static class SizeRequest {
 
-        @NotBlank(message = "Size is required")
+        @NotBlank(message = "Kích cỡ là bắt buộc")
         private String size;
 
-        @NotNull(message = "Quantity is required")
-        @Min(value = 1, message = "Quantity must be > 0")
+        @NotNull(message = "Số lượng là bắt buộc")
+        @Min(value = 1, message = "Số lượng phải lớn hơn 0")
         private Integer quantity;
     }
 }

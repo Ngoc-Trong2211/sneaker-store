@@ -12,24 +12,24 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateDiscountRequest {
-    @NotNull(message = "Discount ID cannot be null")
+    @NotNull(message = "ID chương trình giảm giá không được để trống")
     private String id;
 
     private String nameApply;
 
-    @NotBlank(message = "Apply for cannot be blank")
+    @NotBlank(message = "Phạm vi áp dụng không được để trống")
     private String applyFor;
 
-    @NotBlank(message = "Description cannot be blank")
+    @NotBlank(message = "Mô tả không được để trống")
     private String description;
 
-    @NotNull(message = "Percent cannot be null")
+    @NotNull(message = "Phần trăm giảm giá không được để trống")
     private int percent;
 
-    @NotNull(message = "Start time is required")
+    @NotNull(message = "Thời gian bắt đầu là bắt buộc")
     private Instant startTime;
 
-    @NotNull(message = "End time is required")
-    @Future(message = "End time must be in the future")
+    @NotNull(message = "Thời gian kết thúc là bắt buộc")
+    @Future(message = "Thời gian kết thúc phải ở tương lai")
     private Instant endTime;
 }

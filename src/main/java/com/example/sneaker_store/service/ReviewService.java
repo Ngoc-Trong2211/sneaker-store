@@ -14,4 +14,5 @@ public interface ReviewService {
     GetReviewResponse getReviewsByProduct(String productId);
     List<GetReviewResponse.Review> getReviewsByUserId(String userId);
     GetReviewPageResponse getReview(Pageable pageable, SpecificationReviewRequest req);
+    void deleteReview(Long id);
 }

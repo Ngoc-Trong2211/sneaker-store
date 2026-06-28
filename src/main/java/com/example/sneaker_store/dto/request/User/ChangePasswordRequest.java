@@ -7,12 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChangePasswordRequest {
-    @NotBlank(message = "CurrentPassword must not be empty!")
+    @NotBlank(message = "Mật khẩu hiện tại không được để trống")
     private String currentPassword;
 
-    @NotBlank(message = "Password must not be empty!")
+    @NotBlank(message = "Mật khẩu mới không được để trống")
     private String newPassword;
 
-    @NotBlank(message = "ConfirmPassword must not be empty!")
+    @NotBlank(message = "Mật khẩu xác nhận không được để trống")
     private String confirmPassword;
 }

@@ -12,8 +12,6 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
-import java.util.Optional;
-
 @Configuration
 public class AuthenticationEntryPointConfig implements AuthenticationEntryPoint {
     private final AuthenticationEntryPoint delegate = new BearerTokenAuthenticationEntryPoint();
@@ -34,8 +32,7 @@ public class AuthenticationEntryPointConfig implements AuthenticationEntryPoint 
         SystemResponse<Object> res = new SystemResponse<>();
         res.setStatus(HttpStatus.UNAUTHORIZED.value());
         res.setData(null);
-        String message = Optional.ofNullable(authException.getMessage()).orElse("Unauthorize");
-        res.setMessage("Token is invalid =>>>>>>> " + message);
+        res.setMessage("Token không hợp lệ hoặc đã hết hạn");
 
         mapper.writeValue(response.getWriter(), res);
     }

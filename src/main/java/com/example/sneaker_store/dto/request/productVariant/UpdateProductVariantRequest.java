@@ -11,16 +11,16 @@ import java.util.List;
 @Getter
 @Setter
 public class UpdateProductVariantRequest {
-    @NotBlank(message = "Product variant ID cannot be null")
+    @NotBlank(message = "ID biến thể sản phẩm không được để trống")
     private String id;
 
-    @NotBlank(message = "Color cannot be null")
+    @NotBlank(message = "Màu sắc không được để trống")
     private String color;
 
-    @NotBlank(message = "Product Name is required")
+    @NotBlank(message = "Tên sản phẩm là bắt buộc")
     private String productName;
 
-    @Size(max = 6, message = "Maximum 6 images allowed")
+    @Size(max = 6, message = "Chỉ được phép tải lên tối đa 6 ảnh")
     private List<String> images;
 
     private List<SizeRequest> sizes;
@@ -30,13 +30,13 @@ public class UpdateProductVariantRequest {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SizeRequest {
-        @NotNull(message = "Id is required")
+        @NotNull(message = "ID là bắt buộc")
         private Long id;
 
-        @NotBlank(message = "Size is required")
+        @NotBlank(message = "Kích cỡ là bắt buộc")
         private String size;
 
-        @NotNull(message = "Quantity is required")
+        @NotNull(message = "Số lượng là bắt buộc")
         private Integer quantity;
     }
 }

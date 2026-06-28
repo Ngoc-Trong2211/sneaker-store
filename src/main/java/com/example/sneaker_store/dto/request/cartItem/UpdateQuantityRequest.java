@@ -8,12 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateQuantityRequest {
-    @NotNull(message = "Id is required")
+    @NotNull(message = "ID là bắt buộc")
     private Long id;
 
-    @NotBlank(message = "action is required")
+    @NotBlank(message = "Thao tác là bắt buộc")
     private String action;
 
-    @NotNull(message = "Product size id is required")
+    @NotNull(message = "ID kích cỡ sản phẩm là bắt buộc")
     private Long idSize;
 }

@@ -8,15 +8,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateSizeRequest {
-    @NotBlank(message = "Variant id must not be empty!")
+    @NotBlank(message = "ID biến thể không được để trống")
     private String variantId;
 
-    @NotNull(message = "Id must not be empty!")
+    @NotNull(message = "ID không được để trống")
     private Long id;
 
-    @NotBlank(message = "Size must not be empty!")
+    @NotBlank(message = "Kích cỡ không được để trống")
     private String size;
 
-    @NotNull(message = "Quantity must not be empty!")
+    @NotNull(message = "Số lượng không được để trống")
     private int quantity;
 }

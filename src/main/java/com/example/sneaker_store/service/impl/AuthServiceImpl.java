@@ -140,7 +140,7 @@ public class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserEntity user = userService.findByEmail(req.getEmail());
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new RuntimeException("Người dùng không tồn tại");
         }
         if (!user.getStatus().toString().equals("ACTIVE")) {
             throw new StatusInvalidException("Tài khoản đã bị khóa!");
@@ -178,7 +178,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResult refreshToken(String refresh) {
-        if (refresh.equals("default")) throw new RefreshTokenInvalidException("Token is invalid!");
+        if (refresh.equals("default")) throw new RefreshTokenInvalidException("Token không hợp lệ");
         LoginResult result = new LoginResult();
         LoginResponse loginResponse = new LoginResponse();
         LoginResponse.UserLogin userRes = new LoginResponse.UserLogin();
@@ -209,13 +209,13 @@ public class AuthServiceImpl implements AuthService {
     public LoginResult registerUser(RegisterRequest req, String guestId) {
         RoleEntity role = findDefaultUserRole();
         if (!validate(req.getEmail())){
-            throw new EmailInvalidException("Invalid email format!");
+            throw new EmailInvalidException("Định dạng email không hợp lệ");
         }
         if (userRepository.existsByEmail(req.getEmail())){
-            throw new EmailExistsAlreadyException("Email already exists! Please enter a different email address");
+            throw new EmailExistsAlreadyException("Email đã tồn tại, vui lòng sử dụng email khác");
         }
         if (!req.getNewPassword().equals(req.getConfirmPassword())){
-            throw new PasswordMismatchException("Password do not match!");
+            throw new PasswordMismatchException("Mật khẩu xác nhận không khớp");
         }
         else{
             UserEntity user = new UserEntity();
@@ -277,13 +277,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logoutUser(String refresh) {
-        if (refresh.equals("default")) throw new RefreshTokenInvalidException("Token is invalid!");
+        if (refresh.equals("default")) throw new RefreshTokenInvalidException("Token không hợp lệ");
         Jwt jwt = this.checkToken(refresh);
         String emailToken = jwt.getSubject();
 
         String emailLogin = getCurrentUserLogin().isPresent() ? getCurrentUserLogin().get() : "";
         if (emailLogin.isEmpty() || !emailLogin.equals(emailToken))
-            throw new RefreshTokenInvalidException("Email do not match!");
+            throw new RefreshTokenInvalidException("Email không khớp với token");
         UserEntity user = this.userService.findByEmail(emailLogin);
         if (user!=null){
             this.userService.updateRefreshToken(null, user);
@@ -309,7 +309,7 @@ public class AuthServiceImpl implements AuthService {
             userLogin.setStatus(user.getStatus().toString());
             return userLogin;
         }
-        else throw new EmailInvalidException("Email is invalid!");
+        else throw new EmailInvalidException("Email không hợp lệ");
     }
 
     @Override
@@ -332,7 +332,7 @@ public class AuthServiceImpl implements AuthService {
             user.setRole(role);
         }
         if (!user.getStatus().equals(UserStatus.ACTIVE)) {
-            throw new StatusInvalidException("Account is locked!");
+            throw new StatusInvalidException("Tài khoản đã bị khóa");
         }
         if (guestId != null && !guestId.isBlank()) {
             cartService.mergeCart(user.getId(), guestId);
@@ -359,7 +359,7 @@ public class AuthServiceImpl implements AuthService {
     private RoleEntity findDefaultUserRole() {
         RoleEntity role = roleService.findByName("USER");
         if (role == null) {
-            throw new StatusInvalidException("Default USER role is not configured!");
+            throw new StatusInvalidException("Vai trò USER mặc định chưa được cấu hình");
         }
         return role;
     }

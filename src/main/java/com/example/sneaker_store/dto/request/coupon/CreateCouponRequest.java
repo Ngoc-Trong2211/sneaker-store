@@ -13,22 +13,22 @@ import java.time.Instant;
 @Getter
 @Setter
 public class CreateCouponRequest {
-    @NotBlank(message = "Coupon code cannot be blank")
+    @NotBlank(message = "Mã giảm giá không được để trống")
     private String code;
 
-    @Min(value = 1, message = "Discount value must be greater than 0")
+    @Min(value = 1, message = "Giá trị giảm phải lớn hơn 0")
     private int discountValue;
 
-    @Min(value = 0, message = "Minimum order value cannot be negative")
+    @Min(value = 0, message = "Giá trị đơn hàng tối thiểu không được âm")
     private int minOrderValue;
 
-    @NotNull(message = "Expires at cannot be null")
-    @Future(message = "Expires at must be in the future")
+    @NotNull(message = "Thời gian hết hạn không được để trống")
+    @Future(message = "Thời gian hết hạn phải ở tương lai")
     private Instant expiresAt;
 
-    @Min(value = 0, message = "Quantity cannot be negative")
+    @Min(value = 0, message = "Số lượng không được âm")
     private int quantity;
 
-    @NotNull(message = "Coupon type cannot be null")
+    @NotNull(message = "Loại mã giảm giá không được để trống")
     private CouponType type;
 }

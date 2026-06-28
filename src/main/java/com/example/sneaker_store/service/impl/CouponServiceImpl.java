@@ -41,7 +41,7 @@ public class CouponServiceImpl implements CouponService {
         String code = normalizeCode(req.getCode());
         validateCouponData(code, req.getType(), req.getDiscountValue(), req.getMinOrderValue(), req.getQuantity());
         if (this.couponRepository.existsByCodeIgnoreCase(code)) {
-            throw new RuntimeException("Coupon code already exists: " + code);
+            throw new RuntimeException("Mã giảm giá đã tồn tại: " + code);
         }
         CouponEntity coupon = new CouponEntity();
         coupon.setCode(code);
@@ -59,11 +59,11 @@ public class CouponServiceImpl implements CouponService {
     @PreAuthorize("hasAuthority('COUPON_UPDATE') or or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UpdateCouponResponse updateCoupon(UpdateCouponRequest req) {
         CouponEntity coupon = this.couponRepository.findById(req.getId())
-                .orElseThrow(() -> new RuntimeException("Coupon not found with id: " + req.getId()));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy mã giảm giá có ID: " + req.getId()));
         String code = normalizeCode(req.getCode());
         validateCouponData(code, req.getType(), req.getDiscountValue(), req.getMinOrderValue(), req.getQuantity());
         if (this.couponRepository.existsByCodeIgnoreCaseAndIdNot(code, req.getId())) {
-            throw new RuntimeException("Coupon code already exists: " + code);
+            throw new RuntimeException("Mã giảm giá đã tồn tại: " + code);
         }
 
         coupon.setCode(code);
@@ -82,7 +82,7 @@ public class CouponServiceImpl implements CouponService {
     @PreAuthorize("hasAuthority('COUPON_READ') or or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetCouponResponse.Coupon getCouponById(Long id) {
         CouponEntity coupon = this.couponRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Coupon not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy mã giảm giá có ID: " + id));
         return this.modelMapper.map(coupon, GetCouponResponse.Coupon.class);
     }
 
@@ -107,7 +107,7 @@ public class CouponServiceImpl implements CouponService {
     @PreAuthorize("hasAuthority('COUPON_VALIDATE') or isAnonymous() or or hasAuthority('ADMIN') or hasAuthority('STAFF') or hasAuthority('USER')")
     public ValidateCouponResponse validateCoupon(String code, double orderAmount) {
         CouponEntity coupon = this.couponRepository.findByCodeIgnoreCase(normalizeCode(code))
-                .orElseThrow(() -> new RuntimeException("Coupon not found"));
+                .orElseThrow(() -> new RuntimeException("Mã giảm giá không tồn tại"));
         return buildValidationResponse(coupon, orderAmount);
     }
 
@@ -115,7 +115,7 @@ public class CouponServiceImpl implements CouponService {
     @Transactional
     public double useCoupon(String code, double orderAmount) {
         CouponEntity coupon = this.couponRepository.findByCodeForUpdate(normalizeCode(code))
-                .orElseThrow(() -> new RuntimeException("Coupon not found"));
+                .orElseThrow(() -> new RuntimeException("Mã giảm giá không tồn tại"));
         ValidateCouponResponse validation = buildValidationResponse(coupon, orderAmount);
         if (!validation.isValid()) {
             throw new RuntimeException(validation.getMessage());
@@ -130,7 +130,7 @@ public class CouponServiceImpl implements CouponService {
     @PreAuthorize("hasAuthority('COUPON_DELETE') or or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteCoupon(Long id) {
         CouponEntity coupon = this.couponRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Coupon not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy mã giảm giá có ID: " + id));
         this.couponRepository.delete(coupon);
     }
 
@@ -204,22 +204,22 @@ public class CouponServiceImpl implements CouponService {
 
     private void validateCouponData(String code, CouponType type, int discountValue, int minOrderValue, int quantity) {
         if (code.isBlank()) {
-            throw new RuntimeException("Coupon code cannot be blank");
+            throw new RuntimeException("Mã giảm giá không được để trống");
         }
         if (type == null) {
-            throw new RuntimeException("Coupon type cannot be null");
+            throw new RuntimeException("Loại mã giảm giá không được để trống");
         }
         if (discountValue <= 0) {
-            throw new RuntimeException("Discount value must be greater than 0");
+            throw new RuntimeException("Giá trị giảm phải lớn hơn 0");
         }
         if (CouponType.PERCENT.equals(type) && discountValue > 100) {
-            throw new RuntimeException("Percent coupon discount value cannot be greater than 100");
+            throw new RuntimeException("Phần trăm giảm giá không được lớn hơn 100");
         }
         if (minOrderValue < 0) {
-            throw new RuntimeException("Minimum order value cannot be negative");
+            throw new RuntimeException("Giá trị đơn hàng tối thiểu không được âm");
         }
         if (quantity < 0) {
-            throw new RuntimeException("Quantity cannot be negative");
+            throw new RuntimeException("Số lượng không được âm");
         }
     }
 

@@ -14,6 +14,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,5 +69,13 @@ public class ReviewController {
     @ApiMessage(message = "Get reviews successfully")
     public ResponseEntity<GetReviewPageResponse> getReviews(@ParameterObject Pageable pageable, SpecificationReviewRequest request) {
         return ResponseEntity.ok(reviewService.getReview(pageable, request));
+    }
+
+    @DeleteMapping("/reviews/{id}")
+    @Operation(summary = "Delete review", description = "Delete a review by ID")
+    @ApiMessage(message = "Review deleted successfully")
+    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
+        reviewService.deleteReview(id);
+        return ResponseEntity.noContent().build();
     }
 }

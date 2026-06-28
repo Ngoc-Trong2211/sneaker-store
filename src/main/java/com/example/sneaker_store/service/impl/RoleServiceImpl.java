@@ -49,7 +49,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @PreAuthorize("hasAuthority('ROLE_CREATE') or hasAuthority('ADMIN')")
     public CreateRoleResponse createRole(CreateRoleRequest req) {
-        if (this.roleRepository.existsByName(req.getName())) throw new NameRoleExistsException("Tên role đã tồn tại!");
+        if (this.roleRepository.existsByName(req.getName())) throw new NameRoleExistsException("Tên vai trò đã tồn tại");
         RoleEntity role = new RoleEntity();
         role.setName(req.getName().toUpperCase());
         role.setDescription(req.getDescription());
@@ -57,7 +57,7 @@ public class RoleServiceImpl implements RoleService {
 
         List<Long> idPermission = req.getPermissionId();
         List<PermissionEntity> permissions = this.permissionRepository.findByIdIn(idPermission);
-        if (permissions.isEmpty()) throw new IdInvalidException("Không có permission tồn tại!");
+        if (permissions.isEmpty()) throw new IdInvalidException("Không có quyền hạn nào tồn tại");
         role.setPermissions(permissions);
         this.roleRepository.save(role);
         return this.modelMapper.map(role, CreateRoleResponse.class);
@@ -67,11 +67,11 @@ public class RoleServiceImpl implements RoleService {
     @PreAuthorize("hasAuthority('ROLE_UPDATE') or hasAuthority('ADMIN')")
     public UpdateRoleResponse updateRole(UpdateRoleRequest req) {
         RoleEntity role = this.findById(req.getId());
-        if (role == null) throw new IdInvalidException("Role không tồn tại!");
+        if (role == null) throw new IdInvalidException("Vai trò không tồn tại");
 
         // Kiểm tra tên role đã có ở các id khác chưa
         if (this.roleRepository.existsByNameAndIdNot(req.getName(), req.getId()))
-            throw new NameRoleExistsException("Tên role đã tồn tại!");
+            throw new NameRoleExistsException("Tên vai trò đã tồn tại");
         role.setName(req.getName().toUpperCase());
         role.setDescription(req.getDescription());
 
@@ -81,7 +81,7 @@ public class RoleServiceImpl implements RoleService {
 
         if (!currentIdPermissions.equals(idPermissions)){
             List<PermissionEntity> permissions = this.permissionRepository.findByIdIn(idPermissions.stream().toList());
-            if (permissions.isEmpty()) throw new IdInvalidException("Không có permission tồn tại!");
+            if (permissions.isEmpty()) throw new IdInvalidException("Không có quyền hạn nào tồn tại");
             role.setPermissions(permissions);
             this.roleRepository.save(role);
         }
@@ -95,7 +95,7 @@ public class RoleServiceImpl implements RoleService {
     @PreAuthorize("hasAuthority('ROLE_UPDATE_STATUS') or hasAuthority('ADMIN')")
     public void updateActiveRole(Long id, String active) {
         RoleEntity role = this.findById(id);
-        if (role == null) throw new IdInvalidException("Role không tồn tại!");
+        if (role == null) throw new IdInvalidException("Vai trò không tồn tại");
         role.setActive(Boolean.parseBoolean(active));
         this.roleRepository.save(role);
     }

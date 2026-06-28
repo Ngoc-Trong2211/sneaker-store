@@ -10,10 +10,10 @@ import java.util.List;
 @Getter
 @Setter
 public class UpdateRoleRequest {
-    @NotNull(message = "Id không được null")
+    @NotNull(message = "ID vai trò không được để trống")
     private Long id;
 
-    @NotBlank(message = "Tên role không được để trống")
+    @NotBlank(message = "Tên vai trò không được để trống")
     private String name;
 
     private String description;

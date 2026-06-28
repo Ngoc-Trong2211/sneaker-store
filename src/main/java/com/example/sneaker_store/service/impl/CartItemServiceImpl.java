@@ -34,13 +34,13 @@ public class CartItemServiceImpl implements CartItemService {
     public CreateCartItemResponse addToCart(CreateCartItemRequest req, String guestId) {
         ProductVariantEntity existingVariant = this.productVariantRepository.findById(req.getVariantId()).orElseThrow(() -> {
             log.warn("Product variant with id: {} not found", req.getVariantId());
-            return new RuntimeException("Product variant not found");
+            return new RuntimeException("Biến thể sản phẩm không tồn tại");
         });
-        if (existingVariant.getStock() < 1) throw new RuntimeException("San pham khong du");
+        if (existingVariant.getStock() < 1) throw new RuntimeException("Sản phẩm đã hết hàng");
         CartEntity cart = this.cartService.createCart(guestId);
 
         ProductSizeEntity size = this.productSizeRepository.findById(req.getIdSize())
-                .orElseThrow(() -> new RuntimeException("size item not found"));
+                .orElseThrow(() -> new RuntimeException("Kích cỡ sản phẩm không tồn tại"));
 
         Optional<CartItemEntity> existsCartItem = this.cartItemRepository
                 .findByCartIdAndProductVariantIdAndIdSize(cart.getId(), req.getVariantId(), req.getIdSize());
@@ -81,7 +81,7 @@ public class CartItemServiceImpl implements CartItemService {
     @PreAuthorize("hasAuthority('CART_ITEM_DELETE') or isAnonymous() or hasAuthority('USER')")
     public void deleteCartItem(Long id) {
         CartItemEntity cartItem = this.cartItemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new RuntimeException("Sản phẩm trong giỏ hàng không tồn tại"));
         this.cartItemRepository.deleteById(cartItem.getId());
     }
 
@@ -89,14 +89,14 @@ public class CartItemServiceImpl implements CartItemService {
     @PreAuthorize("hasAuthority('CART_ITEM_UPDATE') or isAnonymous() or hasAuthority('USER')")
     public int updateQuantity(UpdateQuantityRequest req) {
         CartItemEntity cartItem = this.cartItemRepository.findById(req.getId())
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new RuntimeException("Sản phẩm trong giỏ hàng không tồn tại"));
         ProductSizeEntity size = this.productSizeRepository.findById(req.getIdSize())
-                .orElseThrow(() -> new RuntimeException("size item not found"));
+                .orElseThrow(() -> new RuntimeException("Kích cỡ sản phẩm không tồn tại"));
         int newQuantityCart = 0;
 
         if (req.getAction() != null && req.getAction().equalsIgnoreCase("increase")) {
             newQuantityCart = cartItem.getQuantity() + 1;
-            if (newQuantityCart > size.getQuantity()) throw new RuntimeException("Quantity not enough");
+            if (newQuantityCart > size.getQuantity()) throw new RuntimeException("Số lượng tồn kho không đủ");
             cartItem.setQuantity(newQuantityCart);
         }
         if (req.getAction() != null && req.getAction().equalsIgnoreCase("decrease")) {

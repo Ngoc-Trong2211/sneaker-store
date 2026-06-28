@@ -49,7 +49,7 @@ public class CartServiceImpl implements CartService {
                     });
         }
         if (guestId == null || guestId.isBlank()) {
-            throw new RuntimeException("guestId is required for guest");
+            throw new RuntimeException("Mã khách vãng lai là bắt buộc");
         }
         return this.cartRepository.findByGuestId(guestId)
                 .orElseGet(() -> {
@@ -120,7 +120,7 @@ public class CartServiceImpl implements CartService {
             return res;
         }
         if (guestId == null || guestId.isBlank()) {
-            throw new RuntimeException("guestId is required for guest");
+            throw new RuntimeException("Mã khách vãng lai là bắt buộc");
         }
         else {
             CartEntity cart = this.cartRepository.findByGuestId(guestId).orElse(null);

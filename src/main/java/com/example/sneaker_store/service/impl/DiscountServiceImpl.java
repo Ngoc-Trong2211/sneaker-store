@@ -48,16 +48,16 @@ public class DiscountServiceImpl implements DiscountService {
         switch (applyFor.toUpperCase()) {
             case "CATEGORY":
                 CategoryEntity category = this.categoryService.findBySlug(nameApply);
-                if (category == null) throw new RuntimeException("Category not found with name: " + nameApply);
+                if (category == null) throw new RuntimeException("Không tìm thấy danh mục: " + nameApply);
                 return this.productRepository.findByCategoryId(category.getId());
             case "BRAND":
                 BrandEntity brand = this.brandService.findByName(nameApply);
-                if (brand == null) throw new RuntimeException("Brand not found with name: " + nameApply);
+                if (brand == null) throw new RuntimeException("Không tìm thấy thương hiệu: " + nameApply);
                 return this.productRepository.findByBrandId(brand.getId());
             case "ALL":
                 return this.productRepository.findAll();
             default:
-                throw new RuntimeException("Invalid applyFor value: " + applyFor);
+                throw new RuntimeException("Phạm vi áp dụng không hợp lệ: " + applyFor);
         }
     }
 
@@ -67,7 +67,7 @@ public class DiscountServiceImpl implements DiscountService {
     public CreateDiscountResponse createDiscount(CreateDiscountRequest request) {
         if (this.discountRepository.existsOverlap(
                 request.getApplyFor(), request.getNameApply(), request.getEndTime(), request.getStartTime()))
-            throw new RuntimeException("Discount with nameApply already exists: " + request.getNameApply());
+            throw new RuntimeException("Chương trình giảm giá cho đối tượng này đã tồn tại: " + request.getNameApply());
         DiscountEntity discount = new DiscountEntity();
         discount.setPercent(request.getPercent()); 
         discount.setDescription(request.getDescription());
@@ -96,12 +96,12 @@ public class DiscountServiceImpl implements DiscountService {
     @PreAuthorize("hasAuthority('DISCOUNT_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UpdateDiscountResponse updateDiscount(UpdateDiscountRequest request) {
         DiscountEntity discount = this.discountRepository.findById(request.getId())
-                .orElseThrow(() -> new RuntimeException("Discount not found with id: " + request.getId()));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chương trình giảm giá có ID: " + request.getId()));
         if (this.discountRepository.existsOverlap(
                 request.getApplyFor(), request.getNameApply(), request.getEndTime(), request.getStartTime())
             && !discount.getId().equals(request.getId())){
             throw new RuntimeException(
-                    "Discount with nameApply already exists: " + request.getNameApply());
+                    "Chương trình giảm giá cho đối tượng này đã tồn tại: " + request.getNameApply());
         }
         Instant now = Instant.now();
         if (request.getStartTime().isAfter(now)) {
@@ -140,7 +140,7 @@ public class DiscountServiceImpl implements DiscountService {
     @PreAuthorize("hasAuthority('DISCOUNT_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public Discount getDiscountById(String id) {
         DiscountEntity discount = this.discountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chương trình giảm giá có ID: " + id));
         return this.modelMapper.map(discount, GetDiscountResponse.Discount.class);
     }
 
@@ -148,9 +148,9 @@ public class DiscountServiceImpl implements DiscountService {
     @PreAuthorize("hasAuthority('DISCOUNT_UPDATE_STATUS') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void updateStatusDiscount(String id, DiscountStatus status) {
         DiscountEntity discount = this.discountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chương trình giảm giá có ID: " + id));
         if (this.discountRepository.checkEndTimeBeforeCurrentTime(id, Instant.now())) {
-            throw new RuntimeException("Cannot update status of an expired discount");
+            throw new RuntimeException("Không thể cập nhật trạng thái của chương trình giảm giá đã hết hạn");
         }
         discount.setStatus(status);
         this.discountRepository.save(discount);
@@ -172,7 +172,7 @@ public class DiscountServiceImpl implements DiscountService {
     @PreAuthorize("hasAuthority('DISCOUNT_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteDiscount(String id) {
         DiscountEntity discount = this.discountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Discount not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chương trình giảm giá có ID: " + id));
         this.productRepository.clearDiscountFromProducts(discount.getId());
         this.discountRepository.delete(discount);
     }

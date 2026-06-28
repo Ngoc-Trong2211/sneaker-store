@@ -7,15 +7,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateBrandRequest {
-    @NotBlank(message = "Name không được để trống")
+    @NotBlank(message = "Tên thương hiệu không được để trống")
     private String name;
 
     @NotBlank(message = "Logo không được để trống")
     private String logo;
 
-    @NotBlank(message = "Country không được để trống")
+    @NotBlank(message = "Quốc gia không được để trống")
     private String countryCode;
 
-    @NotBlank(message = "PublicId không được để trống")
+    @NotBlank(message = "Mã định danh ảnh không được để trống")
     private String publicId;
 }

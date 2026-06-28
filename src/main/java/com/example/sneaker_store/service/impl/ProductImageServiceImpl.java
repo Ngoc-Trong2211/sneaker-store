@@ -32,7 +32,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     private List<UploadFileResponse> uploadFileResponses(MultipartFile[] files){
         if (files == null || files.length == 0) {
-            throw new IllegalArgumentException("Danh sách file rỗng");
+            throw new IllegalArgumentException("Danh sách tệp trống");
         }
         List<UploadFileResponse> res = new ArrayList<>();
         for (MultipartFile file : files){
@@ -83,7 +83,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     @PreAuthorize("hasAuthority('PRODUCT_IMAGE_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteProductImage(Long id) {
         ProductImageEntity img = this.productImageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy image"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hình ảnh"));
         fileService.deleteFile(img.getPublicId());
         this.productImageRepository.delete(img);
     }
@@ -92,7 +92,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     @PreAuthorize("hasAuthority('PRODUCT_IMAGE_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetProductImageResponse getProductImageById(String productId) {
         List<ProductImageEntity> imgList = this.productImageRepository.findByVariantId(productId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy image"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hình ảnh"));
         GetProductImageResponse response = new GetProductImageResponse();
         response.setImages(imgList.stream().map(img -> this.modelMapper.map(img, GetProductImageResponse.ProductImage.class)).toList());
         return response;

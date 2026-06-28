@@ -53,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
     public CreateProductResponse createProduct(CreateProductRequest request) {
         if (productRepository.existsByName(request.getName())) {
             log.warn("Product with name '{}' already exists", request.getName());
-            throw new NameExistsException("Product with the same name already exists");
+            throw new NameExistsException("Tên sản phẩm đã tồn tại");
         }
         BrandEntity brand = this.brandService.findById(request.getBrandId());
         CategoryEntity category = this.categoryService.findById(request.getCategoryId());
@@ -79,9 +79,9 @@ public class ProductServiceImpl implements ProductService {
     @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UpdateProductResponse updateProduct(UpdateProductRequest request) {
         ProductEntity product = this.productRepository.findById(request.getId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
         if (this.productRepository.existsByNameAndIdNot(request.getName(), request.getId())) {
-            throw new NameExistsException("Product with the same name already exists");
+            throw new NameExistsException("Tên sản phẩm đã tồn tại");
         }
         BrandEntity brand = this.brandService.findById(request.getBrandId());
         CategoryEntity category = this.categoryService.findById(request.getCategoryId());
@@ -149,7 +149,7 @@ public class ProductServiceImpl implements ProductService {
             Set<String> favouriteProductIds = new HashSet<>();
             if (email != null && !email.equals("anonymousUser")) {
                 UserEntity user = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
                 favouriteProductIds = favouriteRepository.findProductIdsByUserId(user.getId());
             } else if (guestId != null) {
@@ -165,7 +165,7 @@ public class ProductServiceImpl implements ProductService {
     @PreAuthorize("hasAuthority('PRODUCT_READ') or isAnonymous()")
     public GetProductByIdResponse getProductById(String slug, String guestId) {
         ProductEntity product = productRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
         GetProductByIdResponse res = modelMapper.map(product, GetProductByIdResponse.class);
         res.setPrice(formatPriceToResponse(product.getPrice()));
         if (product.getBrand() != null) {
@@ -214,7 +214,7 @@ public class ProductServiceImpl implements ProductService {
         boolean favourite = false;
         if (email != null && !email.equals("anonymousUser")) {
             UserEntity user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
             favourite = favouriteRepository.existsByUserIdAndProductId(user.getId(), product.getId());
         } else if (guestId != null) {
             favourite = favouriteRepository.existsByGuestIdAndProductId(guestId, product.getId());
@@ -228,10 +228,10 @@ public class ProductServiceImpl implements ProductService {
     public void updateStatusProduct(String id, String status) {
         ProductEntity product = this.productRepository.findById(id).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", id);
-            return new RuntimeException("Product not found");
+            return new RuntimeException("Sản phẩm không tồn tại");
         });
-        if (ProductStatus.valueOf(status) == ProductStatus.SOLD_OUT && product.getQuantity() > 0) throw new RuntimeException("Quantity > 0");
-        if (ProductStatus.valueOf(status) == ProductStatus.ACTIVE && product.getQuantity() == 0) throw new RuntimeException("Quantity = 0");
+        if (ProductStatus.valueOf(status) == ProductStatus.SOLD_OUT && product.getQuantity() > 0) throw new RuntimeException("Không thể đặt trạng thái hết hàng khi số lượng vẫn lớn hơn 0");
+        if (ProductStatus.valueOf(status) == ProductStatus.ACTIVE && product.getQuantity() == 0) throw new RuntimeException("Không thể kích hoạt sản phẩm khi số lượng bằng 0");
         product.setStatus(ProductStatus.valueOf(status));
         if (ProductStatus.valueOf(status)==(ProductStatus.ACTIVE)){
             Optional<List<ProductVariantEntity>> listVariants= this.productVariantRepository.findByProductId(id);
@@ -250,9 +250,9 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(String id) {
         ProductEntity product = this.productRepository.findById(id).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", id);
-            return new RuntimeException("Product not found");
+            return new RuntimeException("Sản phẩm không tồn tại");
         });
-        if (product.getStatus() == ProductStatus.DELETED) throw new RuntimeException("Product already deleted");
+        if (product.getStatus() == ProductStatus.DELETED) throw new RuntimeException("Sản phẩm đã bị xóa trước đó");
         this.productVariantRepository.deleteSoftProductVariant(product.getId());
         product.setStatus(ProductStatus.DELETED);
         this.productRepository.save(product);

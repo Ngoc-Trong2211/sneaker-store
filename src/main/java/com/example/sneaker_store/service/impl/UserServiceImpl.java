@@ -51,20 +51,20 @@ public class UserServiceImpl implements UserService {
     public CreateUserResponse createUser(CreateUserRequest req) throws Exception {
         UserEntity user = new UserEntity();
         if(!validate(req.getEmail())){
-            throw new EmailInvalidException("Invalid email format!");
+            throw new EmailInvalidException("Định dạng email không hợp lệ");
         }
         if(this.userRepository.existsByEmail(req.getEmail())){
-            throw new EmailExistsAlreadyException("Email is exists");
+            throw new EmailExistsAlreadyException("Email đã tồn tại");
         }
         if (this.userRepository.existsByPhone(req.getPhone())){
-            throw new PhoneExistsAlreadyException("Phone is already!");
+            throw new PhoneExistsAlreadyException("Số điện thoại đã tồn tại");
         }
         user.setEmail(req.getEmail());
         user.setName(req.getName());
         user.setPhone(req.getPhone());
         user.setStatus(UserStatus.ACTIVE);
         RoleEntity role = this.roleService.findById(req.getRoleId());
-        if (role==null || !role.isActive()) throw new IdInvalidException("Role không tồn tại!");
+        if (role==null || !role.isActive()) throw new IdInvalidException("Vai trò không tồn tại");
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         this.userRepository.save(user);
@@ -105,20 +105,20 @@ public class UserServiceImpl implements UserService {
     public UpdateUserResponse updateUser(UpdateUserRequest req) {
         Optional<UserEntity> user = this.userRepository.findById(req.getId());
         if (this.userRepository.existsByPhoneAndIdNot(req.getPhone(), req.getId())){
-            throw new PhoneExistsAlreadyException("Phone is already!");
+            throw new PhoneExistsAlreadyException("Số điện thoại đã tồn tại");
         }
         if (user.isPresent()){
             UserEntity currentUser = user.get();
             currentUser.setName(req.getName());
             currentUser.setPhone(req.getPhone());
             RoleEntity role = this.roleService.findById(req.getRoleId());
-            if (role==null || !role.isActive()) throw new IdInvalidException("Role không tồn tại!");
+            if (role==null || !role.isActive()) throw new IdInvalidException("Vai trò không tồn tại");
             currentUser.setRole(role);
             this.userRepository.save(currentUser);
             return this.modelMapper.map(currentUser, UpdateUserResponse.class);
         }
         else{
-            throw new IdInvalidException("Id is invalid!");
+            throw new IdInvalidException("ID người dùng không hợp lệ");
         }
     }
 
@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
     public UpdateUserResponse updateUserInfo(UpdateInfoUserRequest req) {
         Optional<UserEntity> user = this.userRepository.findById(req.getId());
         if (this.userRepository.existsByPhoneAndIdNot(req.getPhone(), req.getId())){
-            throw new PhoneExistsAlreadyException("Phone is already!");
+            throw new PhoneExistsAlreadyException("Số điện thoại đã tồn tại");
         }
         if (user.isPresent()){
             UserEntity currentUser = user.get();
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
             return this.modelMapper.map(currentUser, UpdateUserResponse.class);
         }
         else{
-            throw new IdInvalidException("Id is invalid!");
+            throw new IdInvalidException("ID người dùng không hợp lệ");
         }
     }
 
@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService {
             return this.modelMapper.map(currentUser, GetUserResponse.User.class);
         }
         else{
-            throw new IdInvalidException("Id is invalid!");
+            throw new IdInvalidException("ID người dùng không hợp lệ");
         }
     }
 
@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
             this.userRepository.save(currentUser);
         }
         else{
-            throw new IdInvalidException("Id is invalid!");
+            throw new IdInvalidException("ID người dùng không hợp lệ");
         }
     }
 
@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("isAuthenticated()")
     public void handleChangePassword(ChangePasswordRequest req) {
         String email = AuthServiceImpl.getCurrentUserLogin()
-                .orElseThrow(() -> new RuntimeException("user not found"));;
+                .orElseThrow(() -> new RuntimeException("Không xác định được người dùng đang đăng nhập"));
         Optional<UserEntity> user = this.userRepository.findByEmail(email);
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (user.isPresent()){
@@ -182,7 +182,7 @@ public class UserServiceImpl implements UserService {
             if (!encoder.matches(req.getCurrentPassword(), currentUser.getPassword()) ||
                     encoder.matches(req.getNewPassword(), currentUser.getPassword())){
                 throw new ChangePasswordException(
-                        "Incorrect password or new password must not be the same as the old password!");
+                        "Mật khẩu hiện tại không đúng hoặc mật khẩu mới trùng với mật khẩu cũ");
             }
             else{
                 if (req.getNewPassword().equals(req.getConfirmPassword())){
@@ -190,12 +190,12 @@ public class UserServiceImpl implements UserService {
                     this.userRepository.save(currentUser);
                 }
                 else{
-                    throw new PasswordMismatchException("Passwords do not match!");
+                    throw new PasswordMismatchException("Mật khẩu xác nhận không khớp");
                 }
             }
         }
         else{
-            throw new EmailInvalidException("Email is invalid!");
+            throw new EmailInvalidException("Email không hợp lệ");
         }
     }
 
@@ -208,7 +208,7 @@ public class UserServiceImpl implements UserService {
             if (!encoder.matches(req.getCurrentPassword(), currentUser.getPassword()) ||
                     encoder.matches(req.getNewPassword(), currentUser.getPassword())){
                 throw new ChangePasswordException(
-                        "Incorrect password or new password must not be the same as the old password!");
+                        "Mật khẩu hiện tại không đúng hoặc mật khẩu mới trùng với mật khẩu cũ");
             }
             else{
                 if (req.getNewPassword().equals(req.getConfirmPassword())){
@@ -216,12 +216,12 @@ public class UserServiceImpl implements UserService {
                     this.userRepository.save(currentUser);
                 }
                 else{
-                    throw new PasswordMismatchException("Passwords do not match!");
+                    throw new PasswordMismatchException("Mật khẩu xác nhận không khớp");
                 }
             }
         }
         else{
-            throw new EmailInvalidException("Email is invalid!");
+            throw new EmailInvalidException("Email không hợp lệ");
         }
     }
 
@@ -236,7 +236,7 @@ public class UserServiceImpl implements UserService {
             return res;
         }
         else{
-            throw new IdInvalidException("Id is invalid!");
+            throw new IdInvalidException("ID người dùng không hợp lệ");
         }
     }
 
@@ -244,7 +244,7 @@ public class UserServiceImpl implements UserService {
     public UserEntity findByEmail(String email) {
         Optional<UserEntity> user = this.userRepository.findByEmail(email);
         if (user.isPresent()) return user.get();
-        else throw new EmailInvalidException("Email is invalid!");
+        else throw new EmailInvalidException("Email không hợp lệ");
     }
 
     @Override
@@ -257,6 +257,6 @@ public class UserServiceImpl implements UserService {
     public UserEntity findByRefreshTokenAndEmail(String refresh, String email) {
         Optional<UserEntity> user = this.userRepository.findByRefreshTokenAndEmail(refresh, email);
         if (user.isPresent()) return user.get();
-        else throw new EmailInvalidException("Email or refresh token is invalid!");
+        else throw new EmailInvalidException("Email hoặc refresh token không hợp lệ");
     }
 }

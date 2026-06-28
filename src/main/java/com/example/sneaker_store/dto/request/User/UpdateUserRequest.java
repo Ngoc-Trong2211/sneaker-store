@@ -9,10 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateUserRequest {
-    @NotNull(message = "Id must not be empty!")
+    @NotNull(message = "ID người dùng không được để trống")
     private String id;
 
-    @NotBlank(message = "Name must not be empty!")
+    @NotBlank(message = "Tên không được để trống")
     private String name;
 
     @Pattern(
@@ -21,6 +21,6 @@ public class UpdateUserRequest {
     )
     private String phone;
 
-    @NotNull(message = "Role không được để trống!")
+    @NotNull(message = "Vai trò không được để trống")
     private Long roleId;
 }

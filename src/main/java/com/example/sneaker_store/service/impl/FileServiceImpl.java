@@ -38,7 +38,7 @@ public class FileServiceImpl implements FileService {
     @PreAuthorize("hasAuthority('FILE_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UploadFileResponse uploadFile(MultipartFile file, String folder) {
         if (file == null || file.isEmpty()) {
-            throw new IdInvalidException("File is empty");
+            throw new IdInvalidException("Tệp tin trống");
         }
         String fileName = file.getOriginalFilename();
 
@@ -46,7 +46,7 @@ public class FileServiceImpl implements FileService {
                 ext -> fileName != null && fileName.toLowerCase().endsWith(ext)
         );
         if (!isValid) {
-            throw new IdInvalidException("Chỉ chấp nhận file: " + ALLOWED_EXTENSIONS);
+            throw new IdInvalidException("Chỉ chấp nhận các định dạng tệp: " + ALLOWED_EXTENSIONS);
         }
         String transformation = getTransformation(folder);
         try {
@@ -64,7 +64,7 @@ public class FileServiceImpl implements FileService {
             return new UploadFileResponse(imageUrl, publicId, Instant.now());
         } catch (IOException e) {
             log.error("Upload failed", e);
-            throw new RuntimeException("Upload failed");
+            throw new RuntimeException("Tải tệp lên thất bại");
         }
     }
 
@@ -72,7 +72,7 @@ public class FileServiceImpl implements FileService {
     @PreAuthorize("hasAuthority('FILE_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteFile(String publicId) {
         if (publicId == null || publicId.isEmpty()) {
-            throw new IdInvalidException("PublicId không được để trống");
+            throw new IdInvalidException("Mã định danh ảnh không được để trống");
         }
         try {
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());

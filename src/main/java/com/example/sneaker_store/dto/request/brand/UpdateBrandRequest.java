@@ -9,18 +9,18 @@ import lombok.Setter;
 @Setter
 public class    UpdateBrandRequest {
 
-    @NotNull(message = "id khong duoc de trong")
+    @NotNull(message = "ID thương hiệu không được để trống")
     private Long id;
 
-    @NotBlank(message = "Name không được để trống")
+    @NotBlank(message = "Tên thương hiệu không được để trống")
     private String name;
 
     @NotBlank(message = "Logo không được để trống")
     private String logo;
 
-    @NotBlank(message = "PublicId không được để trống")
+    @NotBlank(message = "Mã định danh ảnh không được để trống")
     private String publicId;
 
-    @NotBlank(message = "Country không được để trống")
+    @NotBlank(message = "Quốc gia không được để trống")
     private String countryCode;
 }

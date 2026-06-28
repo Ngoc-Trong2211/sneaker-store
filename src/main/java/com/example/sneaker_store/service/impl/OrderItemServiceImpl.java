@@ -33,13 +33,13 @@ public class OrderItemServiceImpl implements OrderItemService {
         CartEntity cart = getCart(guestId);
         List<CartItemEntity> cartItems = cartItemRepository.findByCartId(cart.getId());
         if (cartItems.isEmpty()) {
-            throw new RuntimeException("Cart is empty");
+            throw new RuntimeException("Giỏ hàng đang trống");
         }
 
         for (CartItemEntity cartItem : cartItems) {
             ProductVariantEntity variant = cartItem.getProductVariant();
             if (variant.getStock() < cartItem.getQuantity()) {
-                throw new RuntimeException(variant.getProduct().getName() + " out of stock");
+                throw new RuntimeException("Sản phẩm " + variant.getProduct().getName() + " đã hết hàng");
             }
         }
 
@@ -47,12 +47,12 @@ public class OrderItemServiceImpl implements OrderItemService {
         for (CartItemEntity cartItem : cartItems) {
             ProductVariantEntity variant = cartItem.getProductVariant();
             ProductSizeEntity size = this.productSizeRepository.findById(cartItem.getIdSize())
-                    .orElseThrow(() -> new RuntimeException("size item not found"));
+                    .orElseThrow(() -> new RuntimeException("Kích cỡ sản phẩm không tồn tại"));
             if (variant.getStock() < cartItem.getQuantity()) {
-                throw new RuntimeException("Out of stock");
+                throw new RuntimeException("Sản phẩm đã hết hàng");
             }
             if (size.getQuantity() < cartItem.getQuantity()) {
-                throw new RuntimeException("Size out of stock");
+                throw new RuntimeException("Kích cỡ đã hết hàng");
             }
             size.setQuantity(size.getQuantity() - cartItem.getQuantity());
             variant.setStock(variant.getStock() - cartItem.getQuantity());
@@ -91,15 +91,15 @@ public class OrderItemServiceImpl implements OrderItemService {
         if (email != null && !email.equals("anonymousUser")) {
             UserEntity user = this.userService.findByEmail(email);
             if (user == null) {
-                throw new RuntimeException("User not found with email: " + email);
+                throw new RuntimeException("Không tìm thấy người dùng có email: " + email);
             }
             return cartRepository.findByUserId(user.getId()).orElseThrow(() ->
-                            new RuntimeException("Cart not found for user: " + email));
+                            new RuntimeException("Không tìm thấy giỏ hàng của người dùng: " + email));
         }
         if (guestId == null || guestId.isBlank()) {
-            throw new RuntimeException("Guest id is required");
+            throw new RuntimeException("Mã khách vãng lai là bắt buộc");
         }
         return cartRepository.findByGuestId(guestId).orElseThrow(() ->
-                        new RuntimeException("Cart not found for guest: " + guestId));
+                        new RuntimeException("Không tìm thấy giỏ hàng của khách: " + guestId));
     }
 }

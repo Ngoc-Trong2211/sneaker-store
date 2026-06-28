@@ -9,19 +9,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateAddressRequest {
-    @NotNull(message = "Id khong duoc de trong")
+    @NotNull(message = "ID địa chỉ không được để trống")
     private Long id;
 
-    @NotBlank(message = "Ward không được để trống")
+    @NotBlank(message = "Phường/xã không được để trống")
     private String ward;
 
-    @NotBlank(message = "Address line không được để trống")
+    @NotBlank(message = "Địa chỉ chi tiết không được để trống")
     private String addressLine;
 
-    @NotBlank(message = "City không được để trống")
+    @NotBlank(message = "Tỉnh/thành phố không được để trống")
     private String city;
 
-    @NotBlank(message = "Name không được để trống")
+    @NotBlank(message = "Tên người nhận không được để trống")
     private String name;
 
     @Pattern(

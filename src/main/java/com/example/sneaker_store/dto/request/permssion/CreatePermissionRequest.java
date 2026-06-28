@@ -8,16 +8,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreatePermissionRequest {
-    @NotBlank(message = "Name không được để trống")
+    @NotBlank(message = "Tên quyền hạn không được để trống")
     private String name;
 
-    @NotBlank(message = "Path không được để trống")
+    @NotBlank(message = "Đường dẫn không được để trống")
     private String path;
 
-    @NotBlank(message = "Entity không được để trống")
+    @NotBlank(message = "Đối tượng không được để trống")
     private String entity;
 
-    @NotNull(message = "Method không được để trống")
+    @NotNull(message = "Phương thức không được để trống")
     private String method;
 
     private String description;

@@ -12,22 +12,22 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateDiscountRequest {
-    @NotNull(message = "Percent is required")
+    @NotNull(message = "Phần trăm giảm giá là bắt buộc")
     private int percent;
 
-    @NotBlank(message = "Description is required")
+    @NotBlank(message = "Mô tả là bắt buộc")
     private String description;
 
-    @NotBlank(message = "Apply for is required")
+    @NotBlank(message = "Phạm vi áp dụng là bắt buộc")
     private String applyFor;
 
     private String nameApply;
     
-    @NotNull(message = "Start time is required")
-    @FutureOrPresent(message = "Start time must be in the present or future")
+    @NotNull(message = "Thời gian bắt đầu là bắt buộc")
+    @FutureOrPresent(message = "Thời gian bắt đầu phải ở hiện tại hoặc tương lai")
     private Instant startTime;
 
-    @NotNull(message = "End time is required")
-    @Future(message = "End time must be in the future")
+    @NotNull(message = "Thời gian kết thúc là bắt buộc")
+    @Future(message = "Thời gian kết thúc phải ở tương lai")
     private Instant endTime;
 }

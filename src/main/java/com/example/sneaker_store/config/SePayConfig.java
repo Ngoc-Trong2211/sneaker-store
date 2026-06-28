@@ -160,7 +160,7 @@ public class SePayConfig {
             }
             return hex.toString();
         } catch (Exception e) {
-            throw new RuntimeException("Can not create HMAC-SHA256 signature", e);
+            throw new RuntimeException("Không thể tạo chữ ký HMAC-SHA256", e);
         }
     }
 }

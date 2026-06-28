@@ -8,10 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateCategoryRequest {
-    @NotNull(message = "id khong duoc de trong")
+    @NotNull(message = "ID danh mục không được để trống")
     private Long id;
 
-    @NotBlank(message = "Name không được để trống")
+    @NotBlank(message = "Tên danh mục không được để trống")
     private String name;
 
     private String type;

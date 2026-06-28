@@ -27,9 +27,9 @@ public class ProductSizeServiceImpl implements ProductSizeService {
     @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void updateSize(String variantId, Long sizeId, String sizeReq, Integer quantity) {
         ProductVariantEntity variant = productVariantRepository.findById(variantId)
-                .orElseThrow(() -> new RuntimeException("Variant not found"));
+                .orElseThrow(() -> new RuntimeException("Biến thể sản phẩm không tồn tại"));
         ProductSizeEntity size = productSizeRepository.findById(sizeId)
-                .orElseThrow(() -> new RuntimeException("Size not found"));
+                .orElseThrow(() -> new RuntimeException("Kích cỡ không tồn tại"));
         ProductSizeEntity existsSize = productSizeRepository
                 .findByVariantIdAndSizeAndIdNot(
                         variant.getId(),

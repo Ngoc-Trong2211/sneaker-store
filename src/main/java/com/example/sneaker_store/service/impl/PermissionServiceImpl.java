@@ -39,7 +39,7 @@ public class PermissionServiceImpl implements PermissionService {
 
         if (permissionRepository.existsByNameAndPathAndMethodAndEntity(
                 req.getName(), req.getPath(), MethodPermission.valueOf(req.getMethod()), req.getEntity())) {
-            throw new PermissionInvalidException("Permission đã tồn tại!");
+            throw new PermissionInvalidException("Quyền hạn đã tồn tại");
         }
 
         PermissionEntity permission = new PermissionEntity();
@@ -58,7 +58,7 @@ public class PermissionServiceImpl implements PermissionService {
     @PreAuthorize("hasAuthority('PERMISSION_UPDATE') or hasAuthority('ADMIN')")
     public UpdatePermissionResponse updatePermission(UpdatePermissionRequest req) {
         PermissionEntity permission = permissionRepository.findById(req.getId())
-                .orElseThrow(() -> new PermissionInvalidException("Không tìm thấy permission!"));
+                .orElseThrow(() -> new PermissionInvalidException("Không tìm thấy quyền hạn"));
 
         if (this.permissionRepository.existsByNameAndPathAndMethodAndEntityAndIdNot(
                 req.getName(),
@@ -67,7 +67,7 @@ public class PermissionServiceImpl implements PermissionService {
                 req.getEntity(),
                 req.getId()
         )) {
-            throw new PermissionInvalidException("Permission đã tồn tại!");
+            throw new PermissionInvalidException("Quyền hạn đã tồn tại");
         }
 
         if (this.permissionRepository.existsByNameAndIdNot(req.getName(), req.getId())){

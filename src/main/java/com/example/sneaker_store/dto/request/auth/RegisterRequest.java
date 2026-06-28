@@ -10,12 +10,12 @@ public class RegisterRequest {
     @NotBlank(message = "Email không được để trống")
     private String email;
 
-    @NotBlank(message = "Password không được để trống")
+    @NotBlank(message = "Mật khẩu không được để trống")
     private String newPassword;
 
-    @NotBlank(message = "ConfirmPassword không được để trống")
+    @NotBlank(message = "Mật khẩu xác nhận không được để trống")
     private String confirmPassword;
 
-    @NotBlank(message = "Name không được để trống")
+    @NotBlank(message = "Tên không được để trống")
     private String name;
 }

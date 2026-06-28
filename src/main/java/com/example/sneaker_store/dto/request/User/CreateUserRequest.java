@@ -9,10 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateUserRequest {
-    @NotBlank(message = "Name must not be empty!")
+    @NotBlank(message = "Tên không được để trống")
     private String name;
 
-    @NotBlank(message = "Email must not be empty!")
+    @NotBlank(message = "Email không được để trống")
     private String email;
 
     @Pattern(
@@ -21,9 +21,9 @@ public class CreateUserRequest {
     )
     private String phone;
 
-    @NotBlank(message = "Password must not be empty!")
+    @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
 
-    @NotNull(message = "Role không được để trống!")
+    @NotNull(message = "Vai trò không được để trống")
     private Long roleId;
 }

@@ -112,7 +112,7 @@ public class ChatServiceImpl implements ChatService {
             UserEntity user = this.userService.findByEmail(email);
 
             if (user == null) {
-                throw new IdInvalidException("Nguoi dung khong ton tai!");
+                throw new IdInvalidException("Người dùng không tồn tại");
             }
 
             return user.getId();

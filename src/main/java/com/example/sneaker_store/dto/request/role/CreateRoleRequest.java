@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CreateRoleRequest {
-    @NotBlank(message = "Name không được để trống!")
+    @NotBlank(message = "Tên vai trò không được để trống")
     private String name;
     @NotBlank(message = "Mô tả không được để trống!")
     private String description;

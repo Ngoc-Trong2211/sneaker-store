@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateCartItemRequest {
-    @NotBlank(message = "Product variant id is required")
+    @NotBlank(message = "ID biến thể sản phẩm là bắt buộc")
     private String variantId;
 
     private Long idSize;

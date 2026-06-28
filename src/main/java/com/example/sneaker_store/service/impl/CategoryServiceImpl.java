@@ -35,20 +35,20 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryEntity findById(Long id) {
         return this.categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
     }
 
     @Override
     public CategoryEntity findBySlug(String slug) {
         return this.categoryRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy category!"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
     }
 
     @Override
     @PreAuthorize("hasAuthority('CATEGORY_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public CreateCategoryResponse createCategory(CreateCategoryRequest req) {
         if (this.categoryRepository.existsByNameAndParentId(req.getName().toUpperCase(), req.getParentId()))
-            throw new NameExistsException("Name is exists");
+            throw new NameExistsException("Tên danh mục đã tồn tại");
         CategoryEntity category = new CategoryEntity();
         category.setName(req.getName().toUpperCase());
         category.setParentId(req.getParentId());
@@ -69,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
     public UpdateCategoryResponse updateCategory(UpdateCategoryRequest req) {
         CategoryEntity category = this.findById(req.getId());
         if (this.categoryRepository.existsByNameAndSlugAndIdNot(req.getName().toUpperCase(), category.getSlug(), req.getId())) {
-            throw new RuntimeException("Tên category đã tồn tại!");
+            throw new RuntimeException("Tên danh mục đã tồn tại");
         }
         if (req.getType()!=null && !req.getType().trim().isEmpty()) category.setType(CategoryType.valueOf(req.getType()));
         category.setName(req.getName().toUpperCase());

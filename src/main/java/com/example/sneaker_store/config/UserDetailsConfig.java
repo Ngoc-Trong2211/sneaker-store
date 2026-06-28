@@ -25,7 +25,7 @@ public class UserDetailsConfig implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = this.userService.findByEmail(username);
-        if (user == null) throw new EmailInvalidException("Email is invalid!");
+        if (user == null) throw new EmailInvalidException("Email không hợp lệ");
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().getName()));
         user.getRole().getPermissions().forEach(

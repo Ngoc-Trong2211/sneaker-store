@@ -14,6 +14,8 @@ public interface ReviewEligibilityRepository extends JpaRepository<ReviewEligibi
 
     Optional<ReviewEligibilityEntity> findByOrderItemIdAndStatusFalse(String orderItemId);
 
+    Optional<ReviewEligibilityEntity> findByReviewId(Long reviewId);
+
     Optional<ReviewEligibilityEntity> findFirstByUserIdAndProductIdAndStatusFalseOrderByCreatedAtAsc(
             String userId,
             String productId

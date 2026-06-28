@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateCategoryRequest {
-    @NotBlank(message = "Name không được để trống")
+    @NotBlank(message = "Tên danh mục không được để trống")
     private String name;
 
     private String type;

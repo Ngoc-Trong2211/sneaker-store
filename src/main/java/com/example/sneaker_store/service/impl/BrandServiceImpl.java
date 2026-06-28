@@ -35,13 +35,13 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public BrandEntity findById(Long id) {
         return this.brandRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thương hiệu"));
     }
     
     @Override
     public BrandEntity findByName(String name) {
         return this.brandRepository.findByName(name)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy brand!"));
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy thương hiệu"));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class BrandServiceImpl implements BrandService {
     public CreateBrandResponse createBrand(CreateBrandRequest req) {
         BrandEntity brand = new BrandEntity();
         if (this.brandRepository.existsByName(req.getName().toUpperCase()))
-            throw new NameExistsException("Name is exists");
+            throw new NameExistsException("Tên thương hiệu đã tồn tại");
         brand.setName(req.getName().toUpperCase());
         brand.setLogo(req.getLogo());
         brand.setCountryCode(req.getCountryCode());
@@ -82,7 +82,7 @@ public class BrandServiceImpl implements BrandService {
         BrandEntity brand = this.findById(req.getId());
 
         if (this.brandRepository.existsByNameAndIdNot(req.getName().toUpperCase(), req.getId())) {
-            throw new RuntimeException("Tên brand đã tồn tại!");
+            throw new RuntimeException("Tên thương hiệu đã tồn tại");
         }
 
         brand.setName(req.getName().toUpperCase());

@@ -75,7 +75,7 @@ public class FavouriteServiceImpl implements FavouriteService {
 
         if (email != null && !email.equals("anonymousUser")) {
             UserEntity user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
             sql += " AND f.user_id = :userId";
             params.addValue("userId", user.getId());
         } else {

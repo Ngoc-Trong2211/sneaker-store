@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
     @PreAuthorize("hasAuthority('ORDER_CREATE') or isAnonymous() or hasAuthority('USER')")
     public CreateOrderResponse createOrder(CreateOrderRequest request, String guestId) {
         if (PAYMENT_METHOD_SEPAY.equals(normalizePaymentMethod(request.getPaymentMethod()))) {
-            throw new RuntimeException("Please use SePay payment session before creating order");
+            throw new RuntimeException("Vui lòng tạo phiên thanh toán SePay trước khi tạo đơn hàng");
         }
         String email = AuthServiceImpl.getCurrentUserLogin().isPresent() ?
                 AuthServiceImpl.getCurrentUserLogin().get() : null;
@@ -248,7 +248,7 @@ public class OrderServiceImpl implements OrderService {
     @PreAuthorize("hasAuthority('ORDER_UPDATE_STATUS') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void updateStatus(String id, String status, String lyDoHuy) {
         OrderEntity order = this.orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("order not found"));
+                .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
         OrderStatus newStatus = OrderStatus.valueOf(status);
         order.setStatus(newStatus);
         if (OrderStatus.CANCELLED.equals(newStatus)) {
@@ -313,7 +313,7 @@ public class OrderServiceImpl implements OrderService {
     @PreAuthorize("hasAuthority('ORDER_CANCEL') or hasAuthority('USER')")
     public void cancelOrder(String code, String lyDoHuy) {
         OrderEntity order = this.orderRepository.findByCode(code)
-                .orElseThrow(() -> new RuntimeException("order not found"));
+                .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
         if (order.getStatus().equals(OrderStatus.PENDING)){
             order.setStatus(OrderStatus.CANCELLED);
             order.setLyDoHuy(lyDoHuy);
@@ -386,7 +386,7 @@ public class OrderServiceImpl implements OrderService {
     public PaymentStatusResponse getPaymentStatus(String code) {
         OrderEntity order = orderRepository.findByCode(code)
                 .or(() -> orderRepository.findByPaymentCode(code))
-                .orElseThrow(() -> new RuntimeException("order not found"));
+                .orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại"));
         boolean paid = OrderStatus.CONFIRMED.equals(order.getStatus())
                 || OrderStatus.SHIPPING.equals(order.getStatus())
                 || OrderStatus.COMPLETED.equals(order.getStatus());
@@ -404,7 +404,7 @@ public class OrderServiceImpl implements OrderService {
     @PreAuthorize("isAnonymous() or hasAuthority('USER')")
     public SePayPaymentSessionResponse createSePayPaymentSession(CreateOrderRequest request, String guestId) {
         if (!sePayConfig.isPaymentConfigured()) {
-            throw new RuntimeException("SePay payment is not configured");
+            throw new RuntimeException("Thanh toán SePay chưa được cấu hình");
         }
         String email = AuthServiceImpl.getCurrentUserLogin().orElse(null);
         String userId = null;
@@ -417,7 +417,7 @@ public class OrderServiceImpl implements OrderService {
         CartEntity cart = resolveCheckoutCart(userId, guestId);
         List<CartItemEntity> cartItems = cartItemRepository.findByCartId(cart.getId());
         if (cartItems.isEmpty()) {
-            throw new RuntimeException("Cart is empty");
+            throw new RuntimeException("Giỏ hàng đang trống");
         }
 
         SePayPaymentSessionEntity session = new SePayPaymentSessionEntity();
@@ -457,7 +457,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public SePayPaymentSessionResponse getSePayPaymentSessionStatus(String paymentCode) {
         SePayPaymentSessionEntity session = sePayPaymentSessionRepository.findByPaymentCode(paymentCode)
-                .orElseThrow(() -> new RuntimeException("payment session not found"));
+                .orElseThrow(() -> new RuntimeException("Phiên thanh toán không tồn tại"));
         return toSePayPaymentSessionResponse(session);
     }
 
@@ -466,12 +466,12 @@ public class OrderServiceImpl implements OrderService {
             CartItemEntity cartItem) {
         ProductVariantEntity variant = cartItem.getProductVariant();
         if (variant.getStock() < cartItem.getQuantity()) {
-            throw new RuntimeException(variant.getProduct().getName() + " out of stock");
+            throw new RuntimeException("Sản phẩm " + variant.getProduct().getName() + " đã hết hàng");
         }
         ProductSizeEntity size = this.productSizeRepository.findById(cartItem.getIdSize())
-                .orElseThrow(() -> new RuntimeException("size item not found"));
+                .orElseThrow(() -> new RuntimeException("Kích cỡ sản phẩm không tồn tại"));
         if (size.getQuantity() < cartItem.getQuantity()) {
-            throw new RuntimeException("Size out of stock");
+            throw new RuntimeException("Kích cỡ đã hết hàng");
         }
 
         SePayPaymentSessionItemEntity item = new SePayPaymentSessionItemEntity();
@@ -510,13 +510,13 @@ public class OrderServiceImpl implements OrderService {
     private CartEntity resolveCheckoutCart(String userId, String guestId) {
         if (userId != null && !userId.isBlank()) {
             return cartRepository.findByUserId(userId)
-                    .orElseThrow(() -> new RuntimeException("Cart not found"));
+                    .orElseThrow(() -> new RuntimeException("Giỏ hàng không tồn tại"));
         }
         if (guestId == null || guestId.isBlank()) {
-            throw new RuntimeException("Guest id is required");
+            throw new RuntimeException("Mã khách vãng lai là bắt buộc");
         }
         return cartRepository.findByGuestId(guestId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new RuntimeException("Giỏ hàng không tồn tại"));
     }
 
     private String createUniqueSePayPaymentCode() {
@@ -650,12 +650,12 @@ public class OrderServiceImpl implements OrderService {
     private void createOrderItemFromPaymentSessionItem(OrderEntity order, SePayPaymentSessionItemEntity item) {
         ProductVariantEntity variant = item.getProductVariant();
         if (variant.getStock() < item.getQuantity()) {
-            throw new RuntimeException(variant.getProduct().getName() + " out of stock");
+            throw new RuntimeException("Sản phẩm " + variant.getProduct().getName() + " đã hết hàng");
         }
         ProductSizeEntity size = productSizeRepository.findById(item.getIdSize())
-                .orElseThrow(() -> new RuntimeException("size item not found"));
+                .orElseThrow(() -> new RuntimeException("Kích cỡ sản phẩm không tồn tại"));
         if (size.getQuantity() < item.getQuantity()) {
-            throw new RuntimeException("Size out of stock");
+            throw new RuntimeException("Kích cỡ đã hết hàng");
         }
         size.setQuantity(size.getQuantity() - item.getQuantity());
         variant.setStock(variant.getStock() - item.getQuantity());
@@ -768,7 +768,7 @@ public class OrderServiceImpl implements OrderService {
             return item.getProductId();
         }
         if (item.getProductVariant() == null || item.getProductVariant().getProduct() == null) {
-            throw new RuntimeException("Product not found for order item: " + item.getId());
+            throw new RuntimeException("Không tìm thấy sản phẩm của chi tiết đơn hàng: " + item.getId());
         }
         String productId = item.getProductVariant().getProduct().getId();
         item.setProductId(productId);
