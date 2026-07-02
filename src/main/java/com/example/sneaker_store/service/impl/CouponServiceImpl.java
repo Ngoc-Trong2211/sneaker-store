@@ -36,7 +36,7 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('COUPON_CREATE') or or hasAuthority('ADMIN') or hasAuthority('STAFF')")
+    @PreAuthorize("hasAuthority('COUPON_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public CreateCouponResponse createCoupon(CreateCouponRequest req) {
         String code = normalizeCode(req.getCode());
         validateCouponData(code, req.getType(), req.getDiscountValue(), req.getMinOrderValue(), req.getQuantity());
@@ -56,7 +56,7 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('COUPON_UPDATE') or or hasAuthority('ADMIN') or hasAuthority('STAFF')")
+    @PreAuthorize("hasAuthority('COUPON_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UpdateCouponResponse updateCoupon(UpdateCouponRequest req) {
         CouponEntity coupon = this.couponRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy mã giảm giá có ID: " + req.getId()));
@@ -79,7 +79,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('COUPON_READ') or or hasAuthority('ADMIN') or hasAuthority('STAFF')")
+    @PreAuthorize("hasAuthority('COUPON_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public GetCouponResponse.Coupon getCouponById(Long id) {
         CouponEntity coupon = this.couponRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy mã giảm giá có ID: " + id));
@@ -87,7 +87,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('COUPON_READ') or or hasAuthority('ADMIN') or hasAuthority('STAFF') or hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('COUPON_READ') or hasAuthority('ADMIN') or hasAuthority('STAFF') or hasAuthority('USER')")
     public GetCouponResponse getCoupons(CouponSpecificationRequest request, Pageable pageable) {
         Page<CouponEntity> page = this.couponRepository.findAll(specCoupon(request), pageable);
         GetCouponResponse response = new GetCouponResponse();
@@ -104,7 +104,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('COUPON_VALIDATE') or isAnonymous() or or hasAuthority('ADMIN') or hasAuthority('STAFF') or hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('COUPON_VALIDATE') or isAnonymous() or hasAuthority('ADMIN') or hasAuthority('STAFF') or hasAuthority('USER')")
     public ValidateCouponResponse validateCoupon(String code, double orderAmount) {
         CouponEntity coupon = this.couponRepository.findByCodeIgnoreCase(normalizeCode(code))
                 .orElseThrow(() -> new RuntimeException("Mã giảm giá không tồn tại"));
@@ -127,7 +127,7 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('COUPON_DELETE') or or hasAuthority('ADMIN') or hasAuthority('STAFF')")
+    @PreAuthorize("hasAuthority('COUPON_DELETE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public void deleteCoupon(Long id) {
         CouponEntity coupon = this.couponRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy mã giảm giá có ID: " + id));

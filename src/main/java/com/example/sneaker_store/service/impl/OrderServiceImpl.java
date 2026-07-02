@@ -554,22 +554,6 @@ public class OrderServiceImpl implements OrderService {
         return "THANH TOAN " + paymentCode;
     }
 
-    private Optional<OrderEntity> findSePayOrder(SePayRequest request) {
-        if (request.getCode() != null && !request.getCode().isBlank()) {
-            Optional<OrderEntity> byPaymentCode = orderRepository.findByPaymentCode(request.getCode().trim());
-            if (byPaymentCode.isPresent()) {
-                return byPaymentCode;
-            }
-            Optional<OrderEntity> byOrderCode = orderRepository.findByCode(request.getCode().trim());
-            if (byOrderCode.isPresent()) {
-                return byOrderCode;
-            }
-        }
-        return extractPaymentCode(request.getContent())
-                .or(() -> extractPaymentCode(request.getDescription()))
-                .flatMap(orderRepository::findByPaymentCode);
-    }
-
     private Optional<String> extractPaymentCode(String value) {
         if (value == null || value.isBlank()) {
             return Optional.empty();
