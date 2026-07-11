@@ -59,7 +59,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('PRODUCT_CREATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_CREATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public CreateProductVariantResponse createProductVariant(CreateProductVariantRequest request) {
         ProductEntity product = this.productRepository.findByName(request.getProductName()).orElseThrow(() -> {
             log.warn("Product with id '{}' not found", request.getProductName());
@@ -131,7 +131,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE') or hasAuthority('ADMIN') or hasAuthority('STAFF')")
     public UpdateProductVariantResponse updateProductVariant(UpdateProductVariantRequest request) {
         ProductVariantEntity variant = productVariantRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Biến thể sản phẩm không tồn tại"));
