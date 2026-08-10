@@ -1,15 +1,15 @@
-# Sneaker Store Backend
+﻿# Sneaker Store Backend
 
-Backend cho he thong ban giay Sneaker Store, duoc xay dung bang Spring Boot. Du an cung cap REST API cho cac chuc nang xac thuc, quan ly san pham, bien the, gio hang, don hang, danh gia, ma giam gia, thanh toan SePay, upload anh, dashboard va chatbot AI.
+Backend cho hệ thống bán giày Sneaker Store, được xây dựng bằng Spring Boot. Dự án cung cấp REST API cho các chức năng xác thực, quản lý sản phẩm, biến thể, giỏ hàng, đơn hàng, đánh giá, mã giảm giá, thanh toán SePay, upload ảnh, dashboard và chatbot AI.
 
-## Cong nghe su dung
+## Công Nghệ Sử Dụng
 
 - Java 17
 - Spring Boot 3.5.12
 - Spring Security, OAuth2 Client, OAuth2 Resource Server
 - Spring Data JPA, Hibernate
 - MySQL 8
-- Spring AI voi Gemini/OpenAI-compatible API
+- Spring AI với Gemini/OpenAI-compatible API
 - Cloudinary
 - Java Mail Sender
 - Thymeleaf
@@ -17,19 +17,19 @@ Backend cho he thong ban giay Sneaker Store, duoc xay dung bang Spring Boot. Du 
 - Docker, Docker Compose
 - Maven Wrapper
 
-## Cau truc thu muc
+## Cấu Trúc Thư Mục
 
 ```text
 sneaker-store/
 +-- src/main/java/com/example/sneaker_store/
-|   +-- config/           # Cau hinh security, JWT, CORS, OpenAPI, Cloudinary, SePay
+|   +-- config/           # Cấu hình security, JWT, CORS, OpenAPI, Cloudinary, SePay
 |   +-- controller/       # REST controller
 |   +-- dto/              # Request/response DTO
 |   +-- model/            # JPA entity
 |   +-- repository/       # Spring Data repository
 |   +-- service/          # Interface service
-|   +-- service/impl/     # Logic nghiep vu
-|   +-- specification/    # Bo loc/tim kiem dong
+|   +-- service/impl/     # Logic nghiệp vụ
+|   +-- specification/    # Bộ lọc/tìm kiếm động
 |   +-- util/             # Helper, enum, exception
 +-- src/main/resources/
 |   +-- application.yaml
@@ -43,37 +43,37 @@ sneaker-store/
 +-- mvnw.cmd
 ```
 
-## Tinh nang chinh
+## Tính Năng Chính
 
-- Dang ky, dang nhap, refresh token, dang xuat va lay thong tin tai khoan.
-- Quan ly nguoi dung, vai tro va quyen truy cap.
-- Quan ly thuong hieu, danh muc, san pham, anh san pham, size va bien the san pham.
-- Gio hang, yeu thich, dat hang, huy don hang va theo doi trang thai thanh toan.
-- Danh gia san pham va kiem tra dieu kien danh gia.
-- Ma giam gia, dot giam gia va thong ke dashboard.
-- Upload file/anh voi Cloudinary hoac cau hinh upload noi bo.
-- Chatbot tu van san pham bang Spring AI.
-- Tich hop thanh toan SePay qua webhook.
-- Tai lieu API bang Swagger UI.
+- Đăng ký, đăng nhập, refresh token, đăng xuất và lấy thông tin tài khoản.
+- Quản lý người dùng, vai trò và quyền truy cập.
+- Quản lý thương hiệu, danh mục, sản phẩm, ảnh sản phẩm, size và biến thể sản phẩm.
+- Giỏ hàng, yêu thích, đặt hàng, hủy đơn hàng và theo dõi trạng thái thanh toán.
+- Đánh giá sản phẩm và kiểm tra điều kiện đánh giá.
+- Mã giảm giá, đợt giảm giá và thống kê dashboard.
+- Upload file/ảnh với Cloudinary hoặc cấu hình upload nội bộ.
+- Chatbot tư vấn sản phẩm bằng Spring AI.
+- Tích hợp thanh toán SePay qua webhook.
+- Tài liệu API bằng Swagger UI.
 
-## Yeu cau moi truong
+## Yêu Cầu Môi Trường
 
-- JDK 17 tro len
+- JDK 17 trở lên
 - MySQL 8
-- Maven hoac Maven Wrapper co san trong repo
-- Docker va Docker Compose neu chay bang container
+- Maven hoặc Maven Wrapper có sẵn trong repo
+- Docker và Docker Compose nếu chạy bằng container
 
-## Cau hinh moi truong
+## Cấu Hình Môi Trường
 
-Du an co cac profile:
+Dự án có các profile:
 
-- `dev`: chay local, mac dinh khi build bang Maven.
-- `prod`: chay tren Docker/production.
-- `test`: dung cho kiem thu.
+- `dev`: chạy local, mặc định khi build bằng Maven.
+- `prod`: chạy trên Docker/production.
+- `test`: dùng cho kiểm thử.
 
-Nen cau hinh cac thong tin nhay cam bang bien moi truong hoac file `.env`, khong commit secret len repository.
+Nên cấu hình các thông tin nhạy cảm bằng biến môi trường hoặc file `.env`, không commit secret lên repository.
 
-Vi du file `.env`:
+Ví dụ file `.env`:
 
 ```env
 MYSQL_ROOT_PASSWORD=your_mysql_root_password
@@ -97,25 +97,25 @@ SEPAY_ACCOUNT_HOLDER=your_account_holder
 SEPAY_STORE_NAME=SneakerStore
 ```
 
-Neu chay local bang profile `dev`, kiem tra lai cau hinh database trong `src/main/resources/application-dev.yaml` cho dung voi MySQL tren may cua ban.
+Nếu chạy local bằng profile `dev`, kiểm tra lại cấu hình database trong `src/main/resources/application-dev.yaml` cho đúng với MySQL trên máy của bạn.
 
-Neu chay bang Docker Compose, dam bao `MYSQL_DATABASE` va ten database trong `DATABASE_URL` giong nhau.
+Nếu chạy bằng Docker Compose, đảm bảo `MYSQL_DATABASE` và tên database trong `DATABASE_URL` giống nhau.
 
-## Chay ung dung local
+## Chạy Ứng Dụng Local
 
-1. Tao database MySQL:
+1. Tạo database MySQL:
 
 ```sql
 CREATE DATABASE `sneaker-store` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-2. Chay ung dung:
+2. Chạy ứng dụng:
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-Mac dinh backend chay tai:
+Mặc định backend chạy tại:
 
 ```text
 http://localhost:8080
@@ -127,9 +127,9 @@ Swagger UI:
 http://localhost:8080/swagger-ui/index.html
 ```
 
-## Build va test
+## Build Và Test
 
-Chay test:
+Chạy test:
 
 ```powershell
 .\mvnw.cmd test
@@ -141,82 +141,82 @@ Build file JAR:
 .\mvnw.cmd clean package
 ```
 
-Build bo qua test:
+Build bỏ qua test:
 
 ```powershell
 .\mvnw.cmd -DskipTests package
 ```
 
-File JAR sau khi build nam trong thu muc `target/`.
+File JAR sau khi build nằm trong thư mục `target/`.
 
-## Chay bang Docker Compose
+## Chạy Bằng Docker Compose
 
-Docker Compose trong repo khai bao cac service:
+Docker Compose trong repo khai báo các service:
 
-- `mysql`: MySQL 8, expose cong `3307`.
-- `backend-service`: backend Spring Boot, chay cong noi bo `8080`.
-- `frontend`: frontend image/build tu thu muc `../fe-sneaker-store`, expose cong `80` va `443`.
+- `mysql`: MySQL 8, expose cổng `3307`.
+- `backend-service`: backend Spring Boot, chạy cổng nội bộ `8080`.
+- `frontend`: frontend image/build từ thư mục `../fe-sneaker-store`, expose cổng `80` và `443`.
 
-Chay:
+Chạy:
 
 ```powershell
 docker compose up --build
 ```
 
-Chay nen:
+Chạy nền:
 
 ```powershell
 docker compose up -d --build
 ```
 
-Dung container:
+Dừng container:
 
 ```powershell
 docker compose down
 ```
 
-Neu chi muon dung database MySQL tu Docker de chay backend local, co the chay service MySQL roi ket noi den:
+Nếu chỉ muốn dùng database MySQL từ Docker để chạy backend local, có thể chạy service MySQL rồi kết nối đến:
 
 ```text
 jdbc:mysql://localhost:3307/sneaker-store
 ```
 
-## Nhom API chinh
+## Nhóm API Chính
 
-Mot so prefix API trong backend:
+Một số prefix API trong backend:
 
-- `/auth/v1`: xac thuc va tai khoan hien tai.
-- `/user/v1`: quan ly nguoi dung.
-- `/role/v1`: quan ly vai tro.
-- `/permission/v1`: quan ly quyen.
-- `/brand/v1`: quan ly thuong hieu.
-- `/category/v1`: quan ly danh muc.
-- `/product/v1`: quan ly san pham.
-- `/product-variant/v1`: quan ly bien the san pham.
-- `/product-image/v1`: quan ly anh san pham.
-- `/cart-item/v1`: gio hang.
-- `/favourite/v1`: san pham yeu thich.
-- `/order/v1`: don hang.
-- `/review/v1`: danh gia.
-- `/coupon/v1`: ma giam gia.
-- `/discount/v1`: dot giam gia.
-- `/dashboard/v1`: thong ke va export dashboard.
-- `/file/v1`: upload/xoa file.
-- `/payment/v1/sepay`: phien thanh toan va webhook SePay.
-- `/chat`: chatbot tu van san pham.
+- `/auth/v1`: xác thực và tài khoản hiện tại.
+- `/user/v1`: quản lý người dùng.
+- `/role/v1`: quản lý vai trò.
+- `/permission/v1`: quản lý quyền.
+- `/brand/v1`: quản lý thương hiệu.
+- `/category/v1`: quản lý danh mục.
+- `/product/v1`: quản lý sản phẩm.
+- `/product-variant/v1`: quản lý biến thể sản phẩm.
+- `/product-image/v1`: quản lý ảnh sản phẩm.
+- `/cart-item/v1`: giỏ hàng.
+- `/favourite/v1`: sản phẩm yêu thích.
+- `/order/v1`: đơn hàng.
+- `/review/v1`: đánh giá.
+- `/coupon/v1`: mã giảm giá.
+- `/discount/v1`: đợt giảm giá.
+- `/dashboard/v1`: thống kê và export dashboard.
+- `/file/v1`: upload/xóa file.
+- `/payment/v1/sepay`: phiên thanh toán và webhook SePay.
+- `/chat`: chatbot tư vấn sản phẩm.
 
-Chi tiet request/response co the xem trong Swagger UI sau khi chay ung dung.
+Chi tiết request/response có thể xem trong Swagger UI sau khi chạy ứng dụng.
 
-## Luu y bao mat
+## Lưu Ý Bảo Mật
 
-- Khong de lo `client-secret`, mat khau email, Cloudinary secret, JWT secret, API key hoac thong tin ngan hang trong source code cong khai.
-- Nen dua cac gia tri nhay cam sang bien moi truong va cap nhat `application.yaml` de doc tu placeholder `${...}`.
-- Khi deploy production, nen dat `spring.jpa.hibernate.ddl-auto=none` va quan ly migration bang cong cu rieng neu co.
+- Không để lộ `client-secret`, mật khẩu email, Cloudinary secret, JWT secret, API key hoặc thông tin ngân hàng trong source code công khai.
+- Nên đưa các giá trị nhạy cảm sang biến môi trường và cập nhật `application.yaml` để đọc từ placeholder `${...}`.
+- Khi deploy production, nên đặt `spring.jpa.hibernate.ddl-auto=none` và quản lý migration bằng công cụ riêng nếu có.
 
-## Lenh huu ich
+## Lệnh Hữu Ích
 
 ```powershell
-# Kiem tra trang thai container
+# Kiểm tra trạng thái container
 docker compose ps
 
 # Xem log backend
